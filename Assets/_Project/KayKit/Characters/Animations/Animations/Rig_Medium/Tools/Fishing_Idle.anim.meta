@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 574df8c5982cd0646879017ea0c5fd99
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Animations/Rig_Medium/Tools/Fishing_Idle.anim
+  uploadId: 831988

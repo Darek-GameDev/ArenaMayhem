@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8ea0a9fa5c907ab489e76b3ec52262cf
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Animations/Rig_Large/Simulation/Flexing.anim
+  uploadId: 831988

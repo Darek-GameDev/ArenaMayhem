@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: dd2a850cee8ab6745abc68a7d8aba7dc
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Animations/Rig_Medium/Combat Ranged/Ranged_2H_Aiming.anim
+  uploadId: 831988

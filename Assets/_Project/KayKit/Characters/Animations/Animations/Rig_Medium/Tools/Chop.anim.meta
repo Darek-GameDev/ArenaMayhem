@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0d93758b653017e4db98a24a0a02be0e
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Animations/Rig_Medium/Tools/Chop.anim
+  uploadId: 831988

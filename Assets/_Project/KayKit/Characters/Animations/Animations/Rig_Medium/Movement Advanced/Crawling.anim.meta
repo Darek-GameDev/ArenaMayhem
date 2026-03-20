@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 206a79f6da336234ab631115ed79b799
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Animations/Rig_Medium/Movement Advanced/Crawling.anim
+  uploadId: 831988

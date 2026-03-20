@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!319 &31900000
+AvatarMask:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Rig_Medium_Handslot_Mask
+  m_Mask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+  m_Elements:
+  - m_Path: 
+    m_Weight: 1
+  - m_Path: Mannequin_Medium_ArmLeft
+    m_Weight: 0
+  - m_Path: Mannequin_Medium_ArmRight
+    m_Weight: 0
+  - m_Path: Mannequin_Medium_Body
+    m_Weight: 0
+  - m_Path: Mannequin_Medium_Head
+    m_Weight: 0
+  - m_Path: Mannequin_Medium_LegLeft
+    m_Weight: 0
+  - m_Path: Mannequin_Medium_LegRight
+    m_Weight: 0
+  - m_Path: Rig_Medium
+    m_Weight: 1
+  - m_Path: Rig_Medium/root
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/spine
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/spine/chest
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/spine/chest/head
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/spine/chest/upperarm.l
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/spine/chest/upperarm.l/lowerarm.l
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l/hand.l
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l/hand.l/handslot.l
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/spine/chest/upperarm.r
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/spine/chest/upperarm.r/lowerarm.r
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r/hand.r
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r/hand.r/handslot.r
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/upperleg.l
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/upperleg.l/lowerleg.l
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/upperleg.l/lowerleg.l/foot.l
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/upperleg.l/lowerleg.l/foot.l/toes.l
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/upperleg.r
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/upperleg.r/lowerleg.r
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/upperleg.r/lowerleg.r/foot.r
+    m_Weight: 1
+  - m_Path: Rig_Medium/root/hips/upperleg.r/lowerleg.r/foot.r/toes.r
+    m_Weight: 1

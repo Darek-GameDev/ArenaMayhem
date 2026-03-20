@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6942a716ad39c9c4f90bdd41a7538aa6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/KayKit - Adventurers (for Unity)/Materials/mage.mat
+  uploadId: 831988

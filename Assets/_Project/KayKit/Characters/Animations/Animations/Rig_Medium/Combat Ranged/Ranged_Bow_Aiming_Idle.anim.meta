@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0260d38a0e97c124e88d4fdf6f49d1ec
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Animations/Rig_Medium/Combat Ranged/Ranged_Bow_Aiming_Idle.anim
+  uploadId: 831988

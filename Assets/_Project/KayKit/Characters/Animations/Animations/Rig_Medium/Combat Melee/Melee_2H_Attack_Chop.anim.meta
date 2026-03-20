@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e72ff4da1c42f964ba57a596d66d581d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Animations/Rig_Medium/Combat Melee/Melee_2H_Attack_Chop.anim
+  uploadId: 831988

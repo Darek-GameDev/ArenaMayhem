@@ -1,0 +1,969 @@
+fileFormatVersion: 2
+guid: 73b859b4f0d3c584aaf610c9e356368e
+ModelImporter:
+  serializedVersion: 22200
+  internalIDToNameTable: []
+  externalObjects: {}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: "\nClip 'Death_A' has import animation warnings that
+      might lower retargeting quality:\nNote: Activate translation DOF on avatar
+      to improve retargeting quality.\n\t'upperarm.l' has translation animation that
+      will be discarded.\n\t'upperarm.r' has translation animation that will be discarded.\n\t'upperleg.l'
+      has translation animation that will be discarded.\n\t'upperleg.r' has translation
+      animation that will be discarded.\n"
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 3
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: T-Pose
+      takeName: T-Pose
+      internalID: -8312538846858333772
+      firstFrame: 0
+      lastFrame: 1
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: MannequinLarge_ArmLeft
+        weight: 0
+      - path: MannequinLarge_ArmRight
+        weight: 0
+      - path: MannequinLarge_Body
+        weight: 0
+      - path: MannequinLarge_Head
+        weight: 0
+      - path: MannequinLarge_LegLeft
+        weight: 0
+      - path: MannequinLarge_LegRight
+        weight: 0
+      - path: Rig_Large
+        weight: 1
+      - path: Rig_Large/root
+        weight: 1
+      - path: Rig_Large/root/hips
+        weight: 1
+      - path: Rig_Large/root/hips/spine
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/head
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l/hand.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l/hand.l/handslot.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r/hand.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r/hand.r/handslot.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l/lowerleg.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l/lowerleg.l/foot.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l/lowerleg.l/foot.l/toes.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r/lowerleg.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r/lowerleg.r/foot.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r/lowerleg.r/foot.r/toes.r
+        weight: 1
+      maskType: 1
+      maskSource: {fileID: 31900000, guid: dff0850677079b9429ff04043e91a1e3, type: 2}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Death_A
+      takeName: Death_A
+      internalID: -1923750366902163184
+      firstFrame: 0
+      lastFrame: 50
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: MannequinLarge_ArmLeft
+        weight: 0
+      - path: MannequinLarge_ArmRight
+        weight: 0
+      - path: MannequinLarge_Body
+        weight: 0
+      - path: MannequinLarge_Head
+        weight: 0
+      - path: MannequinLarge_LegLeft
+        weight: 0
+      - path: MannequinLarge_LegRight
+        weight: 0
+      - path: Rig_Large
+        weight: 1
+      - path: Rig_Large/root
+        weight: 1
+      - path: Rig_Large/root/hips
+        weight: 1
+      - path: Rig_Large/root/hips/spine
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/head
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l/hand.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l/hand.l/handslot.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r/hand.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r/hand.r/handslot.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l/lowerleg.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l/lowerleg.l/foot.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l/lowerleg.l/foot.l/toes.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r/lowerleg.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r/lowerleg.r/foot.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r/lowerleg.r/foot.r/toes.r
+        weight: 1
+      maskType: 1
+      maskSource: {fileID: 31900000, guid: dff0850677079b9429ff04043e91a1e3, type: 2}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Death_A_Pose
+      takeName: Death_A_Pose
+      internalID: -1764627894708832522
+      firstFrame: 0
+      lastFrame: 1
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: MannequinLarge_ArmLeft
+        weight: 0
+      - path: MannequinLarge_ArmRight
+        weight: 0
+      - path: MannequinLarge_Body
+        weight: 0
+      - path: MannequinLarge_Head
+        weight: 0
+      - path: MannequinLarge_LegLeft
+        weight: 0
+      - path: MannequinLarge_LegRight
+        weight: 0
+      - path: Rig_Large
+        weight: 1
+      - path: Rig_Large/root
+        weight: 1
+      - path: Rig_Large/root/hips
+        weight: 1
+      - path: Rig_Large/root/hips/spine
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/head
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l/hand.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l/hand.l/handslot.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r/hand.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r/hand.r/handslot.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l/lowerleg.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l/lowerleg.l/foot.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l/lowerleg.l/foot.l/toes.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r/lowerleg.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r/lowerleg.r/foot.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r/lowerleg.r/foot.r/toes.r
+        weight: 1
+      maskType: 1
+      maskSource: {fileID: 31900000, guid: dff0850677079b9429ff04043e91a1e3, type: 2}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Hit_A
+      takeName: Hit_A
+      internalID: 2825485217256495706
+      firstFrame: 0
+      lastFrame: 21
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: MannequinLarge_ArmLeft
+        weight: 0
+      - path: MannequinLarge_ArmRight
+        weight: 0
+      - path: MannequinLarge_Body
+        weight: 0
+      - path: MannequinLarge_Head
+        weight: 0
+      - path: MannequinLarge_LegLeft
+        weight: 0
+      - path: MannequinLarge_LegRight
+        weight: 0
+      - path: Rig_Large
+        weight: 1
+      - path: Rig_Large/root
+        weight: 1
+      - path: Rig_Large/root/hips
+        weight: 1
+      - path: Rig_Large/root/hips/spine
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/head
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l/hand.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l/hand.l/handslot.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r/hand.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r/hand.r/handslot.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l/lowerleg.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l/lowerleg.l/foot.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l/lowerleg.l/foot.l/toes.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r/lowerleg.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r/lowerleg.r/foot.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r/lowerleg.r/foot.r/toes.r
+        weight: 1
+      maskType: 1
+      maskSource: {fileID: 31900000, guid: dff0850677079b9429ff04043e91a1e3, type: 2}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Idle_A
+      takeName: Idle_A
+      internalID: -5624545281902316504
+      firstFrame: 0
+      lastFrame: 59
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 1
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: MannequinLarge_ArmLeft
+        weight: 0
+      - path: MannequinLarge_ArmRight
+        weight: 0
+      - path: MannequinLarge_Body
+        weight: 0
+      - path: MannequinLarge_Head
+        weight: 0
+      - path: MannequinLarge_LegLeft
+        weight: 0
+      - path: MannequinLarge_LegRight
+        weight: 0
+      - path: Rig_Large
+        weight: 1
+      - path: Rig_Large/root
+        weight: 1
+      - path: Rig_Large/root/hips
+        weight: 1
+      - path: Rig_Large/root/hips/spine
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/head
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l/hand.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l/hand.l/handslot.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r/hand.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r/hand.r/handslot.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l/lowerleg.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l/lowerleg.l/foot.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l/lowerleg.l/foot.l/toes.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r/lowerleg.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r/lowerleg.r/foot.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r/lowerleg.r/foot.r/toes.r
+        weight: 1
+      maskType: 1
+      maskSource: {fileID: 31900000, guid: dff0850677079b9429ff04043e91a1e3, type: 2}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Idle_B
+      takeName: Idle_B
+      internalID: 345275505875579249
+      firstFrame: 0
+      lastFrame: 180
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 1
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: MannequinLarge_ArmLeft
+        weight: 0
+      - path: MannequinLarge_ArmRight
+        weight: 0
+      - path: MannequinLarge_Body
+        weight: 0
+      - path: MannequinLarge_Head
+        weight: 0
+      - path: MannequinLarge_LegLeft
+        weight: 0
+      - path: MannequinLarge_LegRight
+        weight: 0
+      - path: Rig_Large
+        weight: 1
+      - path: Rig_Large/root
+        weight: 1
+      - path: Rig_Large/root/hips
+        weight: 1
+      - path: Rig_Large/root/hips/spine
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/head
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l/hand.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.l/lowerarm.l/wrist.l/hand.l/handslot.l
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r/hand.r
+        weight: 1
+      - path: Rig_Large/root/hips/spine/chest/upperarm.r/lowerarm.r/wrist.r/hand.r/handslot.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l/lowerleg.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l/lowerleg.l/foot.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.l/lowerleg.l/foot.l/toes.l
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r/lowerleg.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r/lowerleg.r/foot.r
+        weight: 1
+      - path: Rig_Large/root/hips/upperleg.r/lowerleg.r/foot.r/toes.r
+        weight: 1
+      maskType: 1
+      maskSource: {fileID: 31900000, guid: dff0850677079b9429ff04043e91a1e3, type: 2}
+      additiveReferencePoseFrame: 0
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importPhysicalCameras: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    nodeNameCollisionStrategy: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    strictVertexDataChecks: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human:
+    - boneName: hips
+      humanName: Hips
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: upperleg.l
+      humanName: LeftUpperLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: upperleg.r
+      humanName: RightUpperLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: lowerleg.l
+      humanName: LeftLowerLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: lowerleg.r
+      humanName: RightLowerLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: foot.l
+      humanName: LeftFoot
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: foot.r
+      humanName: RightFoot
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: spine
+      humanName: Spine
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: chest
+      humanName: Chest
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: head
+      humanName: Head
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: upperarm.l
+      humanName: LeftUpperArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: upperarm.r
+      humanName: RightUpperArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: lowerarm.l
+      humanName: LeftLowerArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: lowerarm.r
+      humanName: RightLowerArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: hand.l
+      humanName: LeftHand
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: hand.r
+      humanName: RightHand
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: toes.l
+      humanName: LeftToes
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: toes.r
+      humanName: RightToes
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    skeleton:
+    - name: Mannequin_Large(Clone)
+      parentName: 
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: MannequinLarge_ArmLeft
+      parentName: Mannequin_Large(Clone)
+      position: {x: -0.0000009536743, y: 0, z: 0}
+      rotation: {x: 0.000000021855694, y: 0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: MannequinLarge_ArmRight
+      parentName: Mannequin_Large(Clone)
+      position: {x: -0.0000009536743, y: 0, z: 0}
+      rotation: {x: 0.000000021855694, y: 0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: MannequinLarge_Body
+      parentName: Mannequin_Large(Clone)
+      position: {x: -0.0000009536743, y: 0, z: 0}
+      rotation: {x: 0.000000021855694, y: 0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: MannequinLarge_Head
+      parentName: Mannequin_Large(Clone)
+      position: {x: -0, y: 3.2007322, z: 0}
+      rotation: {x: 0.000000021855694, y: 0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: MannequinLarge_LegLeft
+      parentName: Mannequin_Large(Clone)
+      position: {x: -0.0000009536743, y: 0, z: 0}
+      rotation: {x: 0.000000021855694, y: 0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: MannequinLarge_LegRight
+      parentName: Mannequin_Large(Clone)
+      position: {x: -0.0000009536743, y: 0, z: 0}
+      rotation: {x: 0.000000021855694, y: 0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Rig_Large
+      parentName: Mannequin_Large(Clone)
+      position: {x: -0, y: 0, z: 0}
+      rotation: {x: 0.000000021855694, y: 0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: root
+      parentName: Rig_Large
+      position: {x: -0, y: 0, z: 0}
+      rotation: {x: -0.000000021855692, y: -0.00000011920925, z: 2.6054007e-15, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: hips
+      parentName: root
+      position: {x: 4.2351617e-22, y: 1.0413269, z: -3.5527137e-15}
+      rotation: {x: 9.898964e-37, y: 0.00000011920926, z: -3.886876e-22, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: spine
+      parentName: hips
+      position: {x: -0, y: 0.383955, z: 3.5527137e-15}
+      rotation: {x: -1.7763568e-15, y: -0.00000011920927, z: 1.0239624e-21, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: chest
+      parentName: spine
+      position: {x: 8.470326e-22, y: 0.74997604, z: 2.0194827e-28}
+      rotation: {x: -1.7763568e-15, y: 0.00000011920928, z: 1.9765979e-22, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: upperarm.l
+      parentName: chest
+      position: {x: -0.88401353, y: 0.4982636, z: 0.00000016975677}
+      rotation: {x: -0.51412374, y: 0.48546556, z: 0.48546603, w: 0.5141233}
+      scale: {x: 0.9999997, y: 0.9999998, z: 0.9999999}
+    - name: lowerarm.l
+      parentName: upperarm.l
+      position: {x: 0.0000000066596613, y: 0.5805539, z: 0.0000000018606272}
+      rotation: {x: 0.000000001230414, y: 0.00000006458165, z: 0.05529301, w: 0.9984702}
+      scale: {x: 1, y: 0.9999998, z: 1}
+    - name: wrist.l
+      parentName: lowerarm.l
+      position: {x: -6.6474115e-10, y: 0.6241053, z: -0.000000009438903}
+      rotation: {x: 8.53279e-10, y: 6.358911e-10, z: -0.026658112, w: 0.99964464}
+      scale: {x: 0.99999994, y: 1, z: 1}
+    - name: hand.l
+      parentName: wrist.l
+      position: {x: 5.400125e-13, y: 0.17718212, z: -0.0000002524443}
+      rotation: {x: 0.0000000053829785, y: -0.00000014410426, z: 0.0000017569101,
+        w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: handslot.l
+      parentName: hand.l
+      position: {x: -0.0000000020439614, y: 0.2307005, z: -0.13800001}
+      rotation: {x: -0.000000008604832, y: -0.00000002159236, z: 0.7071068, w: 0.7071067}
+      scale: {x: 1, y: 1, z: 1}
+    - name: upperarm.r
+      parentName: chest
+      position: {x: 0.88401353, y: 0.4982636, z: 0.00000016975687}
+      rotation: {x: -0.5141239, y: -0.48546532, z: -0.4854663, w: 0.5141231}
+      scale: {x: 0.9999997, y: 0.9999998, z: 0.9999999}
+    - name: lowerarm.r
+      parentName: upperarm.r
+      position: {x: -0.0000000056931952, y: 0.5805539, z: -0.0000000010519301}
+      rotation: {x: 0.0000000012304137, y: -0.00000006458166, z: -0.05529301, w: 0.9984702}
+      scale: {x: 1, y: 0.9999998, z: 1}
+    - name: wrist.r
+      parentName: lowerarm.r
+      position: {x: -0.0000000021458817, y: 0.6241053, z: -0.000000009438899}
+      rotation: {x: 8.5328006e-10, y: -6.358912e-10, z: 0.026658112, w: 0.99964464}
+      scale: {x: 0.99999994, y: 1, z: 1}
+    - name: hand.r
+      parentName: wrist.r
+      position: {x: -6.252776e-13, y: 0.17718212, z: -0.00000025244432}
+      rotation: {x: 0.0000000053828986, y: 0.00000010032113, z: -0.0000017569101,
+        w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: handslot.r
+      parentName: hand.r
+      position: {x: 0.0000000020439046, y: 0.2307005, z: -0.13800001}
+      rotation: {x: -0.000000008604853, y: 0.00000002159234, z: -0.7071068, w: 0.7071067}
+      scale: {x: 1, y: 1, z: 1}
+    - name: head
+      parentName: chest
+      position: {x: -6.5633227e-28, y: 1.0254743, z: 7.1054274e-15}
+      rotation: {x: 3.5527137e-15, y: -3.552714e-14, z: -7.607174e-29, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: upperleg.l
+      parentName: hips
+      position: {x: -0.34189013, y: 0.22717452, z: 0.000000027846536}
+      rotation: {x: 0.9999039, y: 0.000000055808723, z: 0.000000011316124, w: 0.01386391}
+      scale: {x: 1, y: 0.99999976, z: 1.0000002}
+    - name: lowerleg.l
+      parentName: upperleg.l
+      position: {x: 0.000000019029923, y: 0.5690997, z: 0.0000000029105003}
+      rotation: {x: 0.07813513, y: -0.00000005641319, z: 0.000000057140415, w: 0.99694276}
+      scale: {x: 1, y: 0.99999994, z: 0.99999976}
+    - name: foot.l
+      parentName: lowerleg.l
+      position: {x: -0.00000005497485, y: 0.41255808, z: -3.6071413e-10}
+      rotation: {x: -0.4331089, y: -0.00000003944337, z: 0.00000008264201, w: 0.9013416}
+      scale: {x: 1, y: 1.0000002, z: 0.99999976}
+    - name: toes.l
+      parentName: foot.l
+      position: {x: 0.00000005693334, y: 0.33130008, z: 0.0000000011423609}
+      rotation: {x: 0.0000000034097902, y: 0.92035484, z: -0.39108437, w: -0.00000008348021}
+      scale: {x: 1, y: 1.0000005, z: 1.0000006}
+    - name: upperleg.r
+      parentName: hips
+      position: {x: 0.34189013, y: 0.22717452, z: 0.000000027846555}
+      rotation: {x: 0.9999039, y: -0.000000058079184, z: 0.000000032430936, w: 0.01386391}
+      scale: {x: 1, y: 0.99999976, z: 1.0000002}
+    - name: lowerleg.r
+      parentName: upperleg.r
+      position: {x: -0.000000019976513, y: 0.5690997, z: 0.0000000011344792}
+      rotation: {x: 0.07813515, y: 0.00000005641324, z: -0.00000005714043, w: 0.99694276}
+      scale: {x: 1, y: 1, z: 0.9999999}
+    - name: foot.r
+      parentName: lowerleg.r
+      position: {x: 0.000000050753968, y: 0.41255826, z: 0.0000000033927492}
+      rotation: {x: -0.4331089, y: -0.00000019118, z: -0.000000006786163, w: 0.9013416}
+      scale: {x: 1, y: 1.0000005, z: 0.9999999}
+    - name: toes.r
+      parentName: foot.r
+      position: {x: -0.000000070885534, y: 0.33130002, z: -0.0000000085920036}
+      rotation: {x: -0.00000005454685, y: 0.92035484, z: -0.39108437, w: -0.000000058852823}
+      scale: {x: 1, y: 0.9999998, z: 1.000001}
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 1
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {fileID: 9000000, guid: da239084b6058ac489176736be846194,
+    type: 2}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 3
+  humanoidOversampling: 1
+  avatarSetup: 2
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  importBlendShapeDeformPercent: 1
+  remapMaterialsIfMaterialImportModeIsNone: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Source_FBX/Animations_Source_FBX/Rig_Large/Rig_Large_General.fbx
+  uploadId: 831988

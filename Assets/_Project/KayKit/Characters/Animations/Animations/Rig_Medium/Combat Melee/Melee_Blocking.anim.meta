@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 13b0072f32fcd754b8c65e99e1a9b0de
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Animations/Rig_Medium/Combat Melee/Melee_Blocking.anim
+  uploadId: 831988

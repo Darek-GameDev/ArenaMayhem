@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ed3f21085ae65a349b8878b07ae9221c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Animations/Rig_Medium/Special/EXPERIMENTAL/EXPERIMENTAL_Medium_Transform.anim
+  uploadId: 831988

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 1ca859e5088d745468ca3dc6a8473e4f
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Avatars/Prefabs/Mannequin_Medium.prefab
+  uploadId: 831988

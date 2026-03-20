@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2e87df64e0ecd474ba9d18567b0f109f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Animations/Rig_Medium/Simulation/Lie_StandUp.anim
+  uploadId: 831988

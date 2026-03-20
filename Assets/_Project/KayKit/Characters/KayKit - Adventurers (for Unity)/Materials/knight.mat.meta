@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6ba8681ba75b7c1418d258ceacab1287
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/KayKit - Adventurers (for Unity)/Materials/knight.mat
+  uploadId: 831988

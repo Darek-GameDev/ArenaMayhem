@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 3ca4288a7b0eb694bad3d27bccb9a467
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 31900000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Avatars/Masks/Rig_Medium_Handslot_Mask.mask
+  uploadId: 831988

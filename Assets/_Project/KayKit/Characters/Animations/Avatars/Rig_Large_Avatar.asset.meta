@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: da239084b6058ac489176736be846194
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9000000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Avatars/Rig_Large_Avatar.asset
+  uploadId: 831988

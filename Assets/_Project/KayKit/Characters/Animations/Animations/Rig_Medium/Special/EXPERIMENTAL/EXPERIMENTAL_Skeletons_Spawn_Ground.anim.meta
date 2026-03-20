@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4f8cf90096db80645b1b31db290b7dd5
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Animations/Rig_Medium/Special/EXPERIMENTAL/EXPERIMENTAL_Skeletons_Spawn_Ground.anim
+  uploadId: 831988

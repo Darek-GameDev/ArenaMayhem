@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 5eb3f7e43b521a94ca40c354f30e12d0
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/KayKit - Adventurers (for Unity)/Prefabs/Accessories/ammo_crate.prefab
+  uploadId: 831988

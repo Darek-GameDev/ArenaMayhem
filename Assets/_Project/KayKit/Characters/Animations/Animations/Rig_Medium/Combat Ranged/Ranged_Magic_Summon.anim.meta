@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 73b8bb414a9fea0488ff2aeeb18c6ab6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Animations/Rig_Medium/Combat Ranged/Ranged_Magic_Summon.anim
+  uploadId: 831988

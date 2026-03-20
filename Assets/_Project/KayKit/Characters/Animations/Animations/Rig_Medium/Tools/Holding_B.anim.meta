@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e22e0df0e580d2d4791ca2c8bc887940
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Animations/Rig_Medium/Tools/Holding_B.anim
+  uploadId: 831988

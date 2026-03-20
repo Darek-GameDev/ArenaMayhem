@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c388432cf1c154846906d887ab8f7cdf
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Animations/Rig_Medium/Movement Advanced/Running_Strafe_Right.anim
+  uploadId: 831988

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c71e22c8df6e90b4c8da1730b4576966
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Animations/Rig_Medium/Movement Advanced/Dodge_Left.anim
+  uploadId: 831988

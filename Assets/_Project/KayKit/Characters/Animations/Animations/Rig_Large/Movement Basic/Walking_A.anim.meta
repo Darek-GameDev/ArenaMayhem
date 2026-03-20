@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 136ad4ab013bd7349b3d05a6e46e22c4
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/Animations/Animations/Rig_Large/Movement Basic/Walking_A.anim
+  uploadId: 831988

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 510a70b6f0153c24a9cca4be3d9b5c8d
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 290679
+  packageName: KayKit - Adventurers Character Pack (for Unity)
+  packageVersion: 2.0.1
+  assetPath: Assets/KayKit/Characters/KayKit - Adventurers (for Unity)/Prefabs/Accessories/bow_withString.prefab
+  uploadId: 831988
