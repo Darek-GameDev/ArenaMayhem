@@ -12,19 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f31d5cd6e1ccb6b49bf43503104a7805, type: 3}
   m_Name: T_Original_Store
   m_EditorClassIdentifier: PlayModeChangesSaver.Editor::PlayModeChangesSaver.Editor.OriginalStore
-  entries:
-  - scenePath: Assets/Scenes/SampleScene.unity
-    objectPath: Knight
-    globalObjectId: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-919132148091022143-0
-    isRectTransform: 0
-    position: {x: 0, y: 0, z: 0}
-    rotation: {x: 0, y: 1, z: 0, w: 0}
-    scale: {x: 1, y: 1, z: 1}
-    anchoredPosition: {x: 0, y: 0}
-    anchoredPosition3D: {x: 0, y: 0, z: 0}
-    anchorMin: {x: 0, y: 0}
-    anchorMax: {x: 1, y: 1}
-    pivot: {x: 0.5, y: 0.5}
-    sizeDelta: {x: 0, y: 0}
-    offsetMin: {x: 0, y: 0}
-    offsetMax: {x: 0, y: 0}
+  entries: []
