@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 4b75bc8b7bb31cb40bdc4d257ddcdedd
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Res/DualGrid_IntCorner.twc
+  uploadId: 872874

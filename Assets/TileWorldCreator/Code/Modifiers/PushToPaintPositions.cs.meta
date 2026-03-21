@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 2befb4434e5c5bf41a66255279653ff7
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Code/Modifiers/PushToPaintPositions.cs
+  uploadId: 872874

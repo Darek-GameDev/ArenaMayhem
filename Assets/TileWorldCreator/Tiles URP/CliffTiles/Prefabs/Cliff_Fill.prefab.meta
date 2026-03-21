@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 6242e01fcf2943a4a8e3c28135b4dcbf
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/CliffTiles/Prefabs/Cliff_Fill.prefab
+  uploadId: 872874

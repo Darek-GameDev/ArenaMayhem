@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 74a0fdd798f2e524aaa1d2cd6e50a35e
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/BaseBlockTiles/Prefabs/Green/BaseBlock_EdgeStairs.prefab
+  uploadId: 872874

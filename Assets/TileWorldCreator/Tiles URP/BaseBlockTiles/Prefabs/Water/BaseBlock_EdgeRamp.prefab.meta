@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b22f3fb67f2830e499b0836379dd3088
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/BaseBlockTiles/Prefabs/Water/BaseBlock_EdgeRamp.prefab
+  uploadId: 872874

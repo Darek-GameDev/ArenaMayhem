@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 40bca8b451c358a46a088c725667f8c8
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/BaseBlockTiles/Prefabs/Blue/BaseBlock_InteriorCorner.prefab
+  uploadId: 872874

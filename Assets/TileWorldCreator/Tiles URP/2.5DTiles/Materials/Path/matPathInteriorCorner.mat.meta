@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0a9eba06a337b654787ac956c9315a91
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/2.5DTiles/Materials/Path/matPathInteriorCorner.mat
+  uploadId: 872874

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 03e40e444d32e0f4c8cf2a0e7b46774c
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Res/NormalGrid_ThreeWayTile.twc
+  uploadId: 872874

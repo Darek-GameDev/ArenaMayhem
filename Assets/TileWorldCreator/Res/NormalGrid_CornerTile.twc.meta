@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 116d98c02b890c547ac37605a8617324
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Res/NormalGrid_CornerTile.twc
+  uploadId: 872874

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 9e3c20860a486df41b9c88d9abf901d7
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Code/Components/MeshCombiner.cs
+  uploadId: 872874

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: bf797ff5eab39cf41843bfecb1e28054
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/SandBlockTiles/Prefabs/SandBlock_Fill.prefab
+  uploadId: 872874

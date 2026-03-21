@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2866e18fec9c1fd4f815800198c13240
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/GrassTiles/Materials/matGrassTiles.mat
+  uploadId: 872874

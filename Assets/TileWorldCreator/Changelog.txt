@@ -1,0 +1,114 @@
+4.2.1
+----
+Bugfix: Fixed an issue where duplicating a configuration file did not serialize changes made to blueprints in the new configuration file.
+
+4.2.0
+----
+Improved: Greatly improved performance. Removed unnecessary allocations & reduced GC.
+
+New: Added GetBlueprintLayerByGuid API to TileWorldCreatorManager class.
+
+Bugfix: Fixed empty cluster game object creation.
+Bugfix: Fixed issue when "merge tiles" is enabled and painting on a layer and using "execute all layers" would clear meshes in mesh filter.
+Bugifx: Fixed configuration issue in demo scene Deep Rock Crystals -> Updated Samples_URP package accordingly.
+
+4.1.9
+----
+Improved: Improved preview texture generation for blueprint layers.
+Bugfix: Fixed wrong tile configuration settings with edge-corner-fill tile when using normal grid.
+Bugfix: Fixed RequiredNeighbourCount value on TileOverrides settings in build layer is not set to 1 as default.
+
+4.1.8
+----
+Improved: Improved UI to support Unity Light Theme.
+
+4.1.7
+----
+Improved: Rewritten PaintSceneOveraly class to improve UX and to better handle editor events.
+
+Bugfix: Fixed obsolete warning messages in Unity 6000.2
+Bugfix: Fixed editor freezes during domain reloads caused by PaintSceneOverlay.
+
+4.1.6
+----
+Bugfix: Fixed issue where object build layers would not take global TWC gameobject position offsets into account.
+
+4.1.5
+----
+Bugfix: Fixed issue when using global random seed, random tile preset selection would not work correctly.
+Bugfix: Fixed issue where TWC Manager inspector would not show global random seed.
+Improved: Improved random seed generation for RandomTilePreset selection using Mathematics.math.hash
+
+4.1.4
+----
+Bugfix: Fixed issue where tiles would not match rotation of manager game object.
+Bugfix: layer gameobjects of disabled build layers are now destroyed when map gets rebuilded.
+--
+Improved: Improved loading times when loading a configuration from Resources folder.
+Improved: Improved "Save as Prefab" option. Only changed meshes are being re-created. 
+
+
+4.1.3
+-----
+New: Added Save as Prefab option to TileWorldCreatorManager to create a prefab object. This is required when Merge Tiles is enabled, because generated meshes won't get saved otherwise.
+New: Added invert collision walls option to Tile Collider Mesh generation.
+--
+Bugfix: Fixed build error: An asset is marked with HideFlags.DontSave
+Bugfix: Fixed issue with Tile Collision mesh generation. Each cluster object contained tile collision mesh from whole the map instead of the cluster only.
+
+
+4.1.2
+-----
+New: Paint grid now uses height from blueprint layer height.
+New: Added invert Y rotation checkbox to object build layer orientation layer settings.
+New: It is now possible to select multiple layers in the Add modifier.
+New: It is now possible to select multiple layers in the Subtract modifier.
+--
+Improved: Middle mouse button allows for panning in scene view while paint mode is active.
+--
+Bugfix: Fixed object layer field in global mesh generation not using correct object layer.
+Bugfix: Fixed object layer not using default layer height offset.
+Bugfix: Fixed object layer not using layerOffset X and Z offsets.
+Bugfix: Fixed object layer not correctly parenting cluster object, resulting in wrong collision mesh position when using TileCollder mesh.
+Bugfix: Fixed issue where layer objects having multiple MeshCombiner components assigned.
+
+Breaking Changes:
+--
+Changed: Changed size type to Vector2Int in Shapes modifier.
+
+4.1.1
+-----
+New: Added backward compatibility for Unity 2022
+New: Added undo/redo functionality for painting cells in scene view.
+New: Added SampleLayerHeight method to TileWorldCreatorManager. Returns highest layer Y offset from a world position.
+New: Added new default layer height value to blueprint layers. This simplifies setup for maps with different heights. Build layers can still have an additional y offset.
+New: Added global mesh generation properties in configuration settings. Build layer mesh generation properties can be used to override global settings.
+--
+Bugfix: Fixed tile collision generation offset issue when using a cell size other than 1.
+Bugfix: Fixed paint overlay not responding in Unity 2022.
+
+4.0.3
+-----
+Bugfix: Fixed broken modifiers when duplicating a blueprint layer.
+Bugfix: It is now possible to have multiple TWC manager instances with same configuration in one scene.
+Bugfix: Paint scene overlay now properly detects when overlay is shown or hidden.
+--
+New: cell size is now a float value. Support for cell sizes smaller than 1.
+--
+Improved: Deep Rock Crystals sample scene supports new Input System.
+
+4.0.2
+-----
+Bugfix: Fixed issue where the paint scene overlay would loose icons when changing scenes.
+Bugfix: Improved and fixed orientation layer object rotation calculations.
+
+
+4.0.1
+-----
+Bugfix: Fixed issue on MacOS when using scene paint. ('Event' does not contain a definition for 'LeftAlt')
+Bugfix: Fixed issue in configuration editor making sure manager is valid.
+
+Version 4.0
+------------
+
+Initial new major release!

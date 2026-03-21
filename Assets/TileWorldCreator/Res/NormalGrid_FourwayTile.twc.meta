@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 7041598f7fc087f4e937f6ba355600be
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Res/NormalGrid_FourwayTile.twc
+  uploadId: 872874

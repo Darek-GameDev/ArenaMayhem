@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 0dd23c28538ef284ea3f6ce8cdff6b71
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Res/Tiles.twc
+  uploadId: 872874

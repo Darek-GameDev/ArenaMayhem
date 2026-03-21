@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: beee79f04c73c2d4a98176c1ea9b161b
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Res/DualGrid_MergedCorners.twc
+  uploadId: 872874

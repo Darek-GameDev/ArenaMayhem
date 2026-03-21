@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: bec1244a799f87245b20e65c6284ae39
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/BaseBlockTiles/Prefabs/Green/BaseBlock_Corner.prefab
+  uploadId: 872874

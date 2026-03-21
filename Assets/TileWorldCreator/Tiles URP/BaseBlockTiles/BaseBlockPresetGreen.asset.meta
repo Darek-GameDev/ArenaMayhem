@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 54472b666a0681445a0d3c8074b96faa
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/BaseBlockTiles/BaseBlockPresetGreen.asset
+  uploadId: 872874

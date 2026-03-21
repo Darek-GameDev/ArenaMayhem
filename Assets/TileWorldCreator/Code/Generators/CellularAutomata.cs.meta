@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 1d87f57315d2a2240b2c4b637addd96d
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Code/Generators/CellularAutomata.cs
+  uploadId: 872874

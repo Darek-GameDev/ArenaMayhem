@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: cf34d1240e256ca4d9bada35d013be96
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/RiverTiles/Prefabs/WaterRipplesFX.prefab
+  uploadId: 872874

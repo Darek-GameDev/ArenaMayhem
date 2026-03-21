@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 57853e57d8779954a8aa4f999f534868
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/CliffTiles/Materials/matCliffFill.mat
+  uploadId: 872874

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 575d7375886dc0944bd194cdbc329546
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/CliffTiles/Materials/matCliffCornerA.mat
+  uploadId: 872874

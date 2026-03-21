@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1b3f52fc1d3ce024fa9d1bfdd27f5d50
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/2.5DTiles/Materials/SandOnly/matSandDoubleCorner.mat
+  uploadId: 872874

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ccc33a91fad08bd4a868ae4b16ccb2da
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/CliffTiles/Materials/matCliffEdgeB.mat
+  uploadId: 872874

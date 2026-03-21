@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 46a497feae71dd44093bdcfce0e9fb9a
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Code/Generators/Pathfinding.cs
+  uploadId: 872874

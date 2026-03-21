@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b80a4aa2a23a6a2429c41a4bd28a329c
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/BaseBlockTiles/Prefabs/Blue/BaseBlock_EdgeRamp.prefab
+  uploadId: 872874

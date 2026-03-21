@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 637d7b3f4039fbf4283a39cb8cf35109
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/2.5DTiles/Materials/GrassToBeach/matGrassToBeachDoubleCorner.mat
+  uploadId: 872874

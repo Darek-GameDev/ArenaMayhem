@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: c6ca8c65faa68244d97b522e84ff4d11
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Code/Generators/RandomNoise.cs
+  uploadId: 872874

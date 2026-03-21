@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 406bccdb37001184a8897e74464a9071
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/SandBlockTiles/Prefabs/SandBlock_Edge.prefab
+  uploadId: 872874

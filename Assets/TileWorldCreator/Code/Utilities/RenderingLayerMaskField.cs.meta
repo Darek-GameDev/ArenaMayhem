@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: a4f073c2f4cdbec438b085d568755d8b
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Code/Utilities/RenderingLayerMaskField.cs
+  uploadId: 872874

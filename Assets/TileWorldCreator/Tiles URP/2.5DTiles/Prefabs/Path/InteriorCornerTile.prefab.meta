@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b921a6ff2399c414cb9b2f228dac2a9f
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/2.5DTiles/Prefabs/Path/InteriorCornerTile.prefab
+  uploadId: 872874

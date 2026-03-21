@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: faf5cf7bfc04fdb4fb328cd7384d1dee
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Res/NormalGrid_EdgeTile.twc
+  uploadId: 872874

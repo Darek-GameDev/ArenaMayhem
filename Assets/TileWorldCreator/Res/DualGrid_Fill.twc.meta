@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d67b2a3baa0566347a10bbef2f726c33
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Res/DualGrid_Fill.twc
+  uploadId: 872874

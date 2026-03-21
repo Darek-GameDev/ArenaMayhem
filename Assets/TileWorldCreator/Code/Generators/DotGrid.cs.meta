@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 10ba5de9930f33646be452bd9e128f58
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Code/Generators/DotGrid.cs
+  uploadId: 872874

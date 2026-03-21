@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: e84ec9f08d6fbdf4897d58c1811f4991
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Code/UI/VisualElements/LayerFoldoutElement.cs
+  uploadId: 872874

@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: cf4a490f6158f9940a03675b5cdb84b0
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Code/Generators/Checkerboard.cs
+  uploadId: 872874

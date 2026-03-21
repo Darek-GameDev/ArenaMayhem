@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 8b79dd82fb54be145a54e196cb4693f4
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Code/Utilities/GridMeshColliderGenerator.cs
+  uploadId: 872874

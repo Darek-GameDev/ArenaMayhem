@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: af07a11cc83a6e5458165bd9407005b5
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/BaseBlockTiles/Prefabs/Water/BaseBlock_Fill.prefab
+  uploadId: 872874

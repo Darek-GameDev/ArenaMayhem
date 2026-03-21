@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 110f73005accbbe4cb8dc8185a19f00c
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/BaseBlockTiles/Prefabs/Water/BaseBlock_InteriorCorner.prefab
+  uploadId: 872874

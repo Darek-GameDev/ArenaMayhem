@@ -1,0 +1,15 @@
+.unity-list-view__item {
+     /*background-color: red;*/
+}
+
+.unity-list-view__item:hover {
+    /*background-color: blue;*/
+}
+
+.unity-list-view__item:checked {
+    background-color: #262626;
+}
+
+.unity-list-view__item:checked:hover {
+    /*background-color: green;*/
+}

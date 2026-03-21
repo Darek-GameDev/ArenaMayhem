@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 8d95f1f3a8d630340a6ea315116099cf
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Code/UI/PropertyDrawers/BlueprintLayerDropdown.cs
+  uploadId: 872874

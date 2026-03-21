@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ea0b15228b82a6844a4b7fd4ec9a130f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/2.5DTiles/GrassToBeach.asset
+  uploadId: 872874

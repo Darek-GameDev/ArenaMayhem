@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: f911858424046094c9d940d65a4d447b
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Code/Generators/PoissonDiscSampling.cs
+  uploadId: 872874

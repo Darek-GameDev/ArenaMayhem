@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8a7257880f9868b4d898837fa383da0b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/2.5DTiles/Materials/GrassToBeach/matGrassToBeachFill.mat
+  uploadId: 872874

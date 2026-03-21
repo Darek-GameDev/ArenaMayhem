@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 428811f5ceb58e34bacd95918417daa2
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Code/Utilities/ScriptableObjectCloner.cs
+  uploadId: 872874

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e6decb8e0bd11314cbe8173581d68379
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Tiles URP/CliffTiles/CliffTilesPreset_A.asset
+  uploadId: 872874

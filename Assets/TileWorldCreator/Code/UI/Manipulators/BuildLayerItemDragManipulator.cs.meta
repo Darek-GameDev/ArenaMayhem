@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 2cac9dd8534773e4b8909155af1330c4
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Code/UI/Manipulators/BuildLayerItemDragManipulator.cs
+  uploadId: 872874

@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8967f5d29d0ef694ea719091a0894d43, type: 3}
+  m_Name: BaseBlockPresetBlue
+  m_EditorClassIdentifier: 
+  previewThumbnail: {fileID: 2800000, guid: 3f6f47b582703cf489db3240d2431201, type: 3}
+  gridtype: 1
+  DUALGRD_cornerTile: {fileID: 1327582878135713183, guid: 4c3a35e5d2803264a956bdf3c4edbb9c, type: 3}
+  DUALGRD_invertedCornerTile: {fileID: 8353162540286234213, guid: 40bca8b451c358a46a088c725667f8c8, type: 3}
+  DUALGRD_edgeTile: {fileID: 8392027412113010434, guid: 5d2cc3966e0d2d8428266e365c4111a7, type: 3}
+  DUALGRD_fillTile: {fileID: 6864620678140451330, guid: bfd0926ab858b8048889ab4ad873a02d, type: 3}
+  DUALGRD_doubleInteriorCornerTile: {fileID: 2406270351499449160, guid: d8db305ec4fa21f438c562c9809848b2, type: 3}
+  NRMGRD_deadEndTile: {fileID: 0}
+  NRMGRD_singleTile: {fileID: 0}
+  NRMGRD_fillTile: {fileID: 0}
+  NRMGRD_cornerWayTile: {fileID: 0}
+  NRMGRD_cornerFillTile: {fileID: 0}
+  NRMGRD_interiorCornerTile: {fileID: 0}
+  NRMGRD_doubleCornerTile: {fileID: 0}
+  NRMGRD_edgeWayTile: {fileID: 0}
+  NRMGRD_edgeFillTile: {fileID: 0}
+  NRMGRD_threeWayTile: {fileID: 0}
+  NRMGRD_threeWayFillTile: {fileID: 0}
+  NRMGRD_edgeCornerFillTile: {fileID: 0}
+  NRMGRD_threeCornerTile: {fileID: 0}
+  NRMGRD_fourWayTile: {fileID: 0}
+  cornerTileYRotationOffset: 180
+  invertedCornerTileYRotationOffset: 180
+  edgeTileYRotationOffset: -90
+  fillTileYRotationOffset: 0
+  doubleInteriorCornerTileYRotationOffset: -90
+  NRMGRD_deadEndTileYRotationOffset: 0
+  NRMGRD_singleTileYRotationOffset: 0
+  NRMGRD_fillTileYRotationOffset: 0
+  NRMGRD_cornerWayTileYRotationOffset: 0
+  NRMGRD_cornerFillTileYRotationOffset: 0
+  NRMGRD_interiorCornerTileYRotationOffset: 0
+  NRMGRD_doubleCornerTileYRotationOffset: 0
+  NRMGRD_edgeWayTileYRotationOffset: 0
+  NRMGRD_edgeFillTileYRotationOffset: 0
+  NRMGRD_threeWayTileYRotationOffset: 0
+  NRMGRD_threeWayFillTileYRotationOffset: 0
+  NRMGRD_edgeCornerFillTileYRotationOffset: 0
+  NRMGRD_threeCornerTileYRotationOffset: 0
+  NRMGRD_fourWayTileYRotationOffset: 0

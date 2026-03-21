@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 582113d6e56c33f4280e7f71914c0319
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Code/Generators/BSPDungeon.cs
+  uploadId: 872874

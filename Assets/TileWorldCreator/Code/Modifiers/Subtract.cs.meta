@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: ae24a0f01795f5942b0a8f60968ff407
+AssetOrigin:
+  serializedVersion: 1
+  productId: 320067
+  packageName: TileWorldCreator 4
+  packageVersion: 4.2.1
+  assetPath: Assets/TileWorldCreator/Code/Modifiers/Subtract.cs
+  uploadId: 872874
