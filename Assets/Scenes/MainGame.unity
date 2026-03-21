@@ -219,6 +219,7 @@ MonoBehaviour:
   runSpeed: 5
   rotationSpeed: 10
   jumpHeight: 1.5
+  jumpCooldown: 1.25
   gravity: -9
   characterController: {fileID: 0}
 --- !u!143 &113702523

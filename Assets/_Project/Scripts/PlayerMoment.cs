@@ -7,6 +7,7 @@ public class PlayerMoment : MonoBehaviour
     [SerializeField] private float runSpeed = 5f;
     [SerializeField] private float rotationSpeed = 10f;
     [SerializeField] private float jumpHeight = 1.5f;
+    [SerializeField] private float jumpCooldown = 0.25f;
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private CharacterController characterController;
     private Animator animator;
@@ -20,6 +21,7 @@ public class PlayerMoment : MonoBehaviour
     private bool hasSpeedParameter;
     private bool wasInAirLastFrame;
     private float airTime;
+    private float nextJumpAllowedTime;
     private const float MaxAirTimeBeforeIdle = 0.5f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -39,6 +41,7 @@ public class PlayerMoment : MonoBehaviour
     }
     private void Movement(){
         Vector3 move = new Vector3(movementInput.x, 0f, movementInput.y);
+        move = Vector3.ClampMagnitude(move, 1f);
         bool isRunning = IsRunInputHeld();
         float targetMoveSpeed = isRunning ? runSpeed : walkSpeed;
 
@@ -145,7 +148,7 @@ public class PlayerMoment : MonoBehaviour
 
         if (speedParameterType == AnimatorControllerParameterType.Int)
         {
-            animator.SetInteger("speed", Mathf.RoundToInt(speedValue));
+            animator.SetInteger("speed", Mathf.FloorToInt(speedValue));
             return;
         }
 
@@ -170,11 +173,12 @@ public class PlayerMoment : MonoBehaviour
 
     private void OnJump(InputValue value)
     {
-        if (value.isPressed && characterController.isGrounded)
+        if (value.isPressed && characterController.isGrounded && Time.time >= nextJumpAllowedTime)
         {
             jumpPressed = true;
             animator.SetTrigger("JumpTrigger");
             airTime = 0f;
+            nextJumpAllowedTime = Time.time + jumpCooldown;
         }
     }
 
