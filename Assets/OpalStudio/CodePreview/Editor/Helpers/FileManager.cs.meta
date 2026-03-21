@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 6de75e94960b4552a8804974bd824d99
+timeCreated: 1756576447
+AssetOrigin:
+  serializedVersion: 1
+  productId: 339468
+  packageName: CodePreview
+  packageVersion: 1.3.3
+  assetPath: Assets/OpalStudio/CodePreview/Editor/Helpers/FileManager.cs
+  uploadId: 882822

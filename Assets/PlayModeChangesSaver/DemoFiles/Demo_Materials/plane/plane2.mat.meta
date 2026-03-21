@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f435054eb73b84242a413f02713ff279
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 354984
+  packageName: Play Mode Changes Saver (Runtime-Saver)
+  packageVersion: 1.0
+  assetPath: Assets/PlayModeChangesSaver/DemoFiles/Demo_Materials/plane/plane2.mat
+  uploadId: 870300

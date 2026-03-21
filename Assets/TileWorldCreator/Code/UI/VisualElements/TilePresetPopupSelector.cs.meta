@@ -1,9 +1,0 @@
-fileFormatVersion: 2
-guid: 7f855b102916f914487d17c0ac316dcd
-AssetOrigin:
-  serializedVersion: 1
-  productId: 320067
-  packageName: TileWorldCreator 4
-  packageVersion: 4.2.1
-  assetPath: Assets/TileWorldCreator/Code/UI/VisualElements/TilePresetPopupSelector.cs
-  uploadId: 872874

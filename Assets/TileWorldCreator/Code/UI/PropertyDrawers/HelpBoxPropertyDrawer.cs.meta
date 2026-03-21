@@ -1,9 +1,0 @@
-fileFormatVersion: 2
-guid: 6fab96cc8175c104981cd721511546a3
-AssetOrigin:
-  serializedVersion: 1
-  productId: 320067
-  packageName: TileWorldCreator 4
-  packageVersion: 4.2.1
-  assetPath: Assets/TileWorldCreator/Code/UI/PropertyDrawers/HelpBoxPropertyDrawer.cs
-  uploadId: 872874

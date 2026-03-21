@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 78e3ca6bb43245e3ac66b7c13d2ff040
+timeCreated: 1756624497
+AssetOrigin:
+  serializedVersion: 1
+  productId: 339468
+  packageName: CodePreview
+  packageVersion: 1.3.3
+  assetPath: Assets/OpalStudio/CodePreview/Editor/Highlighters/YamlSyntaxHighlighter.cs
+  uploadId: 882822

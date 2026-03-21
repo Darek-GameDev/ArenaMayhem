@@ -1,9 +1,0 @@
-fileFormatVersion: 2
-guid: 65aba8d86075ed249b5e991e1469199c
-AssetOrigin:
-  serializedVersion: 1
-  productId: 320067
-  packageName: TileWorldCreator 4
-  packageVersion: 4.2.1
-  assetPath: Assets/TileWorldCreator/Code/Generators/RandomWalkDungeon.cs
-  uploadId: 872874

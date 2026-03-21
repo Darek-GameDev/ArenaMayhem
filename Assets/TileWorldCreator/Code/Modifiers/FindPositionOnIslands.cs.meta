@@ -1,9 +1,0 @@
-fileFormatVersion: 2
-guid: f5e6adc559aace54fa56d1508a4bfae3
-AssetOrigin:
-  serializedVersion: 1
-  productId: 320067
-  packageName: TileWorldCreator 4
-  packageVersion: 4.2.1
-  assetPath: Assets/TileWorldCreator/Code/Modifiers/FindPositionOnIslands.cs
-  uploadId: 872874

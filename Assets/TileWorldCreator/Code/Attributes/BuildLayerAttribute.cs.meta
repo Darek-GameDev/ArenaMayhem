@@ -1,9 +1,0 @@
-fileFormatVersion: 2
-guid: 55b2fe8f975642842a14313d6a1ac2ee
-AssetOrigin:
-  serializedVersion: 1
-  productId: 320067
-  packageName: TileWorldCreator 4
-  packageVersion: 4.2.1
-  assetPath: Assets/TileWorldCreator/Code/Attributes/BuildLayerAttribute.cs
-  uploadId: 872874

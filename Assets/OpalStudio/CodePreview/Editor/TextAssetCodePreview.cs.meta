@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: a1bbc2907fa645d2be8b377b614b9545
+timeCreated: 1756619467
+AssetOrigin:
+  serializedVersion: 1
+  productId: 339468
+  packageName: CodePreview
+  packageVersion: 1.3.3
+  assetPath: Assets/OpalStudio/CodePreview/Editor/TextAssetCodePreview.cs
+  uploadId: 882822

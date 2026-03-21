@@ -1,9 +1,0 @@
-fileFormatVersion: 2
-guid: 6b6c865169fcecb409b36753b35c6a63
-AssetOrigin:
-  serializedVersion: 1
-  productId: 320067
-  packageName: TileWorldCreator 4
-  packageVersion: 4.2.1
-  assetPath: Assets/TileWorldCreator/Code/Generators/Maze.cs
-  uploadId: 872874

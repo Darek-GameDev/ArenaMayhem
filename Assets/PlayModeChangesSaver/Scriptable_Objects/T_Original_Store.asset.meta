@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b159644229107ff4bb2cc8423dcfad70
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 354984
+  packageName: Play Mode Changes Saver (Runtime-Saver)
+  packageVersion: 1.0
+  assetPath: Assets/PlayModeChangesSaver/Scriptable_Objects/T_Original_Store.asset
+  uploadId: 870300

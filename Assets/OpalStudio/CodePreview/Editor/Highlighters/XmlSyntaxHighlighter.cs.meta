@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 5b898525be644a61b4be32e9d8eae618
+timeCreated: 1756622464
+AssetOrigin:
+  serializedVersion: 1
+  productId: 339468
+  packageName: CodePreview
+  packageVersion: 1.3.3
+  assetPath: Assets/OpalStudio/CodePreview/Editor/Highlighters/XmlSyntaxHighlighter.cs
+  uploadId: 882822

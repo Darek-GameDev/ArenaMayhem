@@ -1,9 +1,0 @@
-fileFormatVersion: 2
-guid: 3be269b8220dc9b4bb5a3522887c95db
-AssetOrigin:
-  serializedVersion: 1
-  productId: 320067
-  packageName: TileWorldCreator 4
-  packageVersion: 4.2.1
-  assetPath: Assets/TileWorldCreator/Code/UI/PropertyDrawers/TilePresetPopupPropertyDrawer.cs
-  uploadId: 872874

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7e06e69807b641a45b95b4a21c76beb0
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 354984
+  packageName: Play Mode Changes Saver (Runtime-Saver)
+  packageVersion: 1.0
+  assetPath: Assets/PlayModeChangesSaver/DemoFiles/Demo_Materials/Green.mat
+  uploadId: 870300

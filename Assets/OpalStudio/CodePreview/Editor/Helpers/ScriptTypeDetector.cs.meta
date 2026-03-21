@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: a52d837567ea40a299e68870635d8861
+timeCreated: 1756576470
+AssetOrigin:
+  serializedVersion: 1
+  productId: 339468
+  packageName: CodePreview
+  packageVersion: 1.3.3
+  assetPath: Assets/OpalStudio/CodePreview/Editor/Helpers/ScriptTypeDetector.cs
+  uploadId: 882822

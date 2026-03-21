@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 5d4e11a80b8c4dc5bc8a52cac73d726d
+timeCreated: 1756620288
+AssetOrigin:
+  serializedVersion: 1
+  productId: 339468
+  packageName: CodePreview
+  packageVersion: 1.3.3
+  assetPath: Assets/OpalStudio/CodePreview/Editor/Highlighters/JsonSyntaxHighlighter.cs
+  uploadId: 882822

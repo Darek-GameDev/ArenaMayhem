@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: b6fed63010b1bbb4d90f4782191ec86e
+AssetOrigin:
+  serializedVersion: 1
+  productId: 354984
+  packageName: Play Mode Changes Saver (Runtime-Saver)
+  packageVersion: 1.0
+  assetPath: Assets/PlayModeChangesSaver/Editor/OverridesPopUp.cs
+  uploadId: 870300

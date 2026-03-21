@@ -1,9 +1,0 @@
-fileFormatVersion: 2
-guid: 68d7262ee985b8b458085c4154f8b426
-AssetOrigin:
-  serializedVersion: 1
-  productId: 320067
-  packageName: TileWorldCreator 4
-  packageVersion: 4.2.1
-  assetPath: Assets/TileWorldCreator/Code/UI/LabelGizmoDrawer.cs
-  uploadId: 872874

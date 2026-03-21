@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a77ed70462942f94c9656de30f099b68
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 354984
+  packageName: Play Mode Changes Saver (Runtime-Saver)
+  packageVersion: 1.0
+  assetPath: Assets/PlayModeChangesSaver/DemoFiles/Demo_Materials/Pink.mat
+  uploadId: 870300

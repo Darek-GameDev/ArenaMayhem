@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 576129789513172448de60409a9f18cc
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 354984
+  packageName: Play Mode Changes Saver (Runtime-Saver)
+  packageVersion: 1.0
+  assetPath: Assets/PlayModeChangesSaver/Editor/PlayModeChangesSaver.Editor.asmdef
+  uploadId: 870300

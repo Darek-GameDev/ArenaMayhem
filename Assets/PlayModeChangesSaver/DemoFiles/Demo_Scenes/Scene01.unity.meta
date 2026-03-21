@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: e49701302a301b74a80ac950fbfe823a
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 354984
+  packageName: Play Mode Changes Saver (Runtime-Saver)
+  packageVersion: 1.0
+  assetPath: Assets/PlayModeChangesSaver/DemoFiles/Demo_Scenes/Scene01.unity
+  uploadId: 870300

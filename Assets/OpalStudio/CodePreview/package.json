@@ -1,0 +1,25 @@
+﻿{
+    "name": "com.opalstudio.codepreview",
+    "version": "1.3.3",
+    "displayName": "CodePreview",
+    "description": "A Unity package that provides an improved code preview feature for the Unity Editor",
+    "unity": "2021.3",
+    "documentationUrl": "https://github.com/Alaxxxx/CodePreview",
+    "licensesUrl": "https://github.com/Alaxxxx/CodePreview/blob/master/License.md",
+    "license": "MIT",
+    "author": {
+        "name": "Alaxxxx",
+        "email": "contact@opalstudio.fr",
+        "url": "https://opalstudio.fr"
+    },
+    "keywords": [
+        "unity",
+        "toolbar",
+        "custom",
+        "asset",
+        "editor",
+        "tools",
+        "customization",
+        "editor tools"
+    ]
+}

@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 80b437e2f8742c64db8057f591139c83
+AssetOrigin:
+  serializedVersion: 1
+  productId: 354984
+  packageName: Play Mode Changes Saver (Runtime-Saver)
+  packageVersion: 1.0
+  assetPath: Assets/PlayModeChangesSaver/Editor/ChangesTracker/SnapshotManager.cs
+  uploadId: 870300

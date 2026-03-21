@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 972dd724e01e11548b9b4757e63f53d0
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 339468
+  packageName: CodePreview
+  packageVersion: 1.3.3
+  assetPath: Assets/OpalStudio/CodePreview/OpalStudio.CodePreview.asmdef
+  uploadId: 882822
