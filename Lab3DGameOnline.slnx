@@ -1,7 +1,10 @@
 ﻿<Solution>
   <Project Path="PlayModeChangesSaver.Editor.csproj" />
+  <Project Path="Fusion.Unity.Editor.csproj" />
   <Project Path="JetBrains.Frontend.2022.2.csproj" />
   <Project Path="OpalStudio.CodePreview.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="Fusion.Unity.csproj" />
+  <Project Path="Unity.Fusion.CodeGen.csproj" />
 </Solution>
