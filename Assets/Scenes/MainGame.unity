@@ -425,6 +425,7 @@ GameObject:
   - component: {fileID: 1338567018}
   - component: {fileID: 1338567017}
   - component: {fileID: 1338567016}
+  - component: {fileID: 1338567020}
   m_Layer: 0
   m_Name: Prototype Runner
   m_TagString: Untagged
@@ -541,6 +542,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1338567020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1338567015}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91bea891efb301541aee3916da398237, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkInput
+  runner: {fileID: 1338567018}
+  autoFindRunner: 1
 --- !u!1 &1344413053
 GameObject:
   m_ObjectHideFlags: 0

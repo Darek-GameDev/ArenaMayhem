@@ -1,81 +1,94 @@
+using Fusion;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
-public class PlayerAttack : MonoBehaviour
+public class PlayerAttack : NetworkBehaviour
 {
     private Animator animator;
-    private PlayerInput playerInput;
-    private InputAction blockAction;
-    private bool isBlocking = false;
+    [Networked] private NetworkButtons PreviousButtons { get; set; }
+    [Networked] private NetworkBool IsBlocking { get; set; }
+    [Networked] private int AttackSequence { get; set; }
+    [Networked] private int BlockStartSequence { get; set; }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private int renderedAttackSequence;
+    private int renderedBlockStartSequence;
+
+    public override void Spawned()
     {
-        animator = GetComponent<Animator>();
-        playerInput = GetComponent<PlayerInput>();
-        if (playerInput != null)
+        EnsureAnimator();
+        renderedAttackSequence = AttackSequence;
+        renderedBlockStartSequence = BlockStartSequence;
+        animator.SetBool("isBlocking", IsBlocking);
+    }
+
+    public override void FixedUpdateNetwork()
+    {
+        if (!HasStateAuthority)
         {
-            blockAction = playerInput.actions["Block"];
+            return;
+        }
+
+        PlayerNetworkInputData inputData = default;
+        GetInput(out inputData);
+
+        NetworkButtons pressed = inputData.Buttons.GetPressed(PreviousButtons);
+        NetworkButtons released = inputData.Buttons.GetReleased(PreviousButtons);
+        PreviousButtons = inputData.Buttons;
+
+        if (pressed.IsSet((int)PlayerInputButton.Block))
+        {
+            IsBlocking = true;
+            BlockStartSequence++;
+        }
+
+        if (released.IsSet((int)PlayerInputButton.Block))
+        {
+            IsBlocking = false;
+        }
+
+        if (!IsBlocking && pressed.IsSet((int)PlayerInputButton.Attack))
+        {
+            AttackSequence++;
         }
     }
 
-    void Update()
+    public override void Render()
     {
-        SyncBlockState();
+        EnsureAnimator();
+
+        if (renderedBlockStartSequence != BlockStartSequence)
+        {
+            renderedBlockStartSequence = BlockStartSequence;
+            animator.SetTrigger("startBlock");
+            animator.ResetTrigger("AttackSword");
+            animator.SetInteger("ComboStep", 0);
+        }
+
+        if (renderedAttackSequence != AttackSequence)
+        {
+            renderedAttackSequence = AttackSequence;
+            animator.ResetTrigger("AttackSword");
+            animator.SetTrigger("AttackSword");
+        }
+
+        animator.SetBool("isBlocking", IsBlocking);
     }
-    
-public void SetComboStep(int step)
+
+    private void EnsureAnimator()
+    {
+        if (animator == null)
+        {
+            animator = GetComponent<Animator>();
+        }
+    }
+
+    public void SetComboStep(int step)
     {
         animator.SetInteger("ComboStep", step);
-    }
-    private void OnAttack(InputValue value)
-    {
-        if (value == null || !value.isPressed)
-        {
-            return;
-        }
-        animator.ResetTrigger("AttackSword"); // Reset the trigger to allow re-triggering the animation
-        animator.SetTrigger("AttackSword");
-    }
-
-    private void OnBlock(InputValue value)
-    {
-        if (value == null)
-        {
-            return;
-        }
-
-        isBlocking = value.isPressed;
-        if(value.isPressed)
-        {
-            animator.SetTrigger("startBlock");
-            animator.ResetTrigger("AttackSword"); // Ensure attack animation is not triggered while blocking    
-            animator.SetInteger("ComboStep", 0); // Reset combo step when starting to block
-        }
-        animator.SetBool("isBlocking", isBlocking);
-        
-    }
-
-    private void SyncBlockState()
-    {
-        if (blockAction == null)
-        {
-            return;
-        }
-
-        bool newBlockingState = blockAction.ReadValue<float>() > 0.5f;
-        if (newBlockingState == isBlocking)
-        {
-            return;
-        }
-
-        isBlocking = newBlockingState;
-        animator.SetBool("isBlocking", isBlocking);
     }
 
     public void GetHit()
     {
-        // Trigger hit animation while maintaining blocking state
+        // Trigger hit animation while maintaiing blocking state
         animator.SetTrigger("GetHit");
         // isBlocking remains true if the player is still holding right click
     }
