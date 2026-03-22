@@ -1,7 +1,8 @@
+using Fusion;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerMoment : MonoBehaviour
+public class PlayerMoment : NetworkBehaviour
 {
     [SerializeField] private float walkSpeed = 2f;
     [SerializeField] private float runSpeed = 5f;
@@ -48,7 +49,7 @@ public class PlayerMoment : MonoBehaviour
         if (move.sqrMagnitude > 0.001f)
         {
             Quaternion targetRotation = Quaternion.LookRotation(move.normalized, Vector3.up);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Runner.DeltaTime);
         }
 
         if (characterController.isGrounded)
@@ -65,12 +66,12 @@ public class PlayerMoment : MonoBehaviour
             }
         }
 
-        verticalVelocity += gravity * Time.deltaTime;
+        verticalVelocity += gravity * Runner.DeltaTime;
 
         Vector3 velocity = move * targetMoveSpeed;
         currentHorizontalSpeed = new Vector3(velocity.x, 0f, velocity.z).magnitude;
         velocity.y = verticalVelocity;
-        characterController.Move(velocity * Time.deltaTime);
+        characterController.Move(velocity * Runner.DeltaTime);
 
         jumpPressed = false;
     }
@@ -93,7 +94,7 @@ public class PlayerMoment : MonoBehaviour
         // Tracking air time
         if (isCurrentlyInAir)
         {
-            airTime += Time.deltaTime;
+            airTime += Runner.DeltaTime;
         }
         else
         {
@@ -152,7 +153,7 @@ public class PlayerMoment : MonoBehaviour
             return;
         }
 
-        animator.SetFloat("speed", speedValue, SpeedDampTime, Time.deltaTime);
+        animator.SetFloat("speed", speedValue, SpeedDampTime, Runner.DeltaTime);
     }
 
     private static bool IsRunInputHeld()
