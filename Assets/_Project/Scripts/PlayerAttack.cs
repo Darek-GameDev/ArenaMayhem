@@ -8,16 +8,23 @@ public class PlayerAttack : NetworkBehaviour
     [Networked] private NetworkBool IsBlocking { get; set; }
     [Networked] private int AttackSequence { get; set; }
     [Networked] private int BlockStartSequence { get; set; }
+    [Networked] private int ComboStep { get; set; }
+    [Networked] private int GetHitSequence { get; set; }
 
     private int renderedAttackSequence;
     private int renderedBlockStartSequence;
+    private int renderedComboStep;
+    private int renderedGetHitSequence;
 
     public override void Spawned()
     {
         EnsureAnimator();
         renderedAttackSequence = AttackSequence;
         renderedBlockStartSequence = BlockStartSequence;
+        renderedComboStep = ComboStep;
+        renderedGetHitSequence = GetHitSequence;
         animator.SetBool("isBlocking", IsBlocking);
+        animator.SetInteger("ComboStep", ComboStep);
     }
 
     public override void FixedUpdateNetwork()
@@ -38,6 +45,7 @@ public class PlayerAttack : NetworkBehaviour
         {
             IsBlocking = true;
             BlockStartSequence++;
+            ComboStep = 0;
         }
 
         if (released.IsSet((int)PlayerInputButton.Block))
@@ -70,6 +78,18 @@ public class PlayerAttack : NetworkBehaviour
             animator.SetTrigger("AttackSword");
         }
 
+        if (renderedComboStep != ComboStep)
+        {
+            renderedComboStep = ComboStep;
+            animator.SetInteger("ComboStep", ComboStep);
+        }
+
+        if (renderedGetHitSequence != GetHitSequence)
+        {
+            renderedGetHitSequence = GetHitSequence;
+            animator.SetTrigger("GetHit");
+        }
+
         animator.SetBool("isBlocking", IsBlocking);
     }
 
@@ -83,13 +103,21 @@ public class PlayerAttack : NetworkBehaviour
 
     public void SetComboStep(int step)
     {
-        animator.SetInteger("ComboStep", step);
+        if (!HasStateAuthority)
+        {
+            return;
+        }
+
+        ComboStep = step;
     }
 
     public void GetHit()
     {
-        // Trigger hit animation while maintaiing blocking state
-        animator.SetTrigger("GetHit");
-        // isBlocking remains true if the player is still holding right click
+        if (!HasStateAuthority)
+        {
+            return;
+        }
+
+        GetHitSequence++;
     }
 }

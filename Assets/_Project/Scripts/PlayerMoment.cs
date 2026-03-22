@@ -17,19 +17,28 @@ public class PlayerMoment : NetworkBehaviour
     private const float SpeedDampTime = 0.1f;
     private AnimatorControllerParameterType speedParameterType = AnimatorControllerParameterType.Float;
     private bool hasSpeedParameter;
-    private bool wasInAirLastFrame;
     private float airTime;
     private const float MaxAirTimeBeforeIdle = 0.5f;
     [Networked] private NetworkButtons PreviousButtons { get; set; }
     [Networked] private TickTimer JumpCooldownTimer { get; set; }
     [Networked] private Vector3 NetworkedPosition { get; set; }
     [Networked] private Quaternion NetworkedRotation { get; set; }
+    [Networked] private float NetworkedAnimatorSpeed { get; set; }
+    [Networked] private NetworkBool NetworkedAnimatorIsMove { get; set; }
+    [Networked] private NetworkBool NetworkedAnimatorIsIdle { get; set; }
+    [Networked] private NetworkBool NetworkedAnimatorIsGrounded { get; set; }
+    [Networked] private int JumpTriggerSequence { get; set; }
+    [Networked] private int JumpIdleSequence { get; set; }
 
     private bool _characterControllerInitialized;
+    private int renderedJumpTriggerSequence;
+    private int renderedJumpIdleSequence;
 
     public override void Spawned()
     {
         EnsureReferences();
+        renderedJumpTriggerSequence = JumpTriggerSequence;
+        renderedJumpIdleSequence = JumpIdleSequence;
 
         if (HasStateAuthority)
         {
@@ -37,11 +46,13 @@ public class PlayerMoment : NetworkBehaviour
             NetworkedRotation = transform.rotation;
             characterController.enabled = true;
             _characterControllerInitialized = true;
+            UpdateNetworkedAnimatorState();
             return;
         }
 
         characterController.enabled = false;
         _characterControllerInitialized = true;
+        ApplyAnimatorFromNetwork();
     }
 
     public override void FixedUpdateNetwork()
@@ -65,17 +76,17 @@ public class PlayerMoment : NetworkBehaviour
         Movement(inputData);
         NetworkedPosition = transform.position;
         NetworkedRotation = transform.rotation;
-        UpdateAnimatorParameters();
+        UpdateNetworkedAnimatorState();
     }
 
     public override void Render()
     {
-        if (HasStateAuthority)
+        if (!HasStateAuthority)
         {
-            return;
+            transform.SetPositionAndRotation(NetworkedPosition, NetworkedRotation);
         }
 
-        transform.SetPositionAndRotation(NetworkedPosition, NetworkedRotation);
+        ApplyAnimatorFromNetwork();
     }
 
     private void EnsureReferences()
@@ -125,7 +136,7 @@ public class PlayerMoment : NetworkBehaviour
             if (jumpPressed && JumpCooldownTimer.ExpiredOrNotRunning(Runner))
             {
                 verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
-                animator.SetTrigger("JumpTrigger");
+                JumpTriggerSequence++;
                 airTime = 0f;
                 JumpCooldownTimer = TickTimer.CreateFromSeconds(Runner, jumpCooldown);
             }
@@ -139,22 +150,48 @@ public class PlayerMoment : NetworkBehaviour
         characterController.Move(velocity * Runner.DeltaTime);
     }
 
-    private void UpdateAnimatorParameters()
+    private void UpdateNetworkedAnimatorState()
     {
         bool isMoving = currentHorizontalSpeed > MoveThreshold;
         bool isIdle = !isMoving;
-
-        SetSpeedParameter(currentHorizontalSpeed);
-        HandleJumpAnimation();
-        animator.SetBool("isMove", isMoving);
-        animator.SetBool("isIdle", isIdle);
-    }
-
-    private void HandleJumpAnimation()
-    {
         bool isCurrentlyInAir = !characterController.isGrounded;
 
-        // Tracking air time
+        NetworkedAnimatorSpeed = currentHorizontalSpeed;
+        NetworkedAnimatorIsMove = isMoving;
+        NetworkedAnimatorIsIdle = isIdle;
+        NetworkedAnimatorIsGrounded = characterController.isGrounded;
+        HandleJumpAnimation(isCurrentlyInAir);
+    }
+
+    private void ApplyAnimatorFromNetwork()
+    {
+        EnsureReferences();
+
+        if (animator == null)
+        {
+            return;
+        }
+
+        if (renderedJumpTriggerSequence != JumpTriggerSequence)
+        {
+            renderedJumpTriggerSequence = JumpTriggerSequence;
+            animator.SetTrigger("JumpTrigger");
+        }
+
+        if (renderedJumpIdleSequence != JumpIdleSequence)
+        {
+            renderedJumpIdleSequence = JumpIdleSequence;
+            animator.CrossFadeInFixedTime("Jump_Idle", 0.1f);
+        }
+
+        SetSpeedParameter(NetworkedAnimatorSpeed);
+        animator.SetBool("isMove", NetworkedAnimatorIsMove);
+        animator.SetBool("isIdle", NetworkedAnimatorIsIdle);
+        animator.SetBool("isGrounded", NetworkedAnimatorIsGrounded);
+    }
+
+    private void HandleJumpAnimation(bool isCurrentlyInAir)
+    {
         if (isCurrentlyInAir)
         {
             airTime += Runner.DeltaTime;
@@ -164,28 +201,14 @@ public class PlayerMoment : NetworkBehaviour
             airTime = 0f;
         }
 
-        // If in air too long without jumpng (falling), auto-transition to Jump_Idl
         if (isCurrentlyInAir && airTime > MaxAirTimeBeforeIdle && !animator.IsInTransition(0))
         {
             AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-            // Only force Jump_Idle if not already in jump sequence
             if (!stateInfo.IsName("Jump_Start") && !stateInfo.IsName("Jump_Idle"))
             {
-                animator.CrossFadeInFixedTime("Jump_Idle", 0.1f);
+                JumpIdleSequence++;
             }
         }
-
-        // Track landing: if was in air, now grounded
-        if (wasInAirLastFrame && characterController.isGrounded)
-        {
-            animator.SetBool("isGrounded", true);
-        }
-        else if (!characterController.isGrounded)
-        {
-            animator.SetBool("isGrounded", false);
-        }
-
-        wasInAirLastFrame = isCurrentlyInAir;
     }
 
     private void DetectSpeedParameterType()
