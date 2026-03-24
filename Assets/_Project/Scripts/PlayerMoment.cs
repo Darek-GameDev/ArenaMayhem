@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,177 +10,183 @@ public class PlayerMoment : MonoBehaviour
     [SerializeField] private float jumpHeight = 1.5f;
     [SerializeField] private float jumpCooldown = 0.25f;
     [SerializeField] private float gravity = -9.81f;
+    [SerializeField] private float speedBlendDampTime = 0.1f;
     [SerializeField] private CharacterController characterController;
+    [SerializeField] private Transform cameraTransform;
+    [SerializeField] private PlayerInput playerInput;
     private Animator animator;
     private Vector2 movementInput;
-    private float verticalVelocity;
-    private float currentHorizontalSpeed;
-    private bool jumpPressed;
-    private const float MoveThreshold = 0.1f;
-    private const float SpeedDampTime = 0.1f;
-    private AnimatorControllerParameterType speedParameterType = AnimatorControllerParameterType.Float;
-    private bool hasSpeedParameter;
-    private bool wasInAirLastFrame;
-    private float airTime;
-    private float nextJumpAllowedTime;
-    private const float MaxAirTimeBeforeIdle = 0.5f;
+    private Vector3 velocity;
+    private bool isGrounded;
+    private bool isRunning = false;
+    private float lastJumpTime = -Mathf.Infinity;
+    private PlayerHealth playerHealth;
+    enum PlayerState
+    {
+        Idle,
+        Moving,
+        Jumping,
+        Falling,
+        Hit,
+    }
+    private PlayerState currentState = PlayerState.Idle;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {
+        playerInput = GetComponent<PlayerInput>();
+        //set action map to Player
+        playerInput.SwitchCurrentActionMap("Player");
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
-        DetectSpeedParameterType();
+        playerHealth = GetComponent<PlayerHealth>();
     }
+    void Start()
+    {
 
-
-    // Update is called once per frame
+    }
     void Update()
     {
         Movement();
-        UpdateAnimatorParameters();
-    }
-    private void Movement(){
-        Vector3 move = new Vector3(movementInput.x, 0f, movementInput.y);
-        move = Vector3.ClampMagnitude(move, 1f);
-        bool isRunning = IsRunInputHeld();
-        float targetMoveSpeed = isRunning ? runSpeed : walkSpeed;
 
-        if (move.sqrMagnitude > 0.001f)
+        if (!isGrounded)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(move.normalized, Vector3.up);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-        }
-
-        if (characterController.isGrounded)
-        {
-            if (verticalVelocity < 0f)
-            {
-                // Keep the controller grounded instead of accumulating downward speed.
-                verticalVelocity = -2f;
-            }
-
-            if (jumpPressed)
-            {
-                verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
-            }
-        }
-
-        verticalVelocity += gravity * Time.deltaTime;
-
-        Vector3 velocity = move * targetMoveSpeed;
-        currentHorizontalSpeed = new Vector3(velocity.x, 0f, velocity.z).magnitude;
-        velocity.y = verticalVelocity;
-        characterController.Move(velocity * Time.deltaTime);
-
-        jumpPressed = false;
-    }
-
-    private void UpdateAnimatorParameters()
-    {
-        bool isMoving = currentHorizontalSpeed > MoveThreshold;
-        bool isIdle = !isMoving;
-
-        SetSpeedParameter(currentHorizontalSpeed);
-        HandleJumpAnimation();
-        animator.SetBool("isMove", isMoving);
-        animator.SetBool("isIdle", isIdle);
-    }
-
-    private void HandleJumpAnimation()
-    {
-        bool isCurrentlyInAir = !characterController.isGrounded;
-
-        // Tracking air time
-        if (isCurrentlyInAir)
-        {
-            airTime += Time.deltaTime;
+            animator.SetBool("isGrounded", isGrounded);
+            if (velocity.y > 0.1f)
+                ChangeState(PlayerState.Jumping);
+            else
+                ChangeState(PlayerState.Falling);
         }
         else
         {
-            airTime = 0f;
+            animator.SetBool("isGrounded", isGrounded);
+            if (movementInput.sqrMagnitude > 0.01f)
+                ChangeState(PlayerState.Moving);
+            else
+                ChangeState(PlayerState.Idle);
         }
-
-        // If in air too long without jumping (falling), auto-transition to Jump_Idl
-        if (isCurrentlyInAir && airTime > MaxAirTimeBeforeIdle && !animator.IsInTransition(0))
-        {
-            AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-            // Only force Jump_Idle if not already in jump sequence
-            if (!stateInfo.IsName("Jump_Start") && !stateInfo.IsName("Jump_Idle"))
-            {
-                animator.CrossFadeInFixedTime("Jump_Idle", 0.1f);
-            }
-        }
-
-        // Track landing: if was in air, now grounded
-        if (wasInAirLastFrame && characterController.isGrounded)
-        {
-            animator.SetBool("isGrounded", true);
-        }
-        else if (!characterController.isGrounded)
-        {
-            animator.SetBool("isGrounded", false);
-        }
-
-        wasInAirLastFrame = isCurrentlyInAir;
     }
 
-    private void DetectSpeedParameterType()
+    private void Movement()
     {
-        hasSpeedParameter = false;
-
-        foreach (AnimatorControllerParameter parameter in animator.parameters)
+        if (characterController.isGrounded && velocity.y < 0)
         {
-            if (parameter.name == "speed")
-            {
-                hasSpeedParameter = true;
-                speedParameterType = parameter.type;
-                return;
-            }
+            velocity.y = -2f;
         }
-    }
 
-    private void SetSpeedParameter(float speedValue)
+        // Gravity
+        velocity.y += gravity * Time.deltaTime;
+
+        // Camera direction
+        Vector3 forward = cameraTransform.forward;
+        Vector3 right = cameraTransform.right;
+
+        forward.y = 0f;
+        right.y = 0f;
+
+        forward.Normalize();
+        right.Normalize();
+
+        Vector3 move = forward * movementInput.y + right * movementInput.x;
+
+        float maxSpeed = isRunning ? runSpeed : walkSpeed;
+        float targetSpeed = movementInput.magnitude > 0.1f ? maxSpeed : 0f;
+        animator.SetFloat("Speed", targetSpeed, speedBlendDampTime, Time.deltaTime);
+        Vector3 finalMove = Vector3.zero;
+
+        if (move.magnitude > 0.1f)
+        {
+            // Rotate
+            Quaternion targetRotation = Quaternion.LookRotation(move);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+
+            finalMove = move.normalized * maxSpeed;
+        }
+
+        finalMove.y = velocity.y;
+
+        characterController.Move(finalMove * Time.deltaTime);
+        isGrounded = characterController.isGrounded;
+    }
+    public void ResetTrigger(string triggerName)
     {
-        if (!hasSpeedParameter)
-        {
-            return;
-        }
-
-        if (speedParameterType == AnimatorControllerParameterType.Int)
-        {
-            animator.SetInteger("speed", Mathf.FloorToInt(speedValue));
-            return;
-        }
-
-        animator.SetFloat("speed", speedValue, SpeedDampTime, Time.deltaTime);
+        animator.ResetTrigger(triggerName);
     }
-
-    private static bool IsRunInputHeld()
+    private void ChangeState(PlayerState newState)
     {
-        Keyboard keyboard = Keyboard.current;
-        if (keyboard == null)
+        if (currentState == newState) return;
+
+        switch (currentState)
         {
-            return false;
+            case PlayerState.Idle:
+                animator.SetBool("isIdle", false);
+                break;
+            case PlayerState.Moving:
+                animator.SetBool("isMove", false);
+                break;
+            case PlayerState.Falling:
+                animator.SetBool("isFalling", false);
+                break;
+            case PlayerState.Hit:
+                animator.SetTrigger("GetHit");
+                break;
+
         }
 
-        return keyboard.leftShiftKey.isPressed || keyboard.rightShiftKey.isPressed;
-    }
+        currentState = newState;
 
-    private void OnMove(InputValue value)
-    {
-        movementInput = value.Get<Vector2>();
-    }
-
-    private void OnJump(InputValue value)
-    {
-        if (value.isPressed && characterController.isGrounded && Time.time >= nextJumpAllowedTime)
+        switch (newState)
         {
-            jumpPressed = true;
-            animator.SetTrigger("JumpTrigger");
-            airTime = 0f;
-            nextJumpAllowedTime = Time.time + jumpCooldown;
+            case PlayerState.Idle:
+                animator.SetBool("isIdle", true);
+                break;
+            case PlayerState.Moving:
+                animator.SetBool("isMove", true);
+                break;
+            case PlayerState.Jumping:
+                animator.SetTrigger("JumpTrigger");
+                break;
+            case PlayerState.Falling:
+                animator.SetBool("isFalling", true);
+                break;
+        }
+
+    }
+
+
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        if (playerHealth != null && playerHealth.IsDead) return;
+        movementInput = context.ReadValue<Vector2>();
+    }
+    public void OnSprint(InputAction.CallbackContext context)
+    {
+        if (playerHealth != null && playerHealth.IsDead) return;
+        if (context.performed)
+        {
+            isRunning = true;
+
+        }
+        else if (context.canceled)
+        {
+            isRunning = false;
         }
     }
 
+
+
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        if (playerHealth != null && playerHealth.IsDead) return;
+        if (!context.performed) return;
+
+        bool canJump = characterController.isGrounded &&
+        (Time.time - lastJumpTime) >= jumpCooldown;
+
+        if (canJump)
+        {
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            lastJumpTime = Time.time;
+        }
+    }
 }
