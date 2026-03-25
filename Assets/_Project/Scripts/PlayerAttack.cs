@@ -93,7 +93,7 @@ public class PlayerAttack : MonoBehaviour
     }
     public void OnAttack(InputAction.CallbackContext context)
     {
-        if(playerHealth != null && !playerHealth.IsDead) return;
+        if(playerHealth != null && playerHealth.IsDead) return;
         if (context.performed)
         {
             if(currentState == AttackState.Block) return;
@@ -103,7 +103,8 @@ public class PlayerAttack : MonoBehaviour
     }
     public void OnBlock(InputAction.CallbackContext context)
     {
-        if(playerHealth != null && !playerHealth.IsDead) return;
+        ResetCombo();
+        if(playerHealth != null && playerHealth.IsDead) return;
         if (context.performed)
         {
             bool canBlock = (Time.time - lastBlockTime) >= blockCooldown;
