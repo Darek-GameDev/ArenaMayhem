@@ -10,6 +10,7 @@ public class Weapon : MonoBehaviour
     [SerializeField] private bool logHits = false;
 
     private readonly HashSet<PlayerHealth> hitTargets = new HashSet<PlayerHealth>();
+    private readonly HashSet<SharedModePlayerController> hitNetworkTargets = new HashSet<SharedModePlayerController>();
     private bool attackWindowOpen;
 
     private void Awake()
@@ -37,6 +38,7 @@ public class Weapon : MonoBehaviour
     {
         attackWindowOpen = true;
         hitTargets.Clear();
+        hitNetworkTargets.Clear();
         SetHitboxActive(true);
     }
 
@@ -81,22 +83,54 @@ public class Weapon : MonoBehaviour
         }
 
         PlayerHealth targetHealth = other.GetComponentInParent<PlayerHealth>();
-        if (targetHealth == null || targetHealth.IsDead)
+        SharedModePlayerController networkTarget = other.GetComponentInParent<SharedModePlayerController>();
+
+        bool targetIsDead = (networkTarget != null && networkTarget.IsDead) ||
+                            (targetHealth != null && targetHealth.IsDead);
+        if (targetIsDead)
         {
             return;
         }
 
-        if (hitTargets.Contains(targetHealth))
+        if (targetHealth == null && networkTarget == null)
         {
             return;
         }
 
-        hitTargets.Add(targetHealth);
-        targetHealth.TakeDamage(damage);
+        // For legacy health flow we keep the existing dedupe map.
+        if (targetHealth != null && hitTargets.Contains(targetHealth))
+        {
+            return;
+        }
+
+        if (networkTarget != null && hitNetworkTargets.Contains(networkTarget))
+        {
+            return;
+        }
+
+        if (targetHealth != null)
+        {
+            hitTargets.Add(targetHealth);
+        }
+
+        if (networkTarget != null)
+        {
+            hitNetworkTargets.Add(networkTarget);
+        }
+
+        if (networkTarget != null)
+        {
+            networkTarget.RPC_RequestDamage(damage);
+        }
+        else
+        {
+            targetHealth.TakeDamage(damage);
+        }
 
         if (logHits)
         {
-            Debug.Log($"{name} hit {targetHealth.name} for {damage}.");
+            string targetName = networkTarget != null ? networkTarget.name : targetHealth.name;
+            Debug.Log($"{name} hit {targetName} for {damage}.");
         }
     }
 

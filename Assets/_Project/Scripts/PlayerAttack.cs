@@ -12,6 +12,7 @@ public class PlayerAttack : MonoBehaviour
     private Animator animator;
     private AttackState currentState = AttackState.Idle;
     private float lastBlockTime = -Mathf.Infinity;
+    private SharedModePlayerController sharedModeController;
 
     enum AttackState
     {
@@ -29,6 +30,7 @@ public class PlayerAttack : MonoBehaviour
             weapon = GetComponentInChildren<Weapon>();
         }
         playerHealth = GetComponent<PlayerHealth>();
+        sharedModeController = GetComponent<SharedModePlayerController>();
     }
 
     // Called from Animation Event to start the attack window.
@@ -93,6 +95,7 @@ public class PlayerAttack : MonoBehaviour
     }
     public void OnAttack(InputAction.CallbackContext context)
     {
+        if (sharedModeController != null) return;
         if(playerHealth != null && playerHealth.IsDead) return;
         if (context.performed)
         {
@@ -103,6 +106,7 @@ public class PlayerAttack : MonoBehaviour
     }
     public void OnBlock(InputAction.CallbackContext context)
     {
+        if (sharedModeController != null) return;
         ResetCombo();
         if(playerHealth != null && playerHealth.IsDead) return;
         if (context.performed)

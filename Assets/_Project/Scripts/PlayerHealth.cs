@@ -7,9 +7,10 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private bool logDamage = true;
     [SerializeField] private PlayerAttack playerAttack;
     private int currentHealth;
+    private SharedModePlayerController sharedModeController;
 
-    public int CurrentHealth => currentHealth;
-    public bool IsDead => currentHealth <= 0;
+    public int CurrentHealth => sharedModeController != null ? sharedModeController.Health : currentHealth;
+    public bool IsDead => sharedModeController != null ? sharedModeController.IsDead : currentHealth <= 0;
     private Animator animator;
     private HealthState currentState;
     enum HealthState
@@ -23,11 +24,18 @@ public class PlayerHealth : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         playerAttack = GetComponent<PlayerAttack>();
+        sharedModeController = GetComponent<SharedModePlayerController>();
         currentHealth = maxHealth;
     }
 
     public void TakeDamage(int amount)
     {
+        if (sharedModeController != null)
+        {
+            sharedModeController.RPC_RequestDamage(amount);
+            return;
+        }
+
         if (IsDead || amount <= 0)
         {
             return;
@@ -48,6 +56,11 @@ public class PlayerHealth : MonoBehaviour
 
     public void Heal(int amount)
     {
+        if (sharedModeController != null)
+        {
+            return;
+        }
+
         if (IsDead || amount <= 0)
         {
             return;
@@ -58,6 +71,11 @@ public class PlayerHealth : MonoBehaviour
 
     public void ResetHealth()
     {
+        if (sharedModeController != null)
+        {
+            return;
+        }
+
         currentHealth = maxHealth;
     }
 

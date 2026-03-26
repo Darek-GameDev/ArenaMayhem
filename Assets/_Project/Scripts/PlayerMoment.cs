@@ -21,6 +21,7 @@ public class PlayerMoment : MonoBehaviour
     private bool isRunning = false;
     private float lastJumpTime = -Mathf.Infinity;
     private PlayerHealth playerHealth;
+    private SharedModePlayerController sharedModeController;
     enum PlayerState
     {
         Idle,
@@ -40,6 +41,7 @@ public class PlayerMoment : MonoBehaviour
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
         playerHealth = GetComponent<PlayerHealth>();
+        sharedModeController = GetComponent<SharedModePlayerController>();
     }
     void Start()
     {
@@ -47,6 +49,11 @@ public class PlayerMoment : MonoBehaviour
     }
     void Update()
     {
+        if (sharedModeController != null)
+        {
+            return;
+        }
+
         Movement();
 
         if (!isGrounded)
@@ -156,11 +163,13 @@ public class PlayerMoment : MonoBehaviour
 
     public void OnMove(InputAction.CallbackContext context)
     {
+        if (sharedModeController != null) return;
         if (playerHealth != null && playerHealth.IsDead) return;
         movementInput = context.ReadValue<Vector2>();
     }
     public void OnSprint(InputAction.CallbackContext context)
     {
+        if (sharedModeController != null) return;
         if (playerHealth != null && playerHealth.IsDead) return;
         if (context.performed)
         {
@@ -177,6 +186,7 @@ public class PlayerMoment : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext context)
     {
+        if (sharedModeController != null) return;
         if (playerHealth != null && playerHealth.IsDead) return;
         if (!context.performed) return;
 
