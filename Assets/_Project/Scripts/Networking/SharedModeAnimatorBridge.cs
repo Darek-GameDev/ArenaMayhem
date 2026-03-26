@@ -8,6 +8,7 @@ public class SharedModeAnimatorBridge : MonoBehaviour
     [SerializeField] private Fusion.NetworkCharacterController networkCharacterController;
 
     private int lastHitSequence = -1;
+    private int lastAttackSequence = -1;
     private bool deadTriggered;
     private bool wasBlocking;
     private bool wasJumping;
@@ -99,8 +100,14 @@ public class SharedModeAnimatorBridge : MonoBehaviour
         wasBlocking = isBlocking;
         
 
-        if (controller.AttackPressed)
+        int attackSequence = controller.AttackSequence;
+        if (lastAttackSequence < 0)
         {
+            lastAttackSequence = attackSequence;
+        }
+        else if (attackSequence != lastAttackSequence)
+        {
+            lastAttackSequence = attackSequence;
             animator.ResetTrigger("AttackSword");
             animator.SetTrigger("AttackSword");
         }

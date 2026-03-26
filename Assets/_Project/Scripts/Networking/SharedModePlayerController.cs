@@ -29,6 +29,7 @@ public class SharedModePlayerController : NetworkBehaviour
     [SerializeField] private float instantAcceleration = 100f;
     [SerializeField] private float instantBraking = 100f;
     [SerializeField] private Transform cameraTransform;
+    [SerializeField] private GameObject playerCameraRoot;
 
     [Header("Combat")]
     [SerializeField] private float blockCooldownSeconds = 0.25f;
@@ -40,6 +41,7 @@ public class SharedModePlayerController : NetworkBehaviour
     [Networked] public NetworkBool IsDead { get; set; }
     [Networked] public NetworkBool IsBlocking { get; set; }
     [Networked] public NetworkBool AttackPressed { get; set; }
+    [Networked] public int AttackSequence { get; set; }
     [Networked] public byte ComboStep { get; set; }
     [Networked] public int HitSequence { get; set; }
     [Networked] public LocomotionState NetLocomotionState { get; set; }
@@ -55,10 +57,7 @@ public class SharedModePlayerController : NetworkBehaviour
         cc.braking = instantBraking;
         cc.rotationSpeed = 0f;
 
-        if (cameraTransform == null && Camera.main != null)
-        {
-            cameraTransform = Camera.main.transform;
-        }
+        ConfigureCameraOwnership();
 
         if (HasStateAuthority)
         {
@@ -66,11 +65,41 @@ public class SharedModePlayerController : NetworkBehaviour
             IsDead = false;
             IsBlocking = false;
             AttackPressed = false;
+            AttackSequence = 0;
             ComboStep = 0;
             HitSequence = 0;
             NetLocomotionState = LocomotionState.Idle;
             NetCombatState = CombatState.None;
             NextBlockAllowedAt = 0f;
+        }
+    }
+
+    private void ConfigureCameraOwnership()
+    {
+        GameObject cameraRoot = playerCameraRoot;
+        if (cameraRoot == null)
+        {
+            Transform freeLook = transform.Find("FreeLook Camera");
+            if (freeLook != null)
+            {
+                cameraRoot = freeLook.gameObject;
+            }
+        }
+
+        bool isLocalPlayer = Object != null && Object.HasInputAuthority;
+
+        if (cameraRoot != null)
+        {
+            cameraRoot.SetActive(isLocalPlayer);
+            if (isLocalPlayer)
+            {
+                cameraTransform = cameraRoot.transform;
+            }
+        }
+
+        if (isLocalPlayer && cameraTransform == null && Camera.main != null)
+        {
+            cameraTransform = Camera.main.transform;
         }
     }
 
@@ -147,6 +176,7 @@ public class SharedModePlayerController : NetworkBehaviour
         if (input.AttackPressed && !IsBlocking)
         {
             AttackPressed = true;
+            AttackSequence++;
             NetCombatState = CombatState.Attacking;
             ComboStep = (byte)((ComboStep + 1) % 4);
         }
@@ -205,6 +235,7 @@ public class SharedModePlayerController : NetworkBehaviour
             IsDead = false;
             IsBlocking = false;
             AttackPressed = false;
+            AttackSequence = 0;
             ComboStep = 0;
             HitSequence = 0;
             NetLocomotionState = LocomotionState.Idle;
