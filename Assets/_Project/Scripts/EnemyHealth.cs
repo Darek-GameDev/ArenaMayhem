@@ -31,6 +31,8 @@ public class EnemyHealth : NetworkBehaviour
             animator = GetComponentInChildren<Animator>();
         }
 
+        EnsureWorldSpaceHealthBar();
+
         EnsureLocalInitialized();
     }
 
@@ -244,5 +246,16 @@ public class EnemyHealth : NetworkBehaviour
         {
             deadTriggered = false;
         }
+    }
+
+    private void EnsureWorldSpaceHealthBar()
+    {
+        WorldSpaceHealthBar healthBar = GetComponent<WorldSpaceHealthBar>();
+        if (healthBar == null)
+        {
+            healthBar = gameObject.AddComponent<WorldSpaceHealthBar>();
+        }
+
+        healthBar.ConfigureForEnemy(this);
     }
 }

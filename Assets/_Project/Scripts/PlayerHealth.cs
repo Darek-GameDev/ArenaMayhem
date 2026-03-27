@@ -10,6 +10,7 @@ public class PlayerHealth : MonoBehaviour
     private SharedModePlayerController sharedModeController;
 
     public int CurrentHealth => sharedModeController != null ? sharedModeController.Health : currentHealth;
+    public int MaxHealth => sharedModeController != null ? sharedModeController.MaxHealth : maxHealth;
     public bool IsDead => sharedModeController != null ? sharedModeController.IsDead : currentHealth <= 0;
     private Animator animator;
     private HealthState currentState;

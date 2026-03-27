@@ -37,8 +37,7 @@ public class SharedModePlayerController : NetworkBehaviour
     [Header("Health")]
     [SerializeField] private int maxHealth = 10;
 
-    [Networked] public int Health { get; set; }
-    [Networked] public NetworkBool IsDead { get; set; }
+    [Networked] public PlayerHealthNetworkState NetHealthState { get; set; }
     [Networked] public NetworkBool IsBlocking { get; set; }
     [Networked] public NetworkBool AttackPressed { get; set; }
     [Networked] public int AttackSequence { get; set; }
@@ -52,6 +51,36 @@ public class SharedModePlayerController : NetworkBehaviour
 
     private NetworkCharacterController cc;
 
+    public int Health
+    {
+        get => NetHealthState.Current;
+        private set
+        {
+            PlayerHealthNetworkState state = EnsureValidHealthState(NetHealthState);
+            state.Current = Mathf.Clamp(value, 0, state.Max);
+            state.IsDead = state.Current <= 0;
+            NetHealthState = state;
+        }
+    }
+
+    public bool IsDead
+    {
+        get => NetHealthState.IsDead;
+        private set
+        {
+            PlayerHealthNetworkState state = EnsureValidHealthState(NetHealthState);
+            state.IsDead = value;
+            if (value)
+            {
+                state.Current = 0;
+            }
+
+            NetHealthState = state;
+        }
+    }
+
+    public int MaxHealth => EnsureValidHealthState(NetHealthState).Max;
+
     public override void Spawned()
     {
         cc = GetComponent<NetworkCharacterController>();
@@ -60,11 +89,14 @@ public class SharedModePlayerController : NetworkBehaviour
         cc.rotationSpeed = 0f;
 
         ConfigureCameraOwnership();
+        EnsureWorldSpaceHealthBar();
 
         if (HasStateAuthority)
         {
-            Health = maxHealth;
-            IsDead = false;
+            PlayerHealthNetworkState state = EnsureValidHealthState(default);
+            state.Current = state.Max;
+            state.IsDead = false;
+            NetHealthState = state;
             IsBlocking = false;
             AttackPressed = false;
             AttackSequence = 0;
@@ -221,8 +253,7 @@ public class SharedModePlayerController : NetworkBehaviour
 
         if (HasStateAuthority)
         {
-            Health = maxHealth;
-            IsDead = false;
+            SetFullHealth();
             IsBlocking = false;
             AttackPressed = false;
             AttackSequence = 0;
@@ -242,7 +273,7 @@ public class SharedModePlayerController : NetworkBehaviour
             return;
         }
 
-        Health = maxHealth;
+        SetFullHealth();
         IsBlocking = false;
         AttackPressed = false;
         ComboStep = 0;
@@ -292,7 +323,7 @@ public class SharedModePlayerController : NetworkBehaviour
             return;
         }
 
-        Health = Mathf.Max(0, Health - amount);
+        Health = Health - amount;
         if (Health == 0)
         {
             IsDead = true;
@@ -344,6 +375,30 @@ public class SharedModePlayerController : NetworkBehaviour
         NetLocomotionState = sprintHeld ? LocomotionState.Sprinting : LocomotionState.Moving;
     }
 
+    private PlayerHealthNetworkState EnsureValidHealthState(PlayerHealthNetworkState state)
+    {
+        if (state.Max <= 0)
+        {
+            state.Max = Mathf.Max(1, maxHealth);
+        }
+
+        state.Current = Mathf.Clamp(state.Current, 0, state.Max);
+        if (state.Current == 0)
+        {
+            state.IsDead = true;
+        }
+
+        return state;
+    }
+
+    private void SetFullHealth()
+    {
+        PlayerHealthNetworkState state = EnsureValidHealthState(NetHealthState);
+        state.Current = state.Max;
+        state.IsDead = false;
+        NetHealthState = state;
+    }
+
     private Vector3 GetWorldMoveDirection(Vector2 inputMove)
     {
         Vector3 localMove = new Vector3(inputMove.x, 0f, inputMove.y);
@@ -370,5 +425,16 @@ public class SharedModePlayerController : NetworkBehaviour
         forward.Normalize();
         right.Normalize();
         return forward * localMove.z + right * localMove.x;
+    }
+
+    private void EnsureWorldSpaceHealthBar()
+    {
+        WorldSpaceHealthBar healthBar = GetComponent<WorldSpaceHealthBar>();
+        if (healthBar == null)
+        {
+            healthBar = gameObject.AddComponent<WorldSpaceHealthBar>();
+        }
+
+        healthBar.ConfigureForPlayer(this, hideLocalInputAuthority: true);
     }
 }

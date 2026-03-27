@@ -16,12 +16,14 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
     [SerializeField] private bool spawnOnFirstPlayerJoin = true;
     [SerializeField] private bool allowSpawnWithF = true;
     [SerializeField] private bool onlyOnePotionAtATime = true;
+    [SerializeField] private bool restrictSpawnToLowestPlayerId = true;
     [SerializeField] private Transform[] randomSpawnPoints;
     [SerializeField] private Transform fallbackSpawnPoint;
     [SerializeField] private bool logSpawn = true;
 
     private bool callbacksRegistered;
     private NetworkObject spawnedPotion;
+    private readonly List<NetworkObject> visiblePotions = new List<NetworkObject>(4);
 
     private void Awake()
     {
@@ -43,10 +45,7 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
             TryRegisterCallbacks();
         }
 
-        if (spawnedPotion == null)
-        {
-            spawnedPotion = FindExistingPotionObject();
-        }
+        RefreshSpawnedPotionReference();
 
         if (!allowSpawnWithF || runner == null)
         {
@@ -54,6 +53,11 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
         }
 
         if (runner.GameMode != GameMode.Shared || !runner.LocalPlayer.IsRealPlayer)
+        {
+            return;
+        }
+
+        if (!CanLocalPlayerSpawn(runner))
         {
             return;
         }
@@ -115,7 +119,12 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
 
     void INetworkRunnerCallbacks.OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
-        if (player != runner.LocalPlayer || !spawnOnFirstPlayerJoin)
+        if (!spawnOnFirstPlayerJoin)
+        {
+            return;
+        }
+
+        if (!CanLocalPlayerSpawn(runner))
         {
             return;
         }
@@ -156,15 +165,17 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
             return;
         }
 
+        if (!CanLocalPlayerSpawn(currentRunner))
+        {
+            return;
+        }
+
         if (requireFirstRealPlayer && GetRealPlayerCount(currentRunner) != 1)
         {
             return;
         }
 
-        if (spawnedPotion == null)
-        {
-            spawnedPotion = FindExistingPotionObject();
-        }
+        RefreshSpawnedPotionReference();
 
         if (onlyOnePotionAtATime && spawnedPotion != null)
         {
@@ -220,18 +231,88 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
         return false;
     }
 
-    private static NetworkObject FindExistingPotionObject()
+    private void RefreshSpawnedPotionReference()
     {
+        CollectExistingPotions(visiblePotions);
+
+        if (visiblePotions.Count == 0)
+        {
+            spawnedPotion = null;
+            return;
+        }
+
+        NetworkObject keeper = ChooseKeeperPotion(visiblePotions);
+        spawnedPotion = keeper;
+
+        if (!onlyOnePotionAtATime || visiblePotions.Count <= 1 || runner == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < visiblePotions.Count; i++)
+        {
+            NetworkObject candidate = visiblePotions[i];
+            if (candidate == null || candidate == keeper)
+            {
+                continue;
+            }
+
+            if (candidate.HasStateAuthority)
+            {
+                runner.Despawn(candidate);
+            }
+        }
+    }
+
+    private static void CollectExistingPotions(List<NetworkObject> results)
+    {
+        results.Clear();
+
         SharedModeHealthPotionItem[] items = FindObjectsByType<SharedModeHealthPotionItem>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
         for (int i = 0; i < items.Length; i++)
         {
-            if (items[i] != null && items[i].Object != null)
+            if (items[i] == null || items[i].Object == null)
             {
-                return items[i].Object;
+                continue;
+            }
+
+            results.Add(items[i].Object);
+        }
+    }
+
+    private static NetworkObject ChooseKeeperPotion(List<NetworkObject> potions)
+    {
+        NetworkObject selected = potions[0];
+        int selectedOwner = GetOwnerSortKey(selected);
+
+        for (int i = 1; i < potions.Count; i++)
+        {
+            NetworkObject candidate = potions[i];
+            if (candidate == null)
+            {
+                continue;
+            }
+
+            int candidateOwner = GetOwnerSortKey(candidate);
+            if (candidateOwner < selectedOwner)
+            {
+                selected = candidate;
+                selectedOwner = candidateOwner;
             }
         }
 
-        return null;
+        return selected;
+    }
+
+    private static int GetOwnerSortKey(NetworkObject networkObject)
+    {
+        if (networkObject == null)
+        {
+            return int.MaxValue;
+        }
+
+        PlayerRef inputAuthority = networkObject.InputAuthority;
+        return inputAuthority.IsRealPlayer ? inputAuthority.PlayerId : int.MaxValue - 1;
     }
 
     private static int GetRealPlayerCount(NetworkRunner currentRunner)
@@ -246,6 +327,45 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
         }
 
         return count;
+    }
+
+    private bool CanLocalPlayerSpawn(NetworkRunner currentRunner)
+    {
+        if (currentRunner == null || !currentRunner.LocalPlayer.IsRealPlayer)
+        {
+            return false;
+        }
+
+        if (!restrictSpawnToLowestPlayerId)
+        {
+            return true;
+        }
+
+        return TryGetLowestRealPlayer(currentRunner, out PlayerRef lowestPlayer) && lowestPlayer == currentRunner.LocalPlayer;
+    }
+
+    private static bool TryGetLowestRealPlayer(NetworkRunner currentRunner, out PlayerRef lowestPlayer)
+    {
+        lowestPlayer = default;
+        bool found = false;
+        int lowestId = int.MaxValue;
+
+        foreach (PlayerRef activePlayer in currentRunner.ActivePlayers)
+        {
+            if (!activePlayer.IsRealPlayer)
+            {
+                continue;
+            }
+
+            if (!found || activePlayer.PlayerId < lowestId)
+            {
+                found = true;
+                lowestId = activePlayer.PlayerId;
+                lowestPlayer = activePlayer;
+            }
+        }
+
+        return found;
     }
 
     void INetworkRunnerCallbacks.OnInput(NetworkRunner runner, NetworkInput input) { }
