@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Weapon : MonoBehaviour
+public class EnemyWeapon : MonoBehaviour
 {
     [Header("Damage")]
     [SerializeField] private int damage = 1;
@@ -11,7 +11,6 @@ public class Weapon : MonoBehaviour
 
     private readonly HashSet<PlayerHealth> hitTargets = new HashSet<PlayerHealth>();
     private readonly HashSet<SharedModePlayerController> hitNetworkTargets = new HashSet<SharedModePlayerController>();
-    private readonly HashSet<EnemyHealth> hitEnemyTargets = new HashSet<EnemyHealth>();
     private bool attackWindowOpen;
 
     private void Awake()
@@ -34,17 +33,14 @@ public class Weapon : MonoBehaviour
         ownerRoot = owner;
     }
 
-    // Call this from animation event when the sword can deal damage.
     public void BeginAttackWindow()
     {
         attackWindowOpen = true;
         hitTargets.Clear();
         hitNetworkTargets.Clear();
-        hitEnemyTargets.Clear();
         SetHitboxActive(true);
     }
 
-    // Call this from animation event when the swing ends.
     public void EndAttackWindow()
     {
         attackWindowOpen = false;
@@ -68,7 +64,6 @@ public class Weapon : MonoBehaviour
             return;
         }
 
-        // Ensures already-overlapping targets can still be hit.
         TryDealDamage(other);
     }
 
@@ -86,33 +81,25 @@ public class Weapon : MonoBehaviour
 
         PlayerHealth targetHealth = other.GetComponentInParent<PlayerHealth>();
         SharedModePlayerController networkTarget = other.GetComponentInParent<SharedModePlayerController>();
-        EnemyHealth enemyTarget = other.GetComponentInParent<EnemyHealth>();
 
         bool targetIsDead = (networkTarget != null && networkTarget.IsDead) ||
-                            (targetHealth != null && targetHealth.IsDead) ||
-                            (enemyTarget != null && enemyTarget.IsDead);
+                            (targetHealth != null && targetHealth.IsDead);
         if (targetIsDead)
         {
             return;
         }
 
-        if (targetHealth == null && networkTarget == null && enemyTarget == null)
+        if (targetHealth == null && networkTarget == null)
         {
             return;
         }
 
-        // For legacy health flow we keep the existing dedupe map.
         if (targetHealth != null && hitTargets.Contains(targetHealth))
         {
             return;
         }
 
         if (networkTarget != null && hitNetworkTargets.Contains(networkTarget))
-        {
-            return;
-        }
-
-        if (enemyTarget != null && hitEnemyTargets.Contains(enemyTarget))
         {
             return;
         }
@@ -127,18 +114,9 @@ public class Weapon : MonoBehaviour
             hitNetworkTargets.Add(networkTarget);
         }
 
-        if (enemyTarget != null)
-        {
-            hitEnemyTargets.Add(enemyTarget);
-        }
-
         if (networkTarget != null)
         {
             networkTarget.RPC_RequestDamage(damage);
-        }
-        else if (enemyTarget != null)
-        {
-            enemyTarget.RequestDamage(damage);
         }
         else
         {
@@ -147,11 +125,7 @@ public class Weapon : MonoBehaviour
 
         if (logHits)
         {
-            string targetName = networkTarget != null
-                ? networkTarget.name
-                : enemyTarget != null
-                    ? enemyTarget.name
-                    : targetHealth.name;
+            string targetName = networkTarget != null ? networkTarget.name : targetHealth.name;
             Debug.Log($"{name} hit {targetName} for {damage}.");
         }
     }

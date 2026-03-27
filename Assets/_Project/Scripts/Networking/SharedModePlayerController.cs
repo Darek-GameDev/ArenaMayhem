@@ -207,6 +207,8 @@ public class SharedModePlayerController : NetworkBehaviour
         }
 
         HitSequence++;
+        AttackPressed = false;
+        ComboStep = 0;
 
         if (IsBlocking)
         {

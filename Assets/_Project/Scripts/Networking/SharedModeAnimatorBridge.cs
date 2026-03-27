@@ -115,6 +115,9 @@ public class SharedModeAnimatorBridge : MonoBehaviour
         if (lastHitSequence != controller.HitSequence)
         {
             lastHitSequence = controller.HitSequence;
+            animator.ResetTrigger("AttackSword");
+            animator.SetInteger("ComboStep", 0);
+
             if (controller.NetCombatState == SharedModePlayerController.CombatState.BlockHit || isBlocking)
             {
                 animator.SetTrigger("BlockHit");

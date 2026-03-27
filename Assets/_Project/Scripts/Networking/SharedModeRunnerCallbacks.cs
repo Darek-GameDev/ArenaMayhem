@@ -14,7 +14,15 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] private NetworkObject playerPrefab;
     [SerializeField] private Transform[] spawnPoints;
 
+    [Header("Enemy Spawn")]
+    [SerializeField] private bool spawnEnemyOnFirstJoin = true;
+    [SerializeField] private NetworkObject enemyPrefab;
+    [SerializeField] private Transform[] enemySpawnPoints;
+    [SerializeField] private Transform enemySpawnPoint;
+    [SerializeField] private bool logEnemySpawn = true;
+
     private readonly Dictionary<PlayerRef, NetworkObject> spawnedPlayers = new Dictionary<PlayerRef, NetworkObject>();
+    private NetworkObject spawnedEnemy;
     private bool callbacksRegistered;
 
     private bool prevJump;
@@ -41,6 +49,11 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         {
             TryResolveReferences();
             TryRegisterCallbacks();
+        }
+
+        if (spawnEnemyOnFirstJoin && spawnedEnemy == null)
+        {
+            spawnedEnemy = FindExistingEnemyObject();
         }
     }
 
@@ -160,7 +173,7 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
             return;
         }
 
-        Vector3 spawnPosition = GetSpawnPosition(player);
+        Vector3 spawnPosition = GetSpawnPosition();
         Quaternion spawnRotation = Quaternion.identity;
 
         NetworkObject spawned = runner.Spawn(playerPrefab, spawnPosition, spawnRotation, player);
@@ -188,6 +201,8 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
                 }
             }
         }
+
+        TrySpawnEnemyOnFirstJoin(runner, player);
     }
 
     void INetworkRunnerCallbacks.OnPlayerLeft(NetworkRunner runner, PlayerRef player)
@@ -203,21 +218,154 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         }
 
         spawnedPlayers.Remove(player);
+
+        TryDespawnEnemyIfNoPlayers(runner);
     }
 
-    private Vector3 GetSpawnPosition(PlayerRef player)
+    private void TrySpawnEnemyOnFirstJoin(NetworkRunner currentRunner, PlayerRef joinedPlayer)
     {
-        if (spawnPoints != null && spawnPoints.Length > 0)
+        if (!spawnEnemyOnFirstJoin || enemyPrefab == null || currentRunner == null)
         {
-            int index = Mathf.Abs(player.RawEncoded % spawnPoints.Length);
-            Transform point = spawnPoints[index];
-            if (point != null)
+            return;
+        }
+
+        if (currentRunner.GameMode != GameMode.Shared)
+        {
+            return;
+        }
+
+        if (joinedPlayer != currentRunner.LocalPlayer)
+        {
+            return;
+        }
+
+        if (GetRealPlayerCount(currentRunner) != 1)
+        {
+            return;
+        }
+
+        if (spawnedEnemy == null)
+        {
+            spawnedEnemy = FindExistingEnemyObject();
+        }
+
+        if (spawnedEnemy != null)
+        {
+            return;
+        }
+
+        Vector3 spawnPosition = GetEnemySpawnPosition(out Quaternion spawnRotation);
+
+        spawnedEnemy = currentRunner.Spawn(enemyPrefab, spawnPosition, spawnRotation, currentRunner.LocalPlayer);
+
+        if (logEnemySpawn && spawnedEnemy != null)
+        {
+            Debug.Log($"SharedModeRunnerCallbacks: spawned enemy '{spawnedEnemy.name}' at {spawnPosition}.");
+        }
+    }
+
+    private void TryDespawnEnemyIfNoPlayers(NetworkRunner currentRunner)
+    {
+        if (spawnedEnemy == null || currentRunner == null)
+        {
+            return;
+        }
+
+        if (GetRealPlayerCount(currentRunner) > 0)
+        {
+            return;
+        }
+
+        if (spawnedEnemy.HasStateAuthority)
+        {
+            currentRunner.Despawn(spawnedEnemy);
+        }
+
+        spawnedEnemy = null;
+    }
+
+    private static int GetRealPlayerCount(NetworkRunner currentRunner)
+    {
+        int count = 0;
+        foreach (PlayerRef activePlayer in currentRunner.ActivePlayers)
+        {
+            if (activePlayer.IsRealPlayer)
             {
-                return point.position;
+                count++;
             }
         }
 
+        return count;
+    }
+
+    private static NetworkObject FindExistingEnemyObject()
+    {
+        EnemyHealth[] enemies = FindObjectsByType<EnemyHealth>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        for (int i = 0; i < enemies.Length; i++)
+        {
+            if (enemies[i] != null && enemies[i].Object != null)
+            {
+                return enemies[i].Object;
+            }
+        }
+
+        return null;
+    }
+
+    private Vector3 GetSpawnPosition()
+    {
+        if (TryGetRandomSpawnPoint(spawnPoints, out Transform point))
+        {
+            return point.position;
+        }
+
         return Vector3.zero;
+    }
+
+    private Vector3 GetEnemySpawnPosition(out Quaternion rotation)
+    {
+        if (TryGetRandomSpawnPoint(enemySpawnPoints, out Transform randomEnemyPoint))
+        {
+            rotation = randomEnemyPoint.rotation;
+            return randomEnemyPoint.position;
+        }
+
+        if (enemySpawnPoint != null)
+        {
+            rotation = enemySpawnPoint.rotation;
+            return enemySpawnPoint.position;
+        }
+
+        if (TryGetRandomSpawnPoint(spawnPoints, out Transform fallbackPlayerPoint))
+        {
+            rotation = fallbackPlayerPoint.rotation;
+            return fallbackPlayerPoint.position;
+        }
+
+        rotation = Quaternion.identity;
+        return Vector3.zero;
+    }
+
+    private static bool TryGetRandomSpawnPoint(Transform[] points, out Transform selectedPoint)
+    {
+        selectedPoint = null;
+        if (points == null || points.Length == 0)
+        {
+            return false;
+        }
+
+        int startIndex = UnityEngine.Random.Range(0, points.Length);
+        for (int i = 0; i < points.Length; i++)
+        {
+            int index = (startIndex + i) % points.Length;
+            if (points[index] != null)
+            {
+                selectedPoint = points[index];
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private Vector2 ReadVector2(string actionName)

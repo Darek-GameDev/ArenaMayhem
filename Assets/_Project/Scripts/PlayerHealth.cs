@@ -100,7 +100,16 @@ public class PlayerHealth : MonoBehaviour
         switch (newState)
         {
             case HealthState.Hit:
-                if(playerAttack.IsBlocking)
+                bool isBlocking = playerAttack != null && playerAttack.IsBlocking;
+                if (playerAttack != null)
+                {
+                    playerAttack.ResetCombo();
+                }
+
+                animator.ResetTrigger("AttackSword");
+                animator.SetInteger("ComboStep", 0);
+
+                if(isBlocking)
                 {
                     animator.SetTrigger("BlockHit");
                 }
