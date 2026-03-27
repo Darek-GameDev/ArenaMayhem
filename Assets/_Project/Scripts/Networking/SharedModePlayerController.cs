@@ -44,6 +44,8 @@ public class SharedModePlayerController : NetworkBehaviour
     [Networked] public int AttackSequence { get; set; }
     [Networked] public byte ComboStep { get; set; }
     [Networked] public int HitSequence { get; set; }
+    [Networked] public int KillCount { get; set; }
+    [Networked] public int CollectedItemCount { get; set; }
     [Networked] public LocomotionState NetLocomotionState { get; set; }
     [Networked] public CombatState NetCombatState { get; set; }
     [Networked] public float NextBlockAllowedAt { get; set; }
@@ -68,6 +70,8 @@ public class SharedModePlayerController : NetworkBehaviour
             AttackSequence = 0;
             ComboStep = 0;
             HitSequence = 0;
+            KillCount = 0;
+            CollectedItemCount = 0;
             NetLocomotionState = LocomotionState.Idle;
             NetCombatState = CombatState.None;
             NextBlockAllowedAt = 0f;
@@ -201,6 +205,78 @@ public class SharedModePlayerController : NetworkBehaviour
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_RequestDamage(int amount)
     {
+        ApplyDamage(amount, default);
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_RequestDamageFromPlayer(int amount, PlayerRef attackerRef)
+    {
+        ApplyDamage(amount, attackerRef);
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_ResetAfterRespawn(Vector3 worldPosition)
+    {
+        transform.position = worldPosition;
+
+        if (HasStateAuthority)
+        {
+            Health = maxHealth;
+            IsDead = false;
+            IsBlocking = false;
+            AttackPressed = false;
+            AttackSequence = 0;
+            ComboStep = 0;
+            HitSequence = 0;
+            NetLocomotionState = LocomotionState.Idle;
+            NetCombatState = CombatState.None;
+            NextBlockAllowedAt = 0f;
+        }
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_RequestFullHeal()
+    {
+        if (IsDead)
+        {
+            return;
+        }
+
+        Health = maxHealth;
+        IsBlocking = false;
+        AttackPressed = false;
+        ComboStep = 0;
+
+        if (NetCombatState == CombatState.Attacking || NetCombatState == CombatState.BlockHit)
+        {
+            NetCombatState = CombatState.None;
+        }
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_RequestAddCollectedItem(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        CollectedItemCount += amount;
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_RequestAddKill(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        KillCount += amount;
+    }
+
+    private void ApplyDamage(int amount, PlayerRef attackerRef)
+    {
         if (amount <= 0 || IsDead)
         {
             return;
@@ -223,27 +299,32 @@ public class SharedModePlayerController : NetworkBehaviour
             IsBlocking = false;
             NetCombatState = CombatState.None;
             NetLocomotionState = LocomotionState.Idle;
+
+            if (attackerRef.IsRealPlayer && Object != null && Object.IsValid && attackerRef != Object.InputAuthority)
+            {
+                SharedModePlayerController attacker = ResolvePlayerController(attackerRef);
+                if (attacker != null)
+                {
+                    attacker.RPC_RequestAddKill(1);
+                }
+            }
         }
     }
 
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public void RPC_ResetAfterRespawn(Vector3 worldPosition)
+    private SharedModePlayerController ResolvePlayerController(PlayerRef playerRef)
     {
-        transform.position = worldPosition;
-
-        if (HasStateAuthority)
+        if (Runner == null || !playerRef.IsRealPlayer)
         {
-            Health = maxHealth;
-            IsDead = false;
-            IsBlocking = false;
-            AttackPressed = false;
-            AttackSequence = 0;
-            ComboStep = 0;
-            HitSequence = 0;
-            NetLocomotionState = LocomotionState.Idle;
-            NetCombatState = CombatState.None;
-            NextBlockAllowedAt = 0f;
+            return null;
         }
+
+        NetworkObject playerObject = Runner.GetPlayerObject(playerRef);
+        if (playerObject == null)
+        {
+            return null;
+        }
+
+        return playerObject.GetComponent<SharedModePlayerController>();
     }
 
     private void UpdateLocomotionState(Vector3 worldDirection, bool sprintHeld)

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Fusion;
 using UnityEngine;
 
 public class Weapon : MonoBehaviour
@@ -132,13 +133,36 @@ public class Weapon : MonoBehaviour
             hitEnemyTargets.Add(enemyTarget);
         }
 
+        SharedModePlayerController ownerController = ownerRoot != null
+            ? ownerRoot.GetComponentInParent<SharedModePlayerController>()
+            : null;
+        PlayerRef attackerRef = default;
+        if (ownerController != null && ownerController.Object != null && ownerController.Object.IsValid)
+        {
+            attackerRef = ownerController.Object.InputAuthority;
+        }
+
         if (networkTarget != null)
         {
-            networkTarget.RPC_RequestDamage(damage);
+            if (attackerRef.IsRealPlayer)
+            {
+                networkTarget.RPC_RequestDamageFromPlayer(damage, attackerRef);
+            }
+            else
+            {
+                networkTarget.RPC_RequestDamage(damage);
+            }
         }
         else if (enemyTarget != null)
         {
-            enemyTarget.RequestDamage(damage);
+            if (attackerRef.IsRealPlayer)
+            {
+                enemyTarget.RequestDamageFromPlayer(damage, attackerRef);
+            }
+            else
+            {
+                enemyTarget.RequestDamage(damage);
+            }
         }
         else
         {

@@ -77,6 +77,16 @@ public class EnemyHealth : NetworkBehaviour
 
     public void RequestDamage(int amount)
     {
+        RequestDamageInternal(amount, default);
+    }
+
+    public void RequestDamageFromPlayer(int amount, PlayerRef attackerRef)
+    {
+        RequestDamageInternal(amount, attackerRef);
+    }
+
+    private void RequestDamageInternal(int amount, PlayerRef attackerRef)
+    {
         if (amount <= 0 || IsDead)
         {
             return;
@@ -84,7 +94,14 @@ public class EnemyHealth : NetworkBehaviour
 
         if (HasNetworkState)
         {
-            RPC_RequestDamage(amount);
+            if (attackerRef.IsRealPlayer)
+            {
+                RPC_RequestDamageFromPlayer(amount, attackerRef);
+            }
+            else
+            {
+                RPC_RequestDamage(amount);
+            }
             return;
         }
 
@@ -115,6 +132,55 @@ public class EnemyHealth : NetworkBehaviour
                 Debug.Log($"{name} is dead.");
             }
         }
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    private void RPC_RequestDamageFromPlayer(int amount, PlayerRef attackerRef)
+    {
+        if (amount <= 0 || NetIsDead)
+        {
+            return;
+        }
+
+        HitSequence++;
+        NetHealth = Mathf.Max(0, NetHealth - amount);
+
+        if (logDamage)
+        {
+            Debug.Log($"{name} took {amount} damage. HP: {NetHealth}/{maxHealth}");
+        }
+
+        if (NetHealth == 0)
+        {
+            NetIsDead = true;
+
+            SharedModePlayerController attacker = ResolvePlayerController(attackerRef);
+            if (attacker != null)
+            {
+                attacker.RPC_RequestAddKill(1);
+            }
+
+            if (logDamage)
+            {
+                Debug.Log($"{name} is dead.");
+            }
+        }
+    }
+
+    private SharedModePlayerController ResolvePlayerController(PlayerRef playerRef)
+    {
+        if (Runner == null || !playerRef.IsRealPlayer)
+        {
+            return null;
+        }
+
+        NetworkObject playerObject = Runner.GetPlayerObject(playerRef);
+        if (playerObject == null)
+        {
+            return null;
+        }
+
+        return playerObject.GetComponent<SharedModePlayerController>();
     }
 
     private void ApplyLocalDamage(int amount)
