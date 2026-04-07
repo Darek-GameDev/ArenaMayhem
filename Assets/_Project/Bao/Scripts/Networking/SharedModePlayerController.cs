@@ -48,6 +48,8 @@ public class SharedModePlayerController : NetworkBehaviour
     [Networked] public LocomotionState NetLocomotionState { get; set; }
     [Networked] public CombatState NetCombatState { get; set; }
     [Networked] public float NextBlockAllowedAt { get; set; }
+    [Networked] public float SpeedBuffAmount { get; set; }
+    [Networked] public float SpeedBuffEndAt { get; set; }
 
     private NetworkCharacterController cc;
 
@@ -107,6 +109,8 @@ public class SharedModePlayerController : NetworkBehaviour
             NetLocomotionState = LocomotionState.Idle;
             NetCombatState = CombatState.None;
             NextBlockAllowedAt = 0f;
+            SpeedBuffAmount = 0f;
+            SpeedBuffEndAt = 0f;
         }
     }
 
@@ -169,7 +173,10 @@ public class SharedModePlayerController : NetworkBehaviour
         bool sprintHeld = input.Buttons.IsSet((int)PlayerInputButton.Sprint);
         bool blockHeld = input.Buttons.IsSet((int)PlayerInputButton.Block);
 
-        cc.maxSpeed = sprintHeld ? runSpeed : walkSpeed;
+        float simTime = (float)Runner.SimulationTime;
+        UpdateSpeedBuff(simTime);
+
+        cc.maxSpeed = sprintHeld ? (runSpeed + SpeedBuffAmount) : walkSpeed;
 
         Vector3 worldDirection = GetWorldMoveDirection(input.Move);
         cc.Move(worldDirection);
@@ -186,8 +193,6 @@ public class SharedModePlayerController : NetworkBehaviour
         {
             cc.Jump();
         }
-
-        float simTime = (float)Runner.SimulationTime;
 
         // Drive block from held state to avoid dropped pressed/released transitions.
         if (blockHeld)
@@ -262,6 +267,8 @@ public class SharedModePlayerController : NetworkBehaviour
             NetLocomotionState = LocomotionState.Idle;
             NetCombatState = CombatState.None;
             NextBlockAllowedAt = 0f;
+            SpeedBuffAmount = 0f;
+            SpeedBuffEndAt = 0f;
         }
     }
 
@@ -282,6 +289,30 @@ public class SharedModePlayerController : NetworkBehaviour
         {
             NetCombatState = CombatState.None;
         }
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_RequestAddHealth(int amount)
+    {
+        if (IsDead || amount <= 0)
+        {
+            return;
+        }
+
+        Health = Mathf.Min(Health + amount, MaxHealth);
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_RequestAddSpeed(float amount, float durationSeconds)
+    {
+        if (IsDead || amount <= 0f || durationSeconds <= 0f)
+        {
+            return;
+        }
+
+        float simTime = Runner != null ? (float)Runner.SimulationTime : 0f;
+        SpeedBuffAmount = amount;
+        SpeedBuffEndAt = simTime + durationSeconds;
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -436,5 +467,14 @@ public class SharedModePlayerController : NetworkBehaviour
         }
 
         healthBar.ConfigureForPlayer(this, hideLocalInputAuthority: true);
+    }
+
+    private void UpdateSpeedBuff(float simTime)
+    {
+        if (SpeedBuffAmount > 0f && simTime >= SpeedBuffEndAt)
+        {
+            SpeedBuffAmount = 0f;
+            SpeedBuffEndAt = 0f;
+        }
     }
 }
