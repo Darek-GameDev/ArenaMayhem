@@ -33,6 +33,7 @@ public class PlayerAttack : MonoBehaviour
 
     private const string AttackSwordTrigger = "AttackSword";
     private const string AttackBowTrigger = "AttackBow";
+    private const string StartAimTrigger = "startAim";
 
     enum AttackState
     {
@@ -155,7 +156,13 @@ public class PlayerAttack : MonoBehaviour
                 return;
             }
 
+            bool wasAiming = isAiming;
             isAiming = true;
+            if (!wasAiming)
+            {
+                ResetTriggerIfExists(StartAimTrigger);
+                SetTriggerIfExists(StartAimTrigger);
+            }
             SetBoolIfExists("isAiming", true);
         }
         else if (context.canceled)

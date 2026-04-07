@@ -12,9 +12,11 @@ public class SharedModeAnimatorBridge : MonoBehaviour
     private bool deadTriggered;
     private bool wasBlocking;
     private bool wasJumping;
+    private bool wasAiming;
 
     private const string AttackSwordTrigger = "AttackSword";
     private const string AttackBowTrigger = "AttackBow";
+    private const string StartAimTrigger = "startAim";
 
     private void Awake()
     {
@@ -59,6 +61,7 @@ public class SharedModeAnimatorBridge : MonoBehaviour
             SetBoolIfExists("isAiming", false);
             animator.SetFloat("Speed", 0f, 0.08f, Time.deltaTime);
             wasJumping = false;
+            wasAiming = false;
             return;
         }
 
@@ -93,7 +96,15 @@ public class SharedModeAnimatorBridge : MonoBehaviour
 
         bool isBlocking = controller.IsBlocking;
         SetBoolIfExists("isBlocking", isBlocking);
-        SetBoolIfExists("isAiming", controller.IsAiming);
+        bool isAiming = controller.IsAiming;
+        SetBoolIfExists("isAiming", isAiming);
+
+        if (isAiming && !wasAiming)
+        {
+            ResetTriggerIfExists(StartAimTrigger);
+            SetTriggerIfExists(StartAimTrigger);
+        }
+        wasAiming = isAiming;
 
         if (isBlocking && !wasBlocking)
         {
