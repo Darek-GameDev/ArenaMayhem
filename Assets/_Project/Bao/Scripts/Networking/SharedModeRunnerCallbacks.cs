@@ -29,6 +29,7 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     private bool prevSprint;
     private bool prevAttack;
     private bool prevBlock;
+    private bool prevAim;
     private bool warnedMissingInput;
 
     private void Awake()
@@ -119,17 +120,20 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         bool sprintHeld = ReadButtonHeld("Sprint");
         bool attackHeld = ReadButtonHeld("Attack");
         bool blockHeld = ReadButtonHeld("Block");
+        bool aimHeld = ReadButtonHeld("Aim");
 
         NetworkButtons buttons = default;
         buttons.Set((int)PlayerInputButton.Jump, jumpHeld);
         buttons.Set((int)PlayerInputButton.Sprint, sprintHeld);
         buttons.Set((int)PlayerInputButton.Attack, attackHeld);
         buttons.Set((int)PlayerInputButton.Block, blockHeld);
+        buttons.Set((int)PlayerInputButton.Aim, aimHeld);
 
         ComputeTransitions(jumpHeld, ref prevJump, out NetworkBool jumpPressed, out NetworkBool jumpReleased);
         ComputeTransitions(sprintHeld, ref prevSprint, out NetworkBool sprintPressed, out NetworkBool sprintReleased);
         ComputeTransitions(attackHeld, ref prevAttack, out NetworkBool attackPressed, out NetworkBool attackReleased);
         ComputeTransitions(blockHeld, ref prevBlock, out NetworkBool blockPressed, out NetworkBool blockReleased);
+        ComputeTransitions(aimHeld, ref prevAim, out NetworkBool aimPressed, out NetworkBool aimReleased);
 
         PlayerNetworkInput data = new PlayerNetworkInput
         {
@@ -144,6 +148,8 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
             AttackReleased = attackReleased,
             BlockPressed = blockPressed,
             BlockReleased = blockReleased,
+            AimPressed = aimPressed,
+            AimReleased = aimReleased,
         };
 
         input.Set(data);

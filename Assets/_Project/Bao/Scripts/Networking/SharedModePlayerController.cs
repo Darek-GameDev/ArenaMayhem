@@ -5,6 +5,12 @@ using UnityEngine;
 [RequireComponent(typeof(NetworkCharacterController))]
 public class SharedModePlayerController : NetworkBehaviour
 {
+    public enum PlayerWeaponType : byte
+    {
+        Sword = 0,
+        Bow = 1,
+    }
+
     public enum LocomotionState : byte
     {
         Idle = 0,
@@ -20,6 +26,7 @@ public class SharedModePlayerController : NetworkBehaviour
         Attacking = 1,
         Blocking = 2,
         BlockHit = 3,
+        Aiming = 4,
     }
 
     [Header("Movement")]
@@ -33,6 +40,10 @@ public class SharedModePlayerController : NetworkBehaviour
 
     [Header("Combat")]
     [SerializeField] private float blockCooldownSeconds = 0.25f;
+    [SerializeField] private PlayerWeaponType weaponType = PlayerWeaponType.Sword;
+    [SerializeField] private bool bowRequireAimToFire = true;
+    [SerializeField] private float bowFireCooldownSeconds = 0.35f;
+    [SerializeField] private BowWeapon bowWeapon;
 
     [Header("Health")]
     [SerializeField] private int maxHealth = 10;
@@ -48,8 +59,14 @@ public class SharedModePlayerController : NetworkBehaviour
     [Networked] public LocomotionState NetLocomotionState { get; set; }
     [Networked] public CombatState NetCombatState { get; set; }
     [Networked] public float NextBlockAllowedAt { get; set; }
+    [Networked] public float NextBowShotAllowedAt { get; set; }
+    [Networked] public NetworkBool IsAiming { get; set; }
+    [Networked] public NetworkBool BowRequireAimRelease { get; set; }
 
     private NetworkCharacterController cc;
+
+    public PlayerWeaponType WeaponType => weaponType;
+    public bool UsesBow => weaponType == PlayerWeaponType.Bow;
 
     public int Health
     {
@@ -107,6 +124,19 @@ public class SharedModePlayerController : NetworkBehaviour
             NetLocomotionState = LocomotionState.Idle;
             NetCombatState = CombatState.None;
             NextBlockAllowedAt = 0f;
+            NextBowShotAllowedAt = 0f;
+            IsAiming = false;
+            BowRequireAimRelease = false;
+        }
+
+        if (bowWeapon == null)
+        {
+            bowWeapon = GetComponentInChildren<BowWeapon>();
+        }
+
+        if (UsesBow && GetComponent<PlayerAimCameraController>() == null)
+        {
+            gameObject.AddComponent<PlayerAimCameraController>();
         }
     }
 
@@ -151,6 +181,7 @@ public class SharedModePlayerController : NetworkBehaviour
             NetLocomotionState = LocomotionState.Idle;
             NetCombatState = CombatState.None;
             IsBlocking = false;
+            IsAiming = false;
             AttackPressed = false;
             return;
         }
@@ -168,6 +199,7 @@ public class SharedModePlayerController : NetworkBehaviour
 
         bool sprintHeld = input.Buttons.IsSet((int)PlayerInputButton.Sprint);
         bool blockHeld = input.Buttons.IsSet((int)PlayerInputButton.Block);
+        bool aimHeld = input.Buttons.IsSet((int)PlayerInputButton.Aim);
 
         cc.maxSpeed = sprintHeld ? runSpeed : walkSpeed;
 
@@ -189,40 +221,13 @@ public class SharedModePlayerController : NetworkBehaviour
 
         float simTime = (float)Runner.SimulationTime;
 
-        // Drive block from held state to avoid dropped pressed/released transitions.
-        if (blockHeld)
+        if (UsesBow)
         {
-            if (!IsBlocking && simTime >= NextBlockAllowedAt)
-            {
-                IsBlocking = true;
-                NetCombatState = CombatState.Blocking;
-                ComboStep = 0;
-            }
-        }
-        else if (IsBlocking)
-        {
-            IsBlocking = false;
-            NextBlockAllowedAt = simTime + blockCooldownSeconds;
-            if (NetCombatState == CombatState.Blocking || NetCombatState == CombatState.BlockHit)
-            {
-                NetCombatState = CombatState.None;
-            }
-        }
-
-        if (input.AttackPressed && !IsBlocking)
-        {
-            AttackPressed = true;
-            AttackSequence++;
-            NetCombatState = CombatState.Attacking;
-            ComboStep = (byte)((ComboStep + 1) % 4);
+            HandleBowCombat(input, aimHeld, simTime);
         }
         else
         {
-            AttackPressed = false;
-            if (!IsBlocking && NetCombatState == CombatState.Attacking)
-            {
-                NetCombatState = CombatState.None;
-            }
+            HandleSwordCombat(input, blockHeld, simTime);
         }
 
         UpdateLocomotionState(worldDirection, sprintHeld);
@@ -255,6 +260,7 @@ public class SharedModePlayerController : NetworkBehaviour
         {
             SetFullHealth();
             IsBlocking = false;
+            IsAiming = false;
             AttackPressed = false;
             AttackSequence = 0;
             ComboStep = 0;
@@ -262,6 +268,8 @@ public class SharedModePlayerController : NetworkBehaviour
             NetLocomotionState = LocomotionState.Idle;
             NetCombatState = CombatState.None;
             NextBlockAllowedAt = 0f;
+            NextBowShotAllowedAt = 0f;
+            BowRequireAimRelease = false;
         }
     }
 
@@ -275,8 +283,10 @@ public class SharedModePlayerController : NetworkBehaviour
 
         SetFullHealth();
         IsBlocking = false;
+        IsAiming = false;
         AttackPressed = false;
         ComboStep = 0;
+        BowRequireAimRelease = false;
 
         if (NetCombatState == CombatState.Attacking || NetCombatState == CombatState.BlockHit)
         {
@@ -316,6 +326,7 @@ public class SharedModePlayerController : NetworkBehaviour
         HitSequence++;
         AttackPressed = false;
         ComboStep = 0;
+        IsAiming = false;
 
         if (IsBlocking)
         {
@@ -328,6 +339,7 @@ public class SharedModePlayerController : NetworkBehaviour
         {
             IsDead = true;
             IsBlocking = false;
+            IsAiming = false;
             NetCombatState = CombatState.None;
             NetLocomotionState = LocomotionState.Idle;
 
@@ -356,6 +368,116 @@ public class SharedModePlayerController : NetworkBehaviour
         }
 
         return playerObject.GetComponent<SharedModePlayerController>();
+    }
+
+    private void HandleSwordCombat(PlayerNetworkInput input, bool blockHeld, float simTime)
+    {
+        IsAiming = false;
+        BowRequireAimRelease = false;
+
+        // Drive block from held state to avoid dropped pressed/released transitions.
+        if (blockHeld)
+        {
+            if (!IsBlocking && simTime >= NextBlockAllowedAt)
+            {
+                IsBlocking = true;
+                NetCombatState = CombatState.Blocking;
+                ComboStep = 0;
+            }
+        }
+        else if (IsBlocking)
+        {
+            IsBlocking = false;
+            NextBlockAllowedAt = simTime + blockCooldownSeconds;
+            if (NetCombatState == CombatState.Blocking || NetCombatState == CombatState.BlockHit)
+            {
+                NetCombatState = CombatState.None;
+            }
+        }
+
+        if (input.AttackPressed && !IsBlocking)
+        {
+            AttackPressed = true;
+            AttackSequence++;
+            NetCombatState = CombatState.Attacking;
+            ComboStep = (byte)((ComboStep + 1) % 4);
+        }
+        else
+        {
+            AttackPressed = false;
+            if (!IsBlocking && NetCombatState == CombatState.Attacking)
+            {
+                NetCombatState = CombatState.None;
+            }
+        }
+    }
+
+    private void HandleBowCombat(PlayerNetworkInput input, bool aimHeld, float simTime)
+    {
+        IsBlocking = false;
+        ComboStep = 0;
+
+        if (BowRequireAimRelease)
+        {
+            if (!aimHeld)
+            {
+                BowRequireAimRelease = false;
+            }
+
+            aimHeld = false;
+        }
+
+        IsAiming = aimHeld;
+
+        if (IsAiming)
+        {
+            NetCombatState = CombatState.Aiming;
+        }
+
+        bool canFireNow = simTime >= NextBowShotAllowedAt;
+        bool fireRequested = input.AttackPressed && (!bowRequireAimToFire || IsAiming);
+        if (fireRequested && canFireNow)
+        {
+            AttackPressed = true;
+            AttackSequence++;
+            NetCombatState = CombatState.Attacking;
+            NextBowShotAllowedAt = simTime + bowFireCooldownSeconds;
+
+            FireBowProjectile();
+
+            // Auto-return camera/aim to normal after each shot.
+            IsAiming = false;
+            BowRequireAimRelease = true;
+        }
+        else
+        {
+            AttackPressed = false;
+            if (!IsAiming && (NetCombatState == CombatState.Attacking || NetCombatState == CombatState.Aiming))
+            {
+                NetCombatState = CombatState.None;
+            }
+        }
+    }
+
+    private void FireBowProjectile()
+    {
+        if (bowWeapon == null)
+        {
+            bowWeapon = GetComponentInChildren<BowWeapon>();
+        }
+
+        if (bowWeapon == null)
+        {
+            return;
+        }
+
+        PlayerRef attackerRef = default;
+        if (Object != null && Object.IsValid)
+        {
+            attackerRef = Object.InputAuthority;
+        }
+
+        bowWeapon.Fire(transform, attackerRef);
     }
 
     private void UpdateLocomotionState(Vector3 worldDirection, bool sprintHeld)

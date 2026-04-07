@@ -7,6 +7,7 @@ public enum PlayerInputButton
     Sprint = 1,
     Attack = 2,
     Block = 3,
+    Aim = 4,
 }
 
 public struct PlayerNetworkInput : INetworkInput
@@ -24,4 +25,6 @@ public struct PlayerNetworkInput : INetworkInput
     public NetworkBool AttackReleased;
     public NetworkBool BlockPressed;
     public NetworkBool BlockReleased;
+    public NetworkBool AimPressed;
+    public NetworkBool AimReleased;
 }

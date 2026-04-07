@@ -13,6 +13,9 @@ public class SharedModeAnimatorBridge : MonoBehaviour
     private bool wasBlocking;
     private bool wasJumping;
 
+    private const string AttackSwordTrigger = "AttackSword";
+    private const string AttackBowTrigger = "AttackBow";
+
     private void Awake()
     {
         if (controller == null)
@@ -39,20 +42,21 @@ public class SharedModeAnimatorBridge : MonoBehaviour
         }
 
         bool isDead = controller.IsDead;
-        animator.SetBool("isDead", isDead);
+        SetBoolIfExists("isDead", isDead);
 
         if (isDead)
         {
             if (!deadTriggered)
             {
-                animator.SetTrigger("DeadTrigger");
+                SetTriggerIfExists("DeadTrigger");
                 deadTriggered = true;
             }
 
-            animator.SetBool("isMove", false);
-            animator.SetBool("isIdle", true);
-            animator.SetBool("isFalling", false);
-            animator.SetBool("isBlocking", false);
+            SetBoolIfExists("isMove", false);
+            SetBoolIfExists("isIdle", true);
+            SetBoolIfExists("isFalling", false);
+            SetBoolIfExists("isBlocking", false);
+            SetBoolIfExists("isAiming", false);
             animator.SetFloat("Speed", 0f, 0.08f, Time.deltaTime);
             wasJumping = false;
             return;
@@ -61,7 +65,7 @@ public class SharedModeAnimatorBridge : MonoBehaviour
         deadTriggered = false;
 
         bool grounded = networkCharacterController == null || networkCharacterController.Grounded;
-        animator.SetBool("isGrounded", grounded);
+        SetBoolIfExists("isGrounded", grounded);
 
         float planarSpeed = 0f;
         if (networkCharacterController != null)
@@ -79,22 +83,24 @@ public class SharedModeAnimatorBridge : MonoBehaviour
 
         if (jumping && !wasJumping)
         {
-            animator.SetTrigger("JumpTrigger");
+            SetTriggerIfExists("JumpTrigger");
         }
         wasJumping = jumping;
 
-        animator.SetBool("isMove", moving);
-        animator.SetBool("isIdle", !moving && !jumping && !falling);
-        animator.SetBool("isFalling", falling);
+        SetBoolIfExists("isMove", moving);
+        SetBoolIfExists("isIdle", !moving && !jumping && !falling);
+        SetBoolIfExists("isFalling", falling);
 
         bool isBlocking = controller.IsBlocking;
-        animator.SetBool("isBlocking", isBlocking);
+        SetBoolIfExists("isBlocking", isBlocking);
+        SetBoolIfExists("isAiming", controller.IsAiming);
 
         if (isBlocking && !wasBlocking)
         {
-            animator.SetTrigger("startBlock");
-            animator.SetInteger("ComboStep", 0);
-            animator.ResetTrigger("AttackSword");
+            SetTriggerIfExists("startBlock");
+            SetIntegerIfExists("ComboStep", 0);
+            ResetTriggerIfExists(AttackSwordTrigger);
+            ResetTriggerIfExists(AttackBowTrigger);
             
         }
         wasBlocking = isBlocking;
@@ -108,24 +114,92 @@ public class SharedModeAnimatorBridge : MonoBehaviour
         else if (attackSequence != lastAttackSequence)
         {
             lastAttackSequence = attackSequence;
-            animator.ResetTrigger("AttackSword");
-            animator.SetTrigger("AttackSword");
+            TriggerAttackByWeapon();
         }
 
         if (lastHitSequence != controller.HitSequence)
         {
             lastHitSequence = controller.HitSequence;
-            animator.ResetTrigger("AttackSword");
-            animator.SetInteger("ComboStep", 0);
+            ResetTriggerIfExists(AttackSwordTrigger);
+            ResetTriggerIfExists(AttackBowTrigger);
+            SetIntegerIfExists("ComboStep", 0);
 
             if (controller.NetCombatState == SharedModePlayerController.CombatState.BlockHit || isBlocking)
             {
-                animator.SetTrigger("BlockHit");
+                SetTriggerIfExists("BlockHit");
             }
             else
             {
-                animator.SetTrigger("GetHit");
+                SetTriggerIfExists("GetHit");
             }
         }
+    }
+
+    private void TriggerAttackByWeapon()
+    {
+        bool useBowTrigger = controller.UsesBow && HasParameter(AttackBowTrigger, AnimatorControllerParameterType.Trigger);
+
+        if (useBowTrigger)
+        {
+            ResetTriggerIfExists(AttackSwordTrigger);
+            ResetTriggerIfExists(AttackBowTrigger);
+            SetTriggerIfExists(AttackBowTrigger);
+            return;
+        }
+
+        ResetTriggerIfExists(AttackSwordTrigger);
+        SetTriggerIfExists(AttackSwordTrigger);
+    }
+
+    private void SetBoolIfExists(string parameterName, bool value)
+    {
+        if (HasParameter(parameterName, AnimatorControllerParameterType.Bool))
+        {
+            animator.SetBool(parameterName, value);
+        }
+    }
+
+    private void SetIntegerIfExists(string parameterName, int value)
+    {
+        if (HasParameter(parameterName, AnimatorControllerParameterType.Int))
+        {
+            animator.SetInteger(parameterName, value);
+        }
+    }
+
+    private void SetTriggerIfExists(string parameterName)
+    {
+        if (HasParameter(parameterName, AnimatorControllerParameterType.Trigger))
+        {
+            animator.SetTrigger(parameterName);
+        }
+    }
+
+    private void ResetTriggerIfExists(string parameterName)
+    {
+        if (HasParameter(parameterName, AnimatorControllerParameterType.Trigger))
+        {
+            animator.ResetTrigger(parameterName);
+        }
+    }
+
+    private bool HasParameter(string parameterName, AnimatorControllerParameterType parameterType)
+    {
+        if (animator == null)
+        {
+            return false;
+        }
+
+        AnimatorControllerParameter[] parameters = animator.parameters;
+        for (int i = 0; i < parameters.Length; i++)
+        {
+            AnimatorControllerParameter p = parameters[i];
+            if (p.name == parameterName && p.type == parameterType)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
