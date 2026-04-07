@@ -1,4 +1,6 @@
 using Fusion;
+using System.Collections;
+using System.Reflection;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -113,7 +115,13 @@ public class Speed_Poision : NetworkBehaviour
         }
 
         IsCollected = true;
-        collector.RPC_RequestAddSpeed(speedAmount, buffDurationSeconds);
+        SpeedPotionBuffHandler buffHandler = collector.GetComponent<SpeedPotionBuffHandler>();
+        if (buffHandler == null)
+        {
+            buffHandler = collector.gameObject.AddComponent<SpeedPotionBuffHandler>();
+        }
+
+        buffHandler.ApplyBuff(collector, speedAmount, buffDurationSeconds);
 
         if (logCollect)
         {
@@ -124,5 +132,66 @@ public class Speed_Poision : NetworkBehaviour
         {
             Runner.Despawn(Object);
         }
+    }
+}
+
+public class SpeedPotionBuffHandler : MonoBehaviour
+{
+    private static readonly FieldInfo RunSpeedField =
+        typeof(SharedModePlayerController).GetField("runSpeed", BindingFlags.Instance | BindingFlags.NonPublic);
+
+    private Coroutine activeRoutine;
+    private SharedModePlayerController target;
+    private float activeBuffAmount;
+
+    public void ApplyBuff(SharedModePlayerController controller, float speedAmount, float durationSeconds)
+    {
+        if (controller == null || speedAmount <= 0f || durationSeconds <= 0f || RunSpeedField == null)
+        {
+            return;
+        }
+
+        target = controller;
+
+        if (activeRoutine != null)
+        {
+            StopCoroutine(activeRoutine);
+            RevertCurrentBuff();
+        }
+
+        float currentRunSpeed = (float)RunSpeedField.GetValue(target);
+        RunSpeedField.SetValue(target, currentRunSpeed + speedAmount);
+        activeBuffAmount = speedAmount;
+        activeRoutine = StartCoroutine(RevertAfterDelay(durationSeconds));
+    }
+
+    private IEnumerator RevertAfterDelay(float durationSeconds)
+    {
+        yield return new WaitForSeconds(durationSeconds);
+        RevertCurrentBuff();
+        activeRoutine = null;
+    }
+
+    private void RevertCurrentBuff()
+    {
+        if (target == null || RunSpeedField == null || activeBuffAmount <= 0f)
+        {
+            activeBuffAmount = 0f;
+            return;
+        }
+
+        float currentRunSpeed = (float)RunSpeedField.GetValue(target);
+        RunSpeedField.SetValue(target, Mathf.Max(0f, currentRunSpeed - activeBuffAmount));
+        activeBuffAmount = 0f;
+    }
+
+    private void OnDisable()
+    {
+        RevertCurrentBuff();
+    }
+
+    private void OnDestroy()
+    {
+        RevertCurrentBuff();
     }
 }
