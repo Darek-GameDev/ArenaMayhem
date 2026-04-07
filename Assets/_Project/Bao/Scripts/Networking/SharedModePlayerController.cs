@@ -42,6 +42,7 @@ public class SharedModePlayerController : NetworkBehaviour
     [SerializeField] private float blockCooldownSeconds = 0.25f;
     [SerializeField] private PlayerWeaponType weaponType = PlayerWeaponType.Sword;
     [SerializeField] private bool bowRequireAimToFire = true;
+    [SerializeField] private bool bowAutoExitAimOnShoot = false;
     [SerializeField] private float bowFireCooldownSeconds = 0.35f;
     [SerializeField] private BowWeapon bowWeapon;
 
@@ -234,7 +235,14 @@ public class SharedModePlayerController : NetworkBehaviour
 
         if (worldDirection.sqrMagnitude > 0.0001f)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(worldDirection);
+            Quaternion targetRotation = UsesBow && IsAiming
+                ? Quaternion.LookRotation(GetAimForward(), Vector3.up)
+                : Quaternion.LookRotation(worldDirection);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 20f * Runner.DeltaTime);
+        }
+        else if (UsesBow && IsAiming)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(GetAimForward(), Vector3.up);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 20f * Runner.DeltaTime);
         }
     }
@@ -445,9 +453,18 @@ public class SharedModePlayerController : NetworkBehaviour
 
             FireBowProjectile();
 
-            // Auto-return camera/aim to normal after each shot.
-            IsAiming = false;
-            BowRequireAimRelease = true;
+            if (bowAutoExitAimOnShoot)
+            {
+                // Optional behavior: auto-return camera/aim to normal after each shot.
+                IsAiming = false;
+                BowRequireAimRelease = true;
+            }
+            else
+            {
+                // Keep aiming while the player continues to hold the aim button.
+                IsAiming = aimHeld;
+                BowRequireAimRelease = false;
+            }
         }
         else
         {
@@ -477,7 +494,40 @@ public class SharedModePlayerController : NetworkBehaviour
             attackerRef = Object.InputAuthority;
         }
 
-        bowWeapon.Fire(transform, attackerRef);
+        bowWeapon.Fire(transform, attackerRef, GetAimDirection());
+    }
+
+    private Vector3 GetAimForward()
+    {
+        Camera mainCam = Camera.main;
+        if (mainCam == null)
+        {
+            return transform.forward;
+        }
+
+        // Get aim direction from screen center for consistent rotation
+        Ray screenCenterRay = mainCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        Vector3 forward = screenCenterRay.direction;
+        forward.y = 0f;
+        if (forward.sqrMagnitude <= 0.0001f)
+        {
+            return transform.forward;
+        }
+
+        return forward.normalized;
+    }
+
+    private Vector3 GetAimDirection()
+    {
+        Camera mainCam = Camera.main;
+        if (mainCam == null)
+        {
+            return transform.forward;
+        }
+
+        // Get aim direction from screen center for proper projectile trajectory
+        Ray screenCenterRay = mainCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        return screenCenterRay.direction.normalized;
     }
 
     private void UpdateLocomotionState(Vector3 worldDirection, bool sprintHeld)

@@ -21,6 +21,7 @@ public class PlayerMoment : MonoBehaviour
     private bool isRunning = false;
     private float lastJumpTime = -Mathf.Infinity;
     private PlayerHealth playerHealth;
+    private PlayerAttack playerAttack;
     private SharedModePlayerController sharedModeController;
     enum PlayerState
     {
@@ -41,6 +42,7 @@ public class PlayerMoment : MonoBehaviour
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
         playerHealth = GetComponent<PlayerHealth>();
+        playerAttack = GetComponent<PlayerAttack>();
         sharedModeController = GetComponent<SharedModePlayerController>();
     }
     void Start()
@@ -101,13 +103,23 @@ public class PlayerMoment : MonoBehaviour
         animator.SetFloat("Speed", targetSpeed, speedBlendDampTime, Time.deltaTime);
         Vector3 finalMove = Vector3.zero;
 
+        Vector3 aimForward = GetAimForward();
+        bool aiming = IsAiming();
+
         if (move.magnitude > 0.1f)
         {
-            // Rotate
-            Quaternion targetRotation = Quaternion.LookRotation(move);
+            // Rotate toward camera while aiming, otherwise follow move direction.
+            Quaternion targetRotation = aiming && aimForward.sqrMagnitude > 0.0001f
+                ? Quaternion.LookRotation(aimForward)
+                : Quaternion.LookRotation(move);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
 
             finalMove = move.normalized * maxSpeed;
+        }
+        else if (aiming && aimForward.sqrMagnitude > 0.0001f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(aimForward);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
 
         finalMove.y = velocity.y;
@@ -198,5 +210,30 @@ public class PlayerMoment : MonoBehaviour
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
             lastJumpTime = Time.time;
         }
+    }
+
+    private bool IsAiming()
+    {
+        return playerAttack != null && playerAttack.IsAiming;
+    }
+
+    private Vector3 GetAimForward()
+    {
+        Camera mainCam = Camera.main;
+        if (mainCam == null)
+        {
+            return transform.forward;
+        }
+
+        // Get aim direction from screen center, not camera.forward
+        Ray screenCenterRay = mainCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+        Vector3 forward = screenCenterRay.direction;
+        forward.y = 0f;
+        if (forward.sqrMagnitude <= 0.0001f)
+        {
+            return transform.forward;
+        }
+
+        return forward.normalized;
     }
 }

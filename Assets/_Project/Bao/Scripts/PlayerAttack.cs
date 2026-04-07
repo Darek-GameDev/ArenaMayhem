@@ -169,6 +169,7 @@ public class PlayerAttack : MonoBehaviour
         {
             isAiming = false;
             bowRequireAimRelease = false;
+            ResetTriggerIfExists(StartAimTrigger);
             SetBoolIfExists("isAiming", false);
         }
     }
@@ -227,7 +228,7 @@ public class PlayerAttack : MonoBehaviour
 
         if (bowWeapon != null)
         {
-            bowWeapon.Fire(transform, default);
+            bowWeapon.Fire(transform, default, GetAimDirection());
         }
 
         if (autoExitAimOnShoot)
@@ -310,5 +311,18 @@ public class PlayerAttack : MonoBehaviour
         }
 
         return false;
+    }
+
+    private Vector3 GetAimDirection()
+    {
+        Camera mainCam = Camera.main;
+        if (mainCam != null)
+        {
+            // Get aim direction from screen center for proper projectile trajectory
+            Ray screenCenterRay = mainCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+            return screenCenterRay.direction;
+        }
+
+        return transform.forward;
     }
 }

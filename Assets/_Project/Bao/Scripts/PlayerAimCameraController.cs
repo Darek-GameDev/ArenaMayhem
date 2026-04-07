@@ -20,7 +20,7 @@ public class PlayerAimCameraController : MonoBehaviour
 
     [Header("Aim Camera")]
     [SerializeField] private float aimRadius = 2.4f;
-    [SerializeField] private Vector3 aimTargetOffset = new Vector3(0.45f, 1.45f, 0f);
+    [SerializeField] private Vector3 aimTargetOffset = new Vector3(0.2f, 1.45f, 0f);
 
     private void Awake()
     {

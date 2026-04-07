@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 1b101b242ded8fe40b2544ce18bea6ba
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 216732
+  packageName: Crosshairs | 25+ Free Crosshairs Pack
+  packageVersion: 1.1.1
+  assetPath: Assets/OccaSoftware/Crosshairs/Editor/StartMenu.cs
+  uploadId: 586051

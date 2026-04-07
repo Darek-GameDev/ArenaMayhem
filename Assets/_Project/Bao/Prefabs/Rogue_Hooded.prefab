@@ -1508,6 +1508,7 @@ GameObject:
   - component: {fileID: 1996908816946458932}
   - component: {fileID: 3715344209588209806}
   - component: {fileID: 2954118687832947223}
+  - component: {fileID: 8247637897880377301}
   m_Layer: 0
   m_Name: Rogue_Hooded
   m_TagString: Untagged
@@ -1800,8 +1801,8 @@ MonoBehaviour:
   useBow: 1
   weapon: {fileID: 0}
   bowWeapon: {fileID: 5444498085118543086}
-  bowRequireAimToFire: 0
-  bowFireCooldown: 0.35
+  bowRequireAimToFire: 1
+  bowFireCooldown: 0.5
   autoExitAimOnShoot: 0
 --- !u!114 &5181516410223311153
 MonoBehaviour:
@@ -1844,7 +1845,8 @@ MonoBehaviour:
   blockCooldownSeconds: 0.25
   weaponType: 1
   bowRequireAimToFire: 1
-  bowFireCooldownSeconds: 0.35
+  bowAutoExitAimOnShoot: 0
+  bowFireCooldownSeconds: 0.5
   bowWeapon: {fileID: 0}
   maxHealth: 10
   _IsBlocking:
@@ -1898,7 +1900,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BowWeapon
   projectilePrefab: {fileID: 9140349176642002788, guid: a462466558a64314c9244d521a518cb3, type: 3}
   projectileSpawnPoint: {fileID: 1346985541919212429}
-  projectileSpeed: 28
+  projectileSpeed: 40
   projectileLifetime: 4
   damage: 1
 --- !u!114 &1996908816946458932
@@ -1922,7 +1924,7 @@ MonoBehaviour:
   normalRadius: 4
   normalTargetOffset: {x: 0, y: 1.13, z: 0}
   aimRadius: 2.4
-  aimTargetOffset: {x: 0.45, y: 1.45, z: 0}
+  aimTargetOffset: {x: 0.8, y: 2, z: 0}
 --- !u!114 &3715344209588209806
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1953,6 +1955,22 @@ MonoBehaviour:
   controller: {fileID: 3495695272834901854}
   animator: {fileID: 425858959708846246}
   networkCharacterController: {fileID: 5181516410223311153}
+--- !u!114 &8247637897880377301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7530822878995127408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 401df93e6b20453479ff7ed0df5b4e8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AimCrosshairController
+  localAttack: {fileID: 6206074856843633806}
+  sharedModeController: {fileID: 3495695272834901854}
+  crosshairRoot: {fileID: 0}
+  crosshairRawImage: {fileID: 0}
 --- !u!1 &7940896968262706577
 GameObject:
   m_ObjectHideFlags: 0

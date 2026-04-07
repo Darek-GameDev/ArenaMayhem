@@ -5,5 +5,6 @@
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="Fusion.Unity.csproj" />
+  <Project Path="OccaSoftware.Crosshairs.Editor.csproj" />
   <Project Path="Unity.Fusion.CodeGen.csproj" />
 </Solution>
