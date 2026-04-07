@@ -245,6 +245,7 @@ GameObject:
   - component: {fileID: 225014440}
   - component: {fileID: 225014442}
   - component: {fileID: 225014441}
+  - component: {fileID: 225014443}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -387,6 +388,27 @@ MonoBehaviour:
   playerHealth: {fileID: 0}
   healthSlider: {fileID: 2011218699}
   useNormalizedValue: 0
+--- !u!114 &225014443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 225014435}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 401df93e6b20453479ff7ed0df5b4e8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AimCrosshairController
+  localAttack: {fileID: 457691095}
+  sharedModeController: {fileID: 457691093}
+  crosshairRoot: {fileID: 1895983128}
+  crosshairRawImage: {fileID: 1895983132}
+  crosshairObjectName: Crosshair
+  resolveRetryInterval: 0.5
+  showAnimationDuration: 0.25
+  hideAnimationDuration: 0.15
+  minScale: 0.6
 --- !u!1 &250874983
 GameObject:
   m_ObjectHideFlags: 0
@@ -680,6 +702,28 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 444186579}
   m_CullTransparentMesh: 1
+--- !u!114 &457691093 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3495695272834901854, guid: 11a563006360cd5419126b147010309d, type: 3}
+  m_PrefabInstance: {fileID: 3594653840624975083}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38d387556c7646044b73c9c632301556, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SharedModePlayerController
+--- !u!114 &457691095 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6206074856843633806, guid: 11a563006360cd5419126b147010309d, type: 3}
+  m_PrefabInstance: {fileID: 3594653840624975083}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f8f50533fcb5404980b00eb10404fcc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAttack
 --- !u!1 &457787268
 GameObject:
   m_ObjectHideFlags: 0
@@ -725,7 +769,7 @@ MonoBehaviour:
   - {fileID: 826728879}
   - {fileID: 698999617}
   - {fileID: 580578600}
-  spawnEnemyOnFirstJoin: 1
+  spawnEnemyOnFirstJoin: 0
   enemyPrefab: {fileID: 4936854623005984870, guid: d52fe436d08a65245ac2ffdcfec44c17, type: 3}
   enemySpawnPoints:
   - {fileID: 569923347}
@@ -3161,7 +3205,8 @@ PrefabInstance:
       propertyPath: crosshairRawImage
       value: 
       objectReference: {fileID: 1895983132}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 8247637897880377301, guid: 11a563006360cd5419126b147010309d, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
