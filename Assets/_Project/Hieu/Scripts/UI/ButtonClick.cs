@@ -4,6 +4,10 @@ public class ButtonClick : MonoBehaviour
 {
 	[Header("References")]
 	[SerializeField] private Dotween settingsUI;
+	[SerializeField] private GameObject startButton;
+	[SerializeField] private GameObject settingsButton;
+	[SerializeField] private GameObject exitButton;
+	[SerializeField] private GameObject roomSelectionUI;
 
 	private void Awake()
 	{
@@ -13,6 +17,21 @@ public class ButtonClick : MonoBehaviour
 		}
 	}
 
+	private void Start()
+	{
+		if (settingsUI != null)
+		{
+			settingsUI.HideSettingsImmediate();
+		}
+
+		if (roomSelectionUI != null)
+		{
+			roomSelectionUI.SetActive(false);
+		}
+
+		SetMainMenuButtonsVisible(true);
+	}
+
 	public void OpenSettings()
 	{
 		if (settingsUI == null)
@@ -20,6 +39,7 @@ public class ButtonClick : MonoBehaviour
 			return;
 		}
 
+		SetMainMenuButtonsVisible(false);
 		settingsUI.ShowSettings();
 	}
 
@@ -31,6 +51,7 @@ public class ButtonClick : MonoBehaviour
 		}
 
 		settingsUI.HideSettings();
+		SetMainMenuButtonsVisible(true);
 	}
 
 	public void ToggleSettings()
@@ -40,6 +61,56 @@ public class ButtonClick : MonoBehaviour
 			return;
 		}
 
+		bool isOpening = !settingsUI.IsSettingsVisible();
 		settingsUI.ToggleSettings();
+		SetMainMenuButtonsVisible(!isOpening);
+	}
+
+	public void OpenRoomSelectionUI()
+	{
+		if (roomSelectionUI == null)
+		{
+			return;
+		}
+
+		roomSelectionUI.SetActive(true);
+	}
+
+	public void CloseRoomSelectionUI()
+	{
+		if (roomSelectionUI == null)
+		{
+			return;
+		}
+
+		roomSelectionUI.SetActive(false);
+	}
+
+	public void ToggleRoomSelectionUI()
+	{
+		if (roomSelectionUI == null)
+		{
+			return;
+		}
+
+		roomSelectionUI.SetActive(!roomSelectionUI.activeSelf);
+	}
+
+	private void SetMainMenuButtonsVisible(bool isVisible)
+	{
+		if (startButton != null)
+		{
+			startButton.SetActive(isVisible);
+		}
+
+		if (settingsButton != null)
+		{
+			settingsButton.SetActive(isVisible);
+		}
+
+		if (exitButton != null)
+		{
+			exitButton.SetActive(isVisible);
+		}
 	}
 }

@@ -122,6 +122,26 @@ public class Dotween : MonoBehaviour
         }
     }
 
+    public bool IsSettingsVisible()
+    {
+        return settingsPanel != null && settingsPanel.activeSelf;
+    }
+
+    public void HideSettingsImmediate()
+    {
+        if (settingsPanel == null || panelTransform == null || panelCanvasGroup == null)
+        {
+            return;
+        }
+
+        currentSequence?.Kill();
+        panelTransform.localScale = Vector3.one * hiddenScale;
+        panelCanvasGroup.alpha = 0f;
+        panelCanvasGroup.interactable = false;
+        panelCanvasGroup.blocksRaycasts = false;
+        settingsPanel.SetActive(false);
+    }
+
     private void OnDestroy()
     {
         currentSequence?.Kill();
