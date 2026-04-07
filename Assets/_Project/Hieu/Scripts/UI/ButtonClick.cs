@@ -8,6 +8,7 @@ public class ButtonClick : MonoBehaviour
 	[SerializeField] private GameObject settingsButton;
 	[SerializeField] private GameObject exitButton;
 	[SerializeField] private GameObject roomSelectionUI;
+	[SerializeField] private GameObject classChooseUI;
 
 	private void Awake()
 	{
@@ -27,6 +28,11 @@ public class ButtonClick : MonoBehaviour
 		if (roomSelectionUI != null)
 		{
 			roomSelectionUI.SetActive(false);
+		}
+
+		if (classChooseUI != null)
+		{
+			classChooseUI.SetActive(false);
 		}
 
 		SetMainMenuButtonsVisible(true);
@@ -94,6 +100,35 @@ public class ButtonClick : MonoBehaviour
 		}
 
 		roomSelectionUI.SetActive(!roomSelectionUI.activeSelf);
+	}
+
+	public void OnCreateRoomClicked()
+	{
+		OpenClassChooseUI();
+	}
+
+	public void OnJoinRoomClicked()
+	{
+		OpenClassChooseUI();
+	}
+
+	private void OpenClassChooseUI()
+	{
+		if (roomSelectionUI != null)
+		{
+			roomSelectionUI.SetActive(false);
+		}
+
+		if (classChooseUI != null)
+		{
+			ClassChoose classChoose = classChooseUI.GetComponent<ClassChoose>();
+			if (classChoose != null)
+			{
+				classChoose.ResetSelectionUI();
+			}
+
+			classChooseUI.SetActive(true);
+		}
 	}
 
 	private void SetMainMenuButtonsVisible(bool isVisible)
