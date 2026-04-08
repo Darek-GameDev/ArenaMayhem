@@ -100,7 +100,7 @@ TextureImporter:
       name: Skill Knight_0
       rect:
         serializedVersion: 2
-        x: 130
+        x: 39
         y: 222
         width: 604
         height: 603
@@ -122,8 +122,8 @@ TextureImporter:
       name: Skill Knight_1
       rect:
         serializedVersion: 2
-        x: 784
-        y: 222
+        x: 708
+        y: 221
         width: 607
         height: 604
       alignment: 0
@@ -136,6 +136,28 @@ TextureImporter:
       bones: []
       spriteID: 8f5a46d23d963c342963168131a81187
       internalID: 2112533162
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skill Knight_2
+      rect:
+        serializedVersion: 2
+        x: 1386
+        y: 221
+        width: 607
+        height: 604
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5ad7ca8caf1fc474f945e6e540aa2c5f
+      internalID: -760942780
       vertices: []
       indices: 
       edges: []
@@ -158,6 +180,7 @@ TextureImporter:
     nameFileIdTable:
       Skill Knight_0: 1855714482
       Skill Knight_1: 2112533162
+      Skill Knight_2: -760942780
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
