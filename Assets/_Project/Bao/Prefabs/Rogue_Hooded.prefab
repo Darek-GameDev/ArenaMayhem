@@ -1787,8 +1787,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4baeb2a4f68d39479d108c1fb3d45fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMoment
-  walkSpeed: 2
-  runSpeed: 5
+  walkSpeed: 2.3
+  runSpeed: 5.5
   rotationSpeed: 10
   jumpHeight: 1.5
   jumpCooldown: 0.25
@@ -1852,8 +1852,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38d387556c7646044b73c9c632301556, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SharedModePlayerController
-  walkSpeed: 2
-  runSpeed: 5
+  walkSpeed: 2.3
+  runSpeed: 5.5
   lookYawSpeed: 0.15
   instantAcceleration: 100
   instantBraking: 100

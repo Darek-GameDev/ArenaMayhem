@@ -20,9 +20,19 @@ public class NetworkEnemyController : NetworkBehaviour
         Recovering = 3,
     }
 
+    public enum EnemyCombatStyle : byte
+    {
+        Sword = 0,
+        Bow = 1,
+    }
+
     [Header("References")]
     [SerializeField] private EnemyHealth enemyHealth;
     [SerializeField] private EnemyWeapon enemyWeapon;
+    [SerializeField] private BowWeapon bowWeapon;
+
+    [Header("Combat Style")]
+    [SerializeField] private EnemyCombatStyle enemyCombatStyle = EnemyCombatStyle.Sword;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 2.5f;
@@ -43,6 +53,13 @@ public class NetworkEnemyController : NetworkBehaviour
     [SerializeField] private float attackCooldownSeconds = 1.1f;
     [SerializeField] private float recoverAfterAttackSeconds = 0.35f;
     [SerializeField] private int attackComboCount = 3;
+    [SerializeField] private float rangedMinRetreatDistance = 4f;
+    [SerializeField] private float rangedOptimalDistance = 6f;
+    [SerializeField] private float rangedAttackRange = 8f;
+    [SerializeField] private float rangedPreferredDistance = 6f;
+    [SerializeField] private float rangedAttackCooldownSeconds = 1.35f;
+    [SerializeField] private float rangedRecoverAfterAttackSeconds = 0.4f;
+    [SerializeField] private float rangedAutoFireFallbackDelay = 0.3f;
     [SerializeField] private float blockDurationSeconds = 0.6f;
     [SerializeField] private float blockCooldownSeconds = 2f;
     [SerializeField, Range(0f, 1f)] private float blockChanceOnHit = 0.35f;
@@ -51,12 +68,17 @@ public class NetworkEnemyController : NetworkBehaviour
 
     [Header("Targeting")]
     [SerializeField] private float retargetInterval = 0.3f;
+    [SerializeField] private LayerMask lineOfSightMask = ~0;
+    [SerializeField] private float lineOfSightEyeHeight = 1.2f;
+    [SerializeField] private float lineOfSightTargetHeight = 1.1f;
+    [SerializeField] private float noLineOfSightToleranceSeconds = 1.2f;
 
     [Networked] public NetworkBool IsBlocking { get; set; }
     [Networked] public int AttackSequence { get; set; }
     [Networked] public byte ComboStep { get; set; }
     [Networked] public LocomotionState NetLocomotionState { get; set; }
     [Networked] public CombatState NetCombatState { get; set; }
+    [Networked] public NetworkBool IsAiming { get; set; }
 
     [Networked] private float NextAttackAllowedAt { get; set; }
     [Networked] private float RecoverUntil { get; set; }
@@ -73,6 +95,13 @@ public class NetworkEnemyController : NetworkBehaviour
     private float nextRetargetAt;
     private float nextRepathAt;
     private int lastObservedHitSequence = -1;
+    private bool pendingRangedShot;
+    private Vector3 pendingRangedAimPoint;
+    private PlayerRef pendingRangedAttackerRef;
+    private float pendingRangedFallbackFireAt;
+    private float lostLineOfSightSince = -1f;
+
+    public bool UsesBow => enemyCombatStyle == EnemyCombatStyle.Bow;
 
     public override void Spawned()
     {
@@ -95,7 +124,13 @@ public class NetworkEnemyController : NetworkBehaviour
             enemyWeapon.SetOwner(transform.root);
         }
 
+        if (bowWeapon == null)
+        {
+            bowWeapon = GetComponentInChildren<BowWeapon>(true);
+        }
+
         navPath = new NavMeshPath();
+        pendingRangedShot = false;
 
         if (HasStateAuthority)
         {
@@ -130,6 +165,7 @@ public class NetworkEnemyController : NetworkBehaviour
         if (enemyHealth != null && enemyHealth.IsDead)
         {
             IsBlocking = false;
+            IsAiming = false;
             NetCombatState = CombatState.None;
             NetLocomotionState = LocomotionState.Idle;
             cc.Move(Vector3.zero);
@@ -137,6 +173,11 @@ public class NetworkEnemyController : NetworkBehaviour
         }
 
         float simTime = (float)Runner.SimulationTime;
+
+        if (pendingRangedShot && simTime >= pendingRangedFallbackFireAt)
+        {
+            ReleaseQueuedRangedShotFromAnimationEvent();
+        }
 
         ObserveHitReaction(simTime);
 
@@ -166,24 +207,35 @@ public class NetworkEnemyController : NetworkBehaviour
 
         ResolveTarget(simTime);
 
+        IsAiming = false;
+
         if (currentTarget != null && !currentTarget.IsDead)
         {
             Vector3 targetPosition = currentTarget.transform.position;
             float distance = Vector3.Distance(transform.position, targetPosition);
 
-            TrySmartBlockAgainstTarget(simTime, currentTarget, distance);
-            if (IsBlocking)
+            if (!UsesBow)
             {
-                FaceToward(targetPosition);
-                NetLocomotionState = LocomotionState.Idle;
-                cc.Move(Vector3.zero);
-                return;
+                TrySmartBlockAgainstTarget(simTime, currentTarget, distance);
+                if (IsBlocking)
+                {
+                    FaceToward(targetPosition);
+                    NetLocomotionState = LocomotionState.Idle;
+                    cc.Move(Vector3.zero);
+                    return;
+                }
             }
 
             if (distance > disengageRange)
             {
                 currentTarget = null;
                 StartPatrolIdle(simTime);
+                return;
+            }
+
+            if (UsesBow)
+            {
+                HandleRangedCombat(simTime, targetPosition, distance);
                 return;
             }
 
@@ -333,7 +385,84 @@ public class NetworkEnemyController : NetworkBehaviour
         ComboStep = (byte)((ComboStep + 1) % comboCount);
     }
 
-    private void MoveTowards(Vector3 destination, float simTime, float speed)
+    private void HandleRangedCombat(float simTime, Vector3 targetPosition, float distance)
+    {
+        bool hasLineOfSight = HasLineOfSightToTarget(targetPosition);
+        if (!hasLineOfSight)
+        {
+            IsAiming = false;
+            if (lostLineOfSightSince < 0f)
+            {
+                lostLineOfSightSince = simTime;
+            }
+
+            MoveTowards(targetPosition, simTime, chaseSpeed);
+            return;
+        }
+
+        lostLineOfSightSince = -1f;
+
+        if (distance > rangedAttackRange)
+        {
+            IsAiming = false;
+            MoveTowards(targetPosition, simTime, chaseSpeed);
+            return;
+        }
+
+        float retreatDistance = Mathf.Max(0.5f, rangedMinRetreatDistance);
+        if (distance < retreatDistance)
+        {
+            IsAiming = false;
+            MoveAwayFrom(targetPosition, simTime, chaseSpeed);
+            return;
+        }
+
+        float holdDistance = Mathf.Max(retreatDistance + 0.25f, rangedOptimalDistance);
+        if (distance > holdDistance)
+        {
+            IsAiming = false;
+            MoveTowards(targetPosition, simTime, moveSpeed);
+            return;
+        }
+
+        IsAiming = true;
+        NetLocomotionState = LocomotionState.Idle;
+        cc.Move(Vector3.zero);
+        FaceToward(targetPosition);
+
+        if (lostLineOfSightSince > 0f && simTime - lostLineOfSightSince > noLineOfSightToleranceSeconds)
+        {
+            return;
+        }
+
+        TryRangedAttack(simTime);
+    }
+
+    private void TryRangedAttack(float simTime)
+    {
+        NetLocomotionState = LocomotionState.Idle;
+        cc.Move(Vector3.zero);
+
+        if (simTime < NextAttackAllowedAt)
+        {
+            NetCombatState = CombatState.None;
+            return;
+        }
+
+        NextAttackAllowedAt = simTime + rangedAttackCooldownSeconds;
+        RecoverUntil = simTime + rangedRecoverAfterAttackSeconds;
+
+        NetCombatState = CombatState.Attacking;
+        AttackSequence++;
+        ComboStep = 0;
+
+        pendingRangedShot = true;
+        pendingRangedAimPoint = GetRangedAimPoint();
+        pendingRangedAttackerRef = default;
+        pendingRangedFallbackFireAt = simTime + Mathf.Max(0.05f, rangedAutoFireFallbackDelay);
+    }
+
+    private void MoveTowards(Vector3 destination, float simTime, float speed, bool faceMoveTarget = true, Vector3 explicitFaceTarget = default)
     {
         NetCombatState = CombatState.None;
 
@@ -366,7 +495,30 @@ public class NetworkEnemyController : NetworkBehaviour
         cc.Move(planarDirection.normalized);
         NetLocomotionState = LocomotionState.Moving;
 
-        FaceToward(moveTarget);
+        if (faceMoveTarget)
+        {
+            FaceToward(moveTarget);
+        }
+        else
+        {
+            FaceToward(explicitFaceTarget);
+        }
+    }
+
+    private void MoveAwayFrom(Vector3 targetPosition, float simTime, float speed)
+    {
+        Vector3 awayDirection = transform.position - targetPosition;
+        awayDirection.y = 0f;
+
+        if (awayDirection.sqrMagnitude <= 0.0001f)
+        {
+            NetLocomotionState = LocomotionState.Idle;
+            cc.Move(Vector3.zero);
+            return;
+        }
+
+        Vector3 retreatPoint = transform.position + awayDirection.normalized * Mathf.Max(rangedPreferredDistance, 1f);
+        MoveTowards(retreatPoint, simTime, speed);
     }
 
     private void RunPatrol(float simTime)
@@ -502,5 +654,84 @@ public class NetworkEnemyController : NetworkBehaviour
 
         Quaternion targetRotation = Quaternion.LookRotation(lookDirection.normalized);
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSharpness * Runner.DeltaTime);
+    }
+
+    private Vector3 GetRangedAimPoint()
+    {
+        if (currentTarget == null)
+        {
+            return transform.position + transform.forward * Mathf.Max(1f, rangedAttackRange);
+        }
+
+        Collider targetCollider = currentTarget.GetComponentInChildren<Collider>();
+        if (targetCollider != null)
+        {
+            return targetCollider.bounds.center;
+        }
+
+        return currentTarget.transform.position + Vector3.up * 1.1f;
+    }
+
+    public void ReleaseQueuedRangedShotFromAnimationEvent()
+    {
+        if (!HasStateAuthority)
+        {
+            return;
+        }
+
+        if (!pendingRangedShot)
+        {
+            return;
+        }
+
+        pendingRangedShot = false;
+
+        if (bowWeapon == null)
+        {
+            bowWeapon = GetComponentInChildren<BowWeapon>(true);
+        }
+
+        if (bowWeapon == null)
+        {
+            return;
+        }
+
+        RPC_SpawnBowProjectile(pendingRangedAimPoint, pendingRangedAttackerRef);
+    }
+
+    private bool HasLineOfSightToTarget(Vector3 targetPosition)
+    {
+        Vector3 origin = transform.position + Vector3.up * Mathf.Max(0f, lineOfSightEyeHeight);
+        Vector3 destination = targetPosition + Vector3.up * Mathf.Max(0f, lineOfSightTargetHeight);
+        Vector3 direction = destination - origin;
+        float distance = direction.magnitude;
+
+        if (distance <= 0.001f)
+        {
+            return true;
+        }
+
+        if (!Physics.Raycast(origin, direction.normalized, out RaycastHit hit, distance, lineOfSightMask, QueryTriggerInteraction.Ignore))
+        {
+            return true;
+        }
+
+        return currentTarget != null && hit.collider != null && hit.collider.transform.root == currentTarget.transform.root;
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_SpawnBowProjectile(Vector3 aimPoint, PlayerRef attackerRef)
+    {
+        if (bowWeapon == null)
+        {
+            bowWeapon = GetComponentInChildren<BowWeapon>(true);
+        }
+
+        if (bowWeapon == null)
+        {
+            return;
+        }
+
+        bowWeapon.SpawnProjectile(transform, attackerRef, aimPoint, HasStateAuthority);
     }
 }

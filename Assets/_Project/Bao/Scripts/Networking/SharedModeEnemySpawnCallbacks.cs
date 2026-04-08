@@ -7,8 +7,16 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class SharedModeEnemySpawnCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 {
+    public enum EnemySpawnVariant : byte
+    {
+        Sword = 0,
+        Archer = 1,
+    }
+
     [SerializeField] private NetworkRunner runner;
     [SerializeField] private NetworkObject enemyPrefab;
+    [SerializeField] private NetworkObject archerEnemyPrefab;
+    [SerializeField] private EnemySpawnVariant enemySpawnVariant = EnemySpawnVariant.Sword;
     [SerializeField] private Transform[] randomSpawnPoints;
     [SerializeField] private Transform spawnPoint;
     [SerializeField] private bool logSpawn = true;
@@ -136,7 +144,8 @@ public class SharedModeEnemySpawnCallbacks : MonoBehaviour, INetworkRunnerCallba
 
     private void TrySpawnEnemy(NetworkRunner currentRunner)
     {
-        if (enemyPrefab == null || currentRunner == null)
+        NetworkObject prefabToSpawn = GetEnemyPrefabToSpawn();
+        if (prefabToSpawn == null || currentRunner == null)
         {
             return;
         }
@@ -164,7 +173,7 @@ public class SharedModeEnemySpawnCallbacks : MonoBehaviour, INetworkRunnerCallba
 
         Vector3 spawnPosition = GetEnemySpawnPosition(out Quaternion spawnRotation);
 
-        spawnedEnemy = currentRunner.Spawn(enemyPrefab, spawnPosition, spawnRotation, currentRunner.LocalPlayer);
+        spawnedEnemy = currentRunner.Spawn(prefabToSpawn, spawnPosition, spawnRotation, currentRunner.LocalPlayer);
 
         if (logSpawn && spawnedEnemy != null)
         {
@@ -175,6 +184,26 @@ public class SharedModeEnemySpawnCallbacks : MonoBehaviour, INetworkRunnerCallba
         {
             pendingInitialSpawn = false;
         }
+    }
+
+    private NetworkObject GetEnemyPrefabToSpawn()
+    {
+        switch (enemySpawnVariant)
+        {
+            case EnemySpawnVariant.Archer:
+                if (archerEnemyPrefab != null)
+                {
+                    return archerEnemyPrefab;
+                }
+                break;
+        }
+
+        if (enemyPrefab != null)
+        {
+            return enemyPrefab;
+        }
+
+        return archerEnemyPrefab;
     }
 
     private Vector3 GetEnemySpawnPosition(out Quaternion rotation)

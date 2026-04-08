@@ -13,6 +13,11 @@ public class SharedModeEnemyAnimatorBridge : MonoBehaviour
     private int lastHitSequence = -1;
     private bool deadTriggered;
     private bool wasBlocking;
+    private bool wasAiming;
+
+    private const string AttackSwordTrigger = "AttackSword";
+    private const string AttackBowTrigger = "AttackBow";
+    private const string StartAimTrigger = "startAim";
 
     private void Awake()
     {
@@ -58,7 +63,9 @@ public class SharedModeEnemyAnimatorBridge : MonoBehaviour
             animator.SetBool("isMove", false);
             animator.SetBool("isIdle", true);
             animator.SetBool("isBlocking", false);
+            SetBoolIfExists("isAiming", false);
             animator.SetFloat("Speed", 0f, 0.1f, Time.deltaTime);
+            wasAiming = false;
             return;
         }
 
@@ -78,11 +85,21 @@ public class SharedModeEnemyAnimatorBridge : MonoBehaviour
 
         bool isBlocking = controller.IsBlocking;
         animator.SetBool("isBlocking", isBlocking);
+        bool isAiming = controller.IsAiming;
+        SetBoolIfExists("isAiming", isAiming);
+
+        if (isAiming && !wasAiming)
+        {
+            ResetTriggerIfExists(StartAimTrigger);
+            SetTriggerIfExists(StartAimTrigger);
+        }
+        wasAiming = isAiming;
 
         if (isBlocking && !wasBlocking)
         {
             animator.SetInteger("ComboStep", 0);
-            animator.ResetTrigger("AttackSword");
+            animator.ResetTrigger(AttackSwordTrigger);
+            animator.ResetTrigger(AttackBowTrigger);
             animator.SetTrigger("startBlock");
         }
         wasBlocking = isBlocking;
@@ -97,8 +114,7 @@ public class SharedModeEnemyAnimatorBridge : MonoBehaviour
         else if (attackSequence != lastAttackSequence)
         {
             lastAttackSequence = attackSequence;
-            animator.ResetTrigger("AttackSword");
-            animator.SetTrigger("AttackSword");
+            TriggerAttackByWeapon();
         }
 
         int hitSequence = enemyHealth.HitSequence;
@@ -109,6 +125,8 @@ public class SharedModeEnemyAnimatorBridge : MonoBehaviour
         else if (hitSequence != lastHitSequence)
         {
             lastHitSequence = hitSequence;
+            animator.ResetTrigger(AttackSwordTrigger);
+            animator.ResetTrigger(AttackBowTrigger);
             if (isBlocking)
             {
                 animator.SetTrigger("BlockHit");
@@ -118,5 +136,63 @@ public class SharedModeEnemyAnimatorBridge : MonoBehaviour
                 animator.SetTrigger("GetHit");
             }
         }
+    }
+
+    private void SetBoolIfExists(string parameterName, bool value)
+    {
+        if (HasParameter(parameterName, AnimatorControllerParameterType.Bool))
+        {
+            animator.SetBool(parameterName, value);
+        }
+    }
+
+    private void SetTriggerIfExists(string parameterName)
+    {
+        if (HasParameter(parameterName, AnimatorControllerParameterType.Trigger))
+        {
+            animator.SetTrigger(parameterName);
+        }
+    }
+
+    private void ResetTriggerIfExists(string parameterName)
+    {
+        if (HasParameter(parameterName, AnimatorControllerParameterType.Trigger))
+        {
+            animator.ResetTrigger(parameterName);
+        }
+    }
+
+    private bool HasParameter(string parameterName, AnimatorControllerParameterType parameterType)
+    {
+        if (animator == null)
+        {
+            return false;
+        }
+
+        AnimatorControllerParameter[] parameters = animator.parameters;
+        for (int i = 0; i < parameters.Length; i++)
+        {
+            AnimatorControllerParameter p = parameters[i];
+            if (p.name == parameterName && p.type == parameterType)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void TriggerAttackByWeapon()
+    {
+        ResetTriggerIfExists(AttackSwordTrigger);
+        ResetTriggerIfExists(AttackBowTrigger);
+
+        if (controller != null && controller.UsesBow)
+        {
+            SetTriggerIfExists(AttackBowTrigger);
+            return;
+        }
+
+        SetTriggerIfExists(AttackSwordTrigger);
     }
 }

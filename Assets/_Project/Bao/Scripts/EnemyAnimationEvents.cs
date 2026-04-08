@@ -67,4 +67,12 @@ public class EnemyAnimationEvents : MonoBehaviour
             enemyController.ResetComboStepFromAnimationEvent();
         }
     }
+
+    public void FireBowProjectile()
+    {
+        if (enemyController != null)
+        {
+            enemyController.ReleaseQueuedRangedShotFromAnimationEvent();
+        }
+    }
 }
