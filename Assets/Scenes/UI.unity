@@ -5518,6 +5518,7 @@ MonoBehaviour:
   damagePerClick: 10
   healthText: {fileID: 1408831096}
   healthSlider: {fileID: 1288351159}
+  demoDamageKey: 114
   useNormalizedSlider: 0
 --- !u!1 &1749908949
 GameObject:
