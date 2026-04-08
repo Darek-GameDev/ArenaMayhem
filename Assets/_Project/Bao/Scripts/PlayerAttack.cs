@@ -20,6 +20,8 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private bool bowRequireAimToFire = true;
     [SerializeField] private float bowFireCooldown = 0.35f;
     [SerializeField] private bool autoExitAimOnShoot = true;
+    [SerializeField] private float bowAimRayDistance = 200f;
+    [SerializeField] private LayerMask bowAimLayerMask = ~0;
 
     private PlayerHealth playerHealth;
 
@@ -27,6 +29,7 @@ public class PlayerAttack : MonoBehaviour
     private AttackState currentState = AttackState.Idle;
     private float lastBlockTime = -Mathf.Infinity;
     private SharedModePlayerController sharedModeController;
+    private CursorLockController cursorLockController;
     private float nextBowShotTime;
     private bool isAiming;
     private bool bowRequireAimRelease;
@@ -63,6 +66,16 @@ public class PlayerAttack : MonoBehaviour
 
         playerHealth = GetComponent<PlayerHealth>();
         sharedModeController = GetComponent<SharedModePlayerController>();
+        cursorLockController = GetComponent<CursorLockController>();
+        if (cursorLockController == null)
+        {
+            cursorLockController = gameObject.AddComponent<CursorLockController>();
+        }
+
+        if (sharedModeController == null)
+        {
+            cursorLockController.SetActiveForLocalPlayer(true);
+        }
     }
 
     // Called from Animation Event to start the attack window.
@@ -228,7 +241,7 @@ public class PlayerAttack : MonoBehaviour
 
         if (bowWeapon != null)
         {
-            bowWeapon.Fire(transform, default, GetAimDirection());
+            bowWeapon.Fire(transform, default, BowWeapon.GetAimPointFromCamera(transform, bowAimRayDistance, bowAimLayerMask));
         }
 
         if (autoExitAimOnShoot)
@@ -313,16 +326,4 @@ public class PlayerAttack : MonoBehaviour
         return false;
     }
 
-    private Vector3 GetAimDirection()
-    {
-        Camera mainCam = Camera.main;
-        if (mainCam != null)
-        {
-            // Get aim direction from screen center for proper projectile trajectory
-            Ray screenCenterRay = mainCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-            return screenCenterRay.direction;
-        }
-
-        return transform.forward;
-    }
 }

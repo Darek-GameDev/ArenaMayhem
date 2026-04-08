@@ -12,9 +12,11 @@ public class SharedModeEnemySpawnCallbacks : MonoBehaviour, INetworkRunnerCallba
     [SerializeField] private Transform[] randomSpawnPoints;
     [SerializeField] private Transform spawnPoint;
     [SerializeField] private bool logSpawn = true;
+    [SerializeField] private bool spawnOnFirstPlayerJoin = true;
 
     private bool callbacksRegistered;
     private NetworkObject spawnedEnemy;
+    private bool pendingInitialSpawn;
 
     private void Awake()
     {
@@ -39,6 +41,17 @@ public class SharedModeEnemySpawnCallbacks : MonoBehaviour, INetworkRunnerCallba
         if (spawnedEnemy == null)
         {
             spawnedEnemy = FindExistingEnemyObject();
+        }
+
+        if (spawnedEnemy != null)
+        {
+            pendingInitialSpawn = false;
+            return;
+        }
+
+        if (pendingInitialSpawn && runner != null)
+        {
+            TrySpawnEnemy(runner);
         }
     }
 
@@ -90,12 +103,13 @@ public class SharedModeEnemySpawnCallbacks : MonoBehaviour, INetworkRunnerCallba
 
     void INetworkRunnerCallbacks.OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
-        if (player != runner.LocalPlayer)
+        if (!spawnOnFirstPlayerJoin || player != runner.LocalPlayer)
         {
             return;
         }
 
-        TrySpawnEnemy(runner, requireFirstRealPlayer: true);
+        pendingInitialSpawn = true;
+        TrySpawnEnemy(runner);
     }
 
     void INetworkRunnerCallbacks.OnPlayerLeft(NetworkRunner runner, PlayerRef player)
@@ -117,9 +131,10 @@ public class SharedModeEnemySpawnCallbacks : MonoBehaviour, INetworkRunnerCallba
 
         runner.Despawn(spawnedEnemy);
         spawnedEnemy = null;
+        pendingInitialSpawn = false;
     }
 
-    private void TrySpawnEnemy(NetworkRunner currentRunner, bool requireFirstRealPlayer)
+    private void TrySpawnEnemy(NetworkRunner currentRunner)
     {
         if (enemyPrefab == null || currentRunner == null)
         {
@@ -131,7 +146,7 @@ public class SharedModeEnemySpawnCallbacks : MonoBehaviour, INetworkRunnerCallba
             return;
         }
 
-        if (requireFirstRealPlayer && GetRealPlayerCount(currentRunner) != 1)
+        if (!CanLocalPlayerSpawn(currentRunner))
         {
             return;
         }
@@ -143,6 +158,7 @@ public class SharedModeEnemySpawnCallbacks : MonoBehaviour, INetworkRunnerCallba
 
         if (spawnedEnemy != null)
         {
+            pendingInitialSpawn = false;
             return;
         }
 
@@ -153,6 +169,11 @@ public class SharedModeEnemySpawnCallbacks : MonoBehaviour, INetworkRunnerCallba
         if (logSpawn && spawnedEnemy != null)
         {
             Debug.Log($"SharedModeEnemySpawnCallbacks: spawned enemy '{spawnedEnemy.name}' at {spawnPosition}.");
+        }
+
+        if (spawnedEnemy != null)
+        {
+            pendingInitialSpawn = false;
         }
     }
 
@@ -208,6 +229,40 @@ public class SharedModeEnemySpawnCallbacks : MonoBehaviour, INetworkRunnerCallba
         }
 
         return count;
+    }
+
+    private static bool CanLocalPlayerSpawn(NetworkRunner currentRunner)
+    {
+        if (currentRunner == null || !currentRunner.LocalPlayer.IsRealPlayer)
+        {
+            return false;
+        }
+
+        return TryGetLowestRealPlayer(currentRunner, out PlayerRef lowestPlayer) && lowestPlayer == currentRunner.LocalPlayer;
+    }
+
+    private static bool TryGetLowestRealPlayer(NetworkRunner currentRunner, out PlayerRef lowestPlayer)
+    {
+        lowestPlayer = default;
+        bool found = false;
+        int lowestId = int.MaxValue;
+
+        foreach (PlayerRef activePlayer in currentRunner.ActivePlayers)
+        {
+            if (!activePlayer.IsRealPlayer)
+            {
+                continue;
+            }
+
+            if (!found || activePlayer.PlayerId < lowestId)
+            {
+                lowestPlayer = activePlayer;
+                lowestId = activePlayer.PlayerId;
+                found = true;
+            }
+        }
+
+        return found;
     }
 
     private static NetworkObject FindExistingEnemyObject()

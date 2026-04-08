@@ -6,6 +6,7 @@ public class SharedModeAnimatorBridge : MonoBehaviour
     [SerializeField] private SharedModePlayerController controller;
     [SerializeField] private Animator animator;
     [SerializeField] private Fusion.NetworkCharacterController networkCharacterController;
+    [SerializeField] private BowHandVisualAnimationEvents bowHandVisualEvents;
 
     private int lastHitSequence = -1;
     private int lastAttackSequence = -1;
@@ -34,6 +35,11 @@ public class SharedModeAnimatorBridge : MonoBehaviour
         {
             networkCharacterController = GetComponent<Fusion.NetworkCharacterController>();
         }
+
+        if (bowHandVisualEvents == null)
+        {
+            bowHandVisualEvents = GetComponentInChildren<BowHandVisualAnimationEvents>(true);
+        }
     }
 
     private void Update()
@@ -48,6 +54,11 @@ public class SharedModeAnimatorBridge : MonoBehaviour
 
         if (isDead)
         {
+            if (wasAiming)
+            {
+                bowHandVisualEvents?.AnimationEvent_DeactivateBowInHand();
+            }
+
             if (!deadTriggered)
             {
                 SetTriggerIfExists("DeadTrigger");
@@ -103,6 +114,10 @@ public class SharedModeAnimatorBridge : MonoBehaviour
         {
             ResetTriggerIfExists(StartAimTrigger);
             SetTriggerIfExists(StartAimTrigger);
+        }
+        else if (!isAiming && wasAiming)
+        {
+            bowHandVisualEvents?.AnimationEvent_DeactivateBowInHand();
         }
         wasAiming = isAiming;
 

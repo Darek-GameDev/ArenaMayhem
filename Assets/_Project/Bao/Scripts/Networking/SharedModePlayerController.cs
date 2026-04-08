@@ -45,6 +45,8 @@ public class SharedModePlayerController : NetworkBehaviour
     [SerializeField] private bool bowAutoExitAimOnShoot = false;
     [SerializeField] private float bowFireCooldownSeconds = 0.35f;
     [SerializeField] private BowWeapon bowWeapon;
+    [SerializeField] private float bowAimRayDistance = 200f;
+    [SerializeField] private LayerMask bowAimLayerMask = ~0;
 
     [Header("Health")]
     [SerializeField] private int maxHealth = 10;
@@ -65,6 +67,7 @@ public class SharedModePlayerController : NetworkBehaviour
     [Networked] public NetworkBool BowRequireAimRelease { get; set; }
 
     private NetworkCharacterController cc;
+    private CursorLockController cursorLockController;
 
     public PlayerWeaponType WeaponType => weaponType;
     public bool UsesBow => weaponType == PlayerWeaponType.Bow;
@@ -108,6 +111,14 @@ public class SharedModePlayerController : NetworkBehaviour
 
         ConfigureCameraOwnership();
         EnsureWorldSpaceHealthBar();
+
+        cursorLockController = GetComponent<CursorLockController>();
+        if (cursorLockController == null)
+        {
+            cursorLockController = gameObject.AddComponent<CursorLockController>();
+        }
+
+        cursorLockController.SetActiveForLocalPlayer(Object != null && Object.HasInputAuthority);
 
         if (HasStateAuthority)
         {
@@ -494,7 +505,24 @@ public class SharedModePlayerController : NetworkBehaviour
             attackerRef = Object.InputAuthority;
         }
 
-        bowWeapon.Fire(transform, attackerRef, GetAimDirection());
+        Vector3 aimPoint = BowWeapon.GetAimPointFromCamera(transform, bowAimRayDistance, bowAimLayerMask);
+        RPC_SpawnBowProjectile(aimPoint, attackerRef);
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_SpawnBowProjectile(Vector3 aimPoint, PlayerRef attackerRef)
+    {
+        if (bowWeapon == null)
+        {
+            bowWeapon = GetComponentInChildren<BowWeapon>();
+        }
+
+        if (bowWeapon == null)
+        {
+            return;
+        }
+
+        bowWeapon.SpawnProjectile(transform, attackerRef, aimPoint, HasStateAuthority);
     }
 
     private Vector3 GetAimForward()
@@ -515,19 +543,6 @@ public class SharedModePlayerController : NetworkBehaviour
         }
 
         return forward.normalized;
-    }
-
-    private Vector3 GetAimDirection()
-    {
-        Camera mainCam = Camera.main;
-        if (mainCam == null)
-        {
-            return transform.forward;
-        }
-
-        // Get aim direction from screen center for proper projectile trajectory
-        Ray screenCenterRay = mainCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-        return screenCenterRay.direction.normalized;
     }
 
     private void UpdateLocomotionState(Vector3 worldDirection, bool sprintHeld)

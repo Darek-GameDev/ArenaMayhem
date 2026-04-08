@@ -1263,6 +1263,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be
     m_ActionName: UI/TrackedDeviceOrientation
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 3a695f4d-4cc4-4bc2-a7a4-d50f4fc7de22
+    m_ActionName: 'Player/Aim[/Mouse/rightButton]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -1329,7 +1333,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   comboStep: 0
   blockCooldown: 0.25
+  useBow: 0
   weapon: {fileID: 0}
+  bowWeapon: {fileID: 0}
+  bowRequireAimToFire: 1
+  bowFireCooldown: 0.35
+  autoExitAimOnShoot: 1
+  bowAimRayDistance: 200
+  bowAimLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!114 &8601317461004361692
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1399,6 +1412,7 @@ MonoBehaviour:
   controller: {fileID: 0}
   animator: {fileID: 0}
   networkCharacterController: {fileID: 0}
+  bowHandVisualEvents: {fileID: 0}
 --- !u!114 &2167511110069939194
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1414,20 +1428,38 @@ MonoBehaviour:
   walkSpeed: 2
   runSpeed: 5
   lookYawSpeed: 0.15
+  instantAcceleration: 100
+  instantBraking: 100
+  cameraTransform: {fileID: 0}
+  playerCameraRoot: {fileID: 0}
   blockCooldownSeconds: 0.25
+  weaponType: 0
+  bowRequireAimToFire: 1
+  bowAutoExitAimOnShoot: 0
+  bowFireCooldownSeconds: 0.35
+  bowWeapon: {fileID: 0}
+  bowAimRayDistance: 200
+  bowAimLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   maxHealth: 10
-  _Health: 0
-  _IsDead:
-    _value: 0
   _IsBlocking:
     _value: 0
   _AttackPressed:
     _value: 0
+  _AttackSequence: 0
   _ComboStep: 0
   _HitSequence: 0
+  _KillCount: 0
+  _CollectedItemCount: 0
   _NetLocomotionState: 0
   _NetCombatState: 0
   _NextBlockAllowedAt: 0
+  _NextBowShotAllowedAt: 0
+  _IsAiming:
+    _value: 0
+  _BowRequireAimRelease:
+    _value: 0
 --- !u!1 &2794010901955814116
 GameObject:
   m_ObjectHideFlags: 0
@@ -1637,7 +1669,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7852795607138742217}
-  m_LocalEulerAnglesHint: {x: 1.7427241, y: -0.6234924, z: -129.36908}
+  m_LocalEulerAnglesHint: {x: 0.38804698, y: 14.553272, z: -74.24498}
 --- !u!1 &3369412597000846643
 GameObject:
   m_ObjectHideFlags: 0
@@ -2498,7 +2530,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3036390534055957105}
-  m_LocalEulerAnglesHint: {x: 1.4830589, y: -5.5236797, z: 120.03711}
+  m_LocalEulerAnglesHint: {x: -7.1921597, y: -12.804164, z: 43.585213}
 --- !u!1 &5891923867965685831
 GameObject:
   m_ObjectHideFlags: 0

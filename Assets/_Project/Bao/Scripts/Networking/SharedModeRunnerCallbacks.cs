@@ -11,18 +11,15 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     [Header("References")]
     [SerializeField] private NetworkRunner runner;
     [SerializeField] private PlayerInput playerInput;
-    [SerializeField] private NetworkObject playerPrefab;
+    [SerializeField] private NetworkObject swordPrefab;
+    [SerializeField] private NetworkObject archerPrefab;
     [SerializeField] private Transform[] spawnPoints;
 
-    [Header("Enemy Spawn")]
-    [SerializeField] private bool spawnEnemyOnFirstJoin = true;
-    [SerializeField] private NetworkObject enemyPrefab;
-    [SerializeField] private Transform[] enemySpawnPoints;
-    [SerializeField] private Transform enemySpawnPoint;
-    [SerializeField] private bool logEnemySpawn = true;
+    [Header("Look Sensitivity")]
+    [SerializeField] private float normalLookSensitivity = 1f;
+    [SerializeField] private float aimLookSensitivity = 0.55f;
 
     private readonly Dictionary<PlayerRef, NetworkObject> spawnedPlayers = new Dictionary<PlayerRef, NetworkObject>();
-    private NetworkObject spawnedEnemy;
     private bool callbacksRegistered;
 
     private bool prevJump;
@@ -50,11 +47,6 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         {
             TryResolveReferences();
             TryRegisterCallbacks();
-        }
-
-        if (spawnEnemyOnFirstJoin && spawnedEnemy == null)
-        {
-            spawnedEnemy = FindExistingEnemyObject();
         }
     }
 
@@ -113,14 +105,14 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     {
         ResolveLocalPlayerInput(runner);
 
-        Vector2 move = ReadVector2("Move");
-        Vector2 look = ReadVector2("Look");
-
         bool jumpHeld = ReadButtonHeld("Jump");
         bool sprintHeld = ReadButtonHeld("Sprint");
         bool attackHeld = ReadButtonHeld("Attack");
         bool blockHeld = ReadButtonHeld("Block");
         bool aimHeld = ReadButtonHeld("Aim");
+
+        Vector2 move = ReadVector2("Move");
+        Vector2 look = ApplyLookSensitivity(ReadVector2("Look"), aimHeld);
 
         NetworkButtons buttons = default;
         buttons.Set((int)PlayerInputButton.Jump, jumpHeld);
@@ -163,12 +155,6 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     void INetworkRunnerCallbacks.OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
-        if (playerPrefab == null)
-        {
-            Debug.LogWarning("SharedModeRunnerCallbacks: missing playerPrefab.");
-            return;
-        }
-
         if (runner.GameMode != GameMode.Shared || player != runner.LocalPlayer)
         {
             return;
@@ -179,10 +165,19 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
             return;
         }
 
+        bool isSwordPlayer = player.PlayerId % 2 == 1;
+        NetworkObject prefabToSpawn = isSwordPlayer ? swordPrefab : archerPrefab;
+
+        if (prefabToSpawn == null)
+        {
+            Debug.LogWarning($"SharedModeRunnerCallbacks: missing {(isSwordPlayer ? "swordPrefab" : "archerPrefab")}.");
+            return;
+        }
+
         Vector3 spawnPosition = GetSpawnPosition();
         Quaternion spawnRotation = Quaternion.identity;
 
-        NetworkObject spawned = runner.Spawn(playerPrefab, spawnPosition, spawnRotation, player);
+        NetworkObject spawned = runner.Spawn(prefabToSpawn, spawnPosition, spawnRotation, player);
         if (spawned != null)
         {
             spawnedPlayers[player] = spawned;
@@ -207,8 +202,6 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
                 }
             }
         }
-
-        TrySpawnEnemyOnFirstJoin(runner, player);
     }
 
     void INetworkRunnerCallbacks.OnPlayerLeft(NetworkRunner runner, PlayerRef player)
@@ -223,99 +216,6 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
             runner.Despawn(obj);
         }
 
-        spawnedPlayers.Remove(player);
-
-        TryDespawnEnemyIfNoPlayers(runner);
-    }
-
-    private void TrySpawnEnemyOnFirstJoin(NetworkRunner currentRunner, PlayerRef joinedPlayer)
-    {
-        if (!spawnEnemyOnFirstJoin || enemyPrefab == null || currentRunner == null)
-        {
-            return;
-        }
-
-        if (currentRunner.GameMode != GameMode.Shared)
-        {
-            return;
-        }
-
-        if (joinedPlayer != currentRunner.LocalPlayer)
-        {
-            return;
-        }
-
-        if (GetRealPlayerCount(currentRunner) != 1)
-        {
-            return;
-        }
-
-        if (spawnedEnemy == null)
-        {
-            spawnedEnemy = FindExistingEnemyObject();
-        }
-
-        if (spawnedEnemy != null)
-        {
-            return;
-        }
-
-        Vector3 spawnPosition = GetEnemySpawnPosition(out Quaternion spawnRotation);
-
-        spawnedEnemy = currentRunner.Spawn(enemyPrefab, spawnPosition, spawnRotation, currentRunner.LocalPlayer);
-
-        if (logEnemySpawn && spawnedEnemy != null)
-        {
-            Debug.Log($"SharedModeRunnerCallbacks: spawned enemy '{spawnedEnemy.name}' at {spawnPosition}.");
-        }
-    }
-
-    private void TryDespawnEnemyIfNoPlayers(NetworkRunner currentRunner)
-    {
-        if (spawnedEnemy == null || currentRunner == null)
-        {
-            return;
-        }
-
-        if (GetRealPlayerCount(currentRunner) > 0)
-        {
-            return;
-        }
-
-        if (spawnedEnemy.HasStateAuthority)
-        {
-            currentRunner.Despawn(spawnedEnemy);
-        }
-
-        spawnedEnemy = null;
-    }
-
-    private static int GetRealPlayerCount(NetworkRunner currentRunner)
-    {
-        int count = 0;
-        foreach (PlayerRef activePlayer in currentRunner.ActivePlayers)
-        {
-            if (activePlayer.IsRealPlayer)
-            {
-                count++;
-            }
-        }
-
-        return count;
-    }
-
-    private static NetworkObject FindExistingEnemyObject()
-    {
-        EnemyHealth[] enemies = FindObjectsByType<EnemyHealth>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-        for (int i = 0; i < enemies.Length; i++)
-        {
-            if (enemies[i] != null && enemies[i].Object != null)
-            {
-                return enemies[i].Object;
-            }
-        }
-
-        return null;
     }
 
     private Vector3 GetSpawnPosition()
@@ -325,30 +225,6 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
             return point.position;
         }
 
-        return Vector3.zero;
-    }
-
-    private Vector3 GetEnemySpawnPosition(out Quaternion rotation)
-    {
-        if (TryGetRandomSpawnPoint(enemySpawnPoints, out Transform randomEnemyPoint))
-        {
-            rotation = randomEnemyPoint.rotation;
-            return randomEnemyPoint.position;
-        }
-
-        if (enemySpawnPoint != null)
-        {
-            rotation = enemySpawnPoint.rotation;
-            return enemySpawnPoint.position;
-        }
-
-        if (TryGetRandomSpawnPoint(spawnPoints, out Transform fallbackPlayerPoint))
-        {
-            rotation = fallbackPlayerPoint.rotation;
-            return fallbackPlayerPoint.position;
-        }
-
-        rotation = Quaternion.identity;
         return Vector3.zero;
     }
 
@@ -401,6 +277,12 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         }
 
         return Vector2.zero;
+    }
+
+    private Vector2 ApplyLookSensitivity(Vector2 lookInput, bool aimHeld)
+    {
+        float sensitivity = aimHeld ? aimLookSensitivity : normalLookSensitivity;
+        return lookInput * Mathf.Max(0f, sensitivity);
     }
 
     private bool ReadButtonHeld(string actionName)

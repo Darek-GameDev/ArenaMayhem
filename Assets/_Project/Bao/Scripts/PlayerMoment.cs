@@ -23,6 +23,7 @@ public class PlayerMoment : MonoBehaviour
     private PlayerHealth playerHealth;
     private PlayerAttack playerAttack;
     private SharedModePlayerController sharedModeController;
+    private CursorLockController cursorLockController;
     enum PlayerState
     {
         Idle,
@@ -44,6 +45,13 @@ public class PlayerMoment : MonoBehaviour
         playerHealth = GetComponent<PlayerHealth>();
         playerAttack = GetComponent<PlayerAttack>();
         sharedModeController = GetComponent<SharedModePlayerController>();
+        cursorLockController = GetComponent<CursorLockController>();
+        if (cursorLockController == null)
+        {
+            cursorLockController = gameObject.AddComponent<CursorLockController>();
+        }
+
+        cursorLockController.SetActiveForLocalPlayer(true);
     }
     void Start()
     {

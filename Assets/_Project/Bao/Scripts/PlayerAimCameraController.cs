@@ -8,11 +8,16 @@ public class PlayerAimCameraController : MonoBehaviour
     [SerializeField] private PlayerAttack localAttack;
     [SerializeField] private SharedModePlayerController sharedModeController;
     [SerializeField] private CinemachineCamera cinemachineCamera;
+    [SerializeField] private CinemachineInputAxisController inputAxisController;
     [SerializeField] private CinemachineOrbitalFollow orbitalFollow;
     [SerializeField] private CinemachineRotationComposer rotationComposer;
 
     [Header("Blend")]
     [SerializeField] private float blendSpeed = 8f;
+
+    [Header("Look Sensitivity")]
+    [SerializeField] private float normalLookSensitivity = 1f;
+    [SerializeField] private float aimLookSensitivity = 0.55f;
 
     [Header("Normal Camera")]
     [SerializeField] private float normalRadius = 4f;
@@ -34,7 +39,7 @@ public class PlayerAimCameraController : MonoBehaviour
             sharedModeController = GetComponent<SharedModePlayerController>();
         }
 
-        if (cinemachineCamera == null || orbitalFollow == null || rotationComposer == null)
+        if (cinemachineCamera == null || inputAxisController == null || orbitalFollow == null || rotationComposer == null)
         {
             ResolveCameraComponents();
         }
@@ -53,6 +58,7 @@ public class PlayerAimCameraController : MonoBehaviour
         }
 
         bool isAiming = IsAimingNow();
+        ApplyLookSensitivity(isAiming);
         float targetRadius = isAiming ? aimRadius : normalRadius;
         Vector3 targetOffset = isAiming ? aimTargetOffset : normalTargetOffset;
         float t = 1f - Mathf.Exp(-Mathf.Max(0.1f, blendSpeed) * Time.deltaTime);
@@ -93,6 +99,16 @@ public class PlayerAimCameraController : MonoBehaviour
             cinemachineCamera = GetComponentInChildren<CinemachineCamera>(true);
         }
 
+        if (inputAxisController == null && cinemachineCamera != null)
+        {
+            inputAxisController = cinemachineCamera.GetComponent<CinemachineInputAxisController>();
+        }
+
+        if (inputAxisController == null)
+        {
+            inputAxisController = GetComponentInChildren<CinemachineInputAxisController>(true);
+        }
+
         if (orbitalFollow == null && cinemachineCamera != null)
         {
             orbitalFollow = cinemachineCamera.GetComponent<CinemachineOrbitalFollow>();
@@ -101,6 +117,28 @@ public class PlayerAimCameraController : MonoBehaviour
         if (rotationComposer == null && cinemachineCamera != null)
         {
             rotationComposer = cinemachineCamera.GetComponent<CinemachineRotationComposer>();
+        }
+    }
+
+    private void ApplyLookSensitivity(bool isAiming)
+    {
+        if (inputAxisController == null)
+        {
+            return;
+        }
+
+        float sensitivity = Mathf.Max(0f, isAiming ? aimLookSensitivity : normalLookSensitivity);
+        var lookX = inputAxisController.GetController("Look Orbit X");
+        var lookY = inputAxisController.GetController("Look Orbit Y");
+
+        if (lookX != null)
+        {
+            lookX.Input.Gain = sensitivity;
+        }
+
+        if (lookY != null)
+        {
+            lookY.Input.Gain = -sensitivity;
         }
     }
 }

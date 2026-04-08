@@ -14,6 +14,7 @@ public class BowProjectile : MonoBehaviour
     private float lifeTimer;
     private bool initialized;
     private bool hasHit;
+    private bool canDealDamage = true;
 
     private void Awake()
     {
@@ -23,12 +24,13 @@ public class BowProjectile : MonoBehaviour
         }
     }
 
-    public void Initialize(Transform owner, PlayerRef attacker, int damageAmount, float speed, float lifetime)
+    public void Initialize(Transform owner, PlayerRef attacker, int damageAmount, float speed, float lifetime, bool canDealDamage)
     {
         ownerRoot = owner;
         attackerRef = attacker;
         damage = Mathf.Max(1, damageAmount);
         lifeTimer = Mathf.Max(0.1f, lifetime);
+        this.canDealDamage = canDealDamage;
         initialized = true;
 
         if (projectileBody != null)
@@ -85,46 +87,49 @@ public class BowProjectile : MonoBehaviour
         bool hasDamageTarget = targetHealth != null || networkTarget != null || enemyTarget != null;
         if (hasDamageTarget)
         {
-            bool targetIsDead = (networkTarget != null && networkTarget.IsDead) ||
-                                (targetHealth != null && targetHealth.IsDead) ||
-                                (enemyTarget != null && enemyTarget.IsDead);
-            if (!targetIsDead)
+            if (canDealDamage)
             {
-                if (networkTarget != null)
+                bool targetIsDead = (networkTarget != null && networkTarget.IsDead) ||
+                                    (targetHealth != null && targetHealth.IsDead) ||
+                                    (enemyTarget != null && enemyTarget.IsDead);
+                if (!targetIsDead)
                 {
-                    if (attackerRef.IsRealPlayer)
+                    if (networkTarget != null)
                     {
-                        networkTarget.RPC_RequestDamageFromPlayer(damage, attackerRef);
+                        if (attackerRef.IsRealPlayer)
+                        {
+                            networkTarget.RPC_RequestDamageFromPlayer(damage, attackerRef);
+                        }
+                        else
+                        {
+                            networkTarget.RPC_RequestDamage(damage);
+                        }
+                    }
+                    else if (enemyTarget != null)
+                    {
+                        if (attackerRef.IsRealPlayer)
+                        {
+                            enemyTarget.RequestDamageFromPlayer(damage, attackerRef);
+                        }
+                        else
+                        {
+                            enemyTarget.RequestDamage(damage);
+                        }
                     }
                     else
                     {
-                        networkTarget.RPC_RequestDamage(damage);
+                        targetHealth.TakeDamage(damage);
                     }
-                }
-                else if (enemyTarget != null)
-                {
-                    if (attackerRef.IsRealPlayer)
-                    {
-                        enemyTarget.RequestDamageFromPlayer(damage, attackerRef);
-                    }
-                    else
-                    {
-                        enemyTarget.RequestDamage(damage);
-                    }
-                }
-                else
-                {
-                    targetHealth.TakeDamage(damage);
-                }
 
-                if (logHit)
-                {
-                    string targetName = networkTarget != null
-                        ? networkTarget.name
-                        : enemyTarget != null
-                            ? enemyTarget.name
-                            : targetHealth.name;
-                    Debug.Log($"BowProjectile hit {targetName} for {damage}.");
+                    if (logHit)
+                    {
+                        string targetName = networkTarget != null
+                            ? networkTarget.name
+                            : enemyTarget != null
+                                ? enemyTarget.name
+                                : targetHealth.name;
+                        Debug.Log($"BowProjectile hit {targetName} for {damage}.");
+                    }
                 }
             }
         }

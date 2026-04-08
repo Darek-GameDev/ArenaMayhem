@@ -827,7 +827,7 @@ Transform:
   m_Children:
   - {fileID: 1913416203336772178}
   m_Father: {fileID: 2137574569504275921}
-  m_LocalEulerAnglesHint: {x: 0.00000027235185, y: -0.0000029348475, z: 90.00001}
+  m_LocalEulerAnglesHint: {x: 0.00000027235205, y: -0.000002934847, z: 90.00001}
 --- !u!1 &5414071887725926632
 GameObject:
   m_ObjectHideFlags: 0
@@ -1120,7 +1120,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1346985541919212429
 Transform:
   m_ObjectHideFlags: 0
@@ -1508,7 +1508,8 @@ GameObject:
   - component: {fileID: 1996908816946458932}
   - component: {fileID: 3715344209588209806}
   - component: {fileID: 2954118687832947223}
-  - component: {fileID: 8247637897880377301}
+  - component: {fileID: 896624991062604839}
+  - component: {fileID: 5015241082328425243}
   m_Layer: 0
   m_Name: Rogue_Hooded
   m_TagString: Untagged
@@ -1729,7 +1730,19 @@ MonoBehaviour:
     m_ActionId: 9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be
     m_ActionName: UI/TrackedDeviceOrientation
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6206074856843633806}
+        m_TargetAssemblyTypeName: PlayerAttack, Assembly-CSharp
+        m_MethodName: OnAim
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 3a695f4d-4cc4-4bc2-a7a4-d50f4fc7de22
     m_ActionName: 'Player/Aim[/Mouse/rightButton]'
   m_NeverAutoSwitchControlSchemes: 0
@@ -1804,6 +1817,10 @@ MonoBehaviour:
   bowRequireAimToFire: 1
   bowFireCooldown: 0.5
   autoExitAimOnShoot: 0
+  bowAimRayDistance: 200
+  bowAimLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!114 &5181516410223311153
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1848,6 +1865,10 @@ MonoBehaviour:
   bowAutoExitAimOnShoot: 0
   bowFireCooldownSeconds: 0.5
   bowWeapon: {fileID: 0}
+  bowAimRayDistance: 200
+  bowAimLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   maxHealth: 10
   _IsBlocking:
     _value: 0
@@ -1918,9 +1939,12 @@ MonoBehaviour:
   localAttack: {fileID: 6206074856843633806}
   sharedModeController: {fileID: 3495695272834901854}
   cinemachineCamera: {fileID: 7991631432955061184}
+  inputAxisController: {fileID: 439040984557659279}
   orbitalFollow: {fileID: 199555430836313910}
   rotationComposer: {fileID: 3934683523483113249}
   blendSpeed: 8
+  normalLookSensitivity: 1
+  aimLookSensitivity: 0.4
   normalRadius: 4
   normalTargetOffset: {x: 0, y: 1.13, z: 0}
   aimRadius: 2.4
@@ -1955,7 +1979,21 @@ MonoBehaviour:
   controller: {fileID: 3495695272834901854}
   animator: {fileID: 425858959708846246}
   networkCharacterController: {fileID: 5181516410223311153}
---- !u!114 &8247637897880377301
+  bowHandVisualEvents: {fileID: 896624991062604839}
+--- !u!114 &896624991062604839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7530822878995127408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ead394211eff83540999cb6d266543bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BowHandVisualAnimationEvents
+  bowInHandObject: {fileID: 5886086909820963762}
+--- !u!114 &5015241082328425243
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1971,6 +2009,11 @@ MonoBehaviour:
   sharedModeController: {fileID: 3495695272834901854}
   crosshairRoot: {fileID: 0}
   crosshairRawImage: {fileID: 0}
+  crosshairObjectName: Crosshair
+  resolveRetryInterval: 0.5
+  showAnimationDuration: 0.25
+  hideAnimationDuration: 0.15
+  minScale: 0.6
 --- !u!1 &7940896968262706577
 GameObject:
   m_ObjectHideFlags: 0
@@ -2324,7 +2367,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8677975100146075059}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.13608082, y: 5.0837236e-15, z: -4.3345204e-15, w: 0.99069774}
+  m_LocalRotation: {x: 0.13608086, y: -8.2420043e-10, z: 1.13211114e-10, w: 0.99069774}
   m_LocalPosition: {x: 0, y: 2.25, z: -4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2566,7 +2609,7 @@ Transform:
   m_Children:
   - {fileID: 5156800762047061922}
   m_Father: {fileID: 8707332123201808784}
-  m_LocalEulerAnglesHint: {x: 0.0000002723533, y: 0.000002936198, z: -0.0000050043905}
+  m_LocalEulerAnglesHint: {x: 0.00000027235353, y: 0.0000029361975, z: -0.0000050043905}
 --- !u!1001 &8094391342122948372
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2589,23 +2632,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 219f895202bebcb4d81d24c0bd326ec7, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 219f895202bebcb4d81d24c0bd326ec7, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.0000000033720164
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 219f895202bebcb4d81d24c0bd326ec7, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.000000007660751
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 219f895202bebcb4d81d24c0bd326ec7, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.000000029802322
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 219f895202bebcb4d81d24c0bd326ec7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 219f895202bebcb4d81d24c0bd326ec7, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
