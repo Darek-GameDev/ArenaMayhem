@@ -45,7 +45,6 @@ public class ButtonClick : MonoBehaviour
 			return;
 		}
 
-		SetMainMenuButtonsVisible(false);
 		settingsUI.ShowSettings();
 	}
 
@@ -57,7 +56,6 @@ public class ButtonClick : MonoBehaviour
 		}
 
 		settingsUI.HideSettings();
-		SetMainMenuButtonsVisible(true);
 	}
 
 	public void ToggleSettings()
@@ -67,9 +65,7 @@ public class ButtonClick : MonoBehaviour
 			return;
 		}
 
-		bool isOpening = !settingsUI.IsSettingsVisible();
 		settingsUI.ToggleSettings();
-		SetMainMenuButtonsVisible(!isOpening);
 	}
 
 	public void OpenRoomSelectionUI()

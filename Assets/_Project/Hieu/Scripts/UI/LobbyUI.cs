@@ -111,6 +111,24 @@ public class LobbyUI : MonoBehaviour
 		ExitRoomToMenu();
 	}
 
+	public void ResetLobbyUI()
+	{
+		// Reset player count
+		currentPlayerCount = 1;
+		isRoomOwner = true;
+
+		// Clear all player slots
+		if (playerAvatarSlots != null)
+		{
+			for (int i = 0; i < playerAvatarSlots.Length; i++)
+			{
+				ClearSlot(i);
+			}
+		}
+
+		RefreshLobbyUI();
+	}
+
 	public void SetRoomOwner(bool value)
 	{
 		isRoomOwner = value;
@@ -295,6 +313,8 @@ public class LobbyUI : MonoBehaviour
 
 	private void ExitRoomToMenu()
 	{
+		ResetLobbyUI();
+
 		if (gameObject != null)
 		{
 			gameObject.SetActive(false);

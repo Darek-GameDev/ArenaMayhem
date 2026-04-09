@@ -56,6 +56,12 @@ public class ClassChoose : MonoBehaviour
 
         if (lobbyUI != null)
         {
+            LobbyUI lobbyUIScript = lobbyUI.GetComponent<LobbyUI>();
+            if (lobbyUIScript != null)
+            {
+                lobbyUIScript.ResetLobbyUI();
+            }
+
             lobbyUI.SendMessage("SetPlayerCount", 1, SendMessageOptions.DontRequireReceiver);
             lobbyUI.SendMessage("SetLocalPlayerClass", confirmedClassName, SendMessageOptions.DontRequireReceiver);
         }
