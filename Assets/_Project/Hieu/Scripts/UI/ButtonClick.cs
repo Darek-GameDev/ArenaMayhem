@@ -18,6 +18,30 @@ public class ButtonClick : MonoBehaviour
 		}
 	}
 
+	// Auto-detect ClassChooseUI if not assigned
+	private void OnEnable()
+	{
+		if (classChooseUI == null)
+		{
+			ClassChoose classChooseComponent = FindFirstObjectByType<ClassChoose>();
+			if (classChooseComponent != null)
+			{
+				classChooseUI = classChooseComponent.gameObject;
+				Debug.Log("[ButtonClick] ClassChooseUI auto-detected");
+			}
+		}
+
+		if (roomSelectionUI == null)
+		{
+			GameObject roomSelection = GameObject.Find("RoomSelection") ?? GameObject.Find("RoomSelectionUI");
+			if (roomSelection != null)
+			{
+				roomSelectionUI = roomSelection;
+				Debug.Log("[ButtonClick] RoomSelectionUI auto-detected");
+			}
+		}
+	}
+
 	private void Start()
 	{
 		if (settingsUI != null)
@@ -115,15 +139,28 @@ public class ButtonClick : MonoBehaviour
 			roomSelectionUI.SetActive(false);
 		}
 
-		if (classChooseUI != null)
+		if (classChooseUI == null)
 		{
-			ClassChoose classChoose = classChooseUI.GetComponent<ClassChoose>();
-			if (classChoose != null)
-			{
-				classChoose.ResetSelectionUI();
-			}
+			Debug.LogError("[ButtonClick.OpenClassChooseUI] classChooseUI is NULL.");
+			return;
+		}
 
-			classChooseUI.SetActive(true);
+		classChooseUI.SetActive(true);
+
+		ClassChoose classChoose = classChooseUI.GetComponent<ClassChoose>();
+		if (classChoose == null)
+		{
+			classChoose = classChooseUI.GetComponentInChildren<ClassChoose>(true);
+		}
+
+		if (classChoose != null)
+		{
+			classChoose.gameObject.SetActive(true);
+			classChoose.ResetSelectionUI();
+		}
+		else
+		{
+			Debug.LogError("[ButtonClick.OpenClassChooseUI] Khong tim thay component ClassChoose.");
 		}
 	}
 
