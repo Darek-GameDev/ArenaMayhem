@@ -45,10 +45,24 @@ public class LobbyUI : MonoBehaviour
 	[SerializeField] private bool autoApplyFirstSlotFromClassChoose = true;
 	[SerializeField] private string defaultClassName = "Knight";
 	[SerializeField] private int requiredPlayersToStart = 1;
+	[SerializeField] private bool hideLobbyOnSceneStart = true;
 
 	private void Awake()
 	{
 		RefreshLobbyUI();
+	}
+
+	private void Start()
+	{
+		if (!hideLobbyOnSceneStart)
+		{
+			return;
+		}
+
+		if (gameObject != null)
+		{
+			gameObject.SetActive(false);
+		}
 	}
 
 	private void OnEnable()
@@ -72,6 +86,11 @@ public class LobbyUI : MonoBehaviour
 		if (currentPlayerCount < Mathf.Max(1, requiredPlayersToStart))
 		{
 			return;
+		}
+
+		if (gameObject != null)
+		{
+			gameObject.SetActive(false);
 		}
 
 		SceneManager.LoadScene(gameSceneName);
@@ -183,7 +202,7 @@ public class LobbyUI : MonoBehaviour
 			return;
 		}
 
-		playerCountText.text = $"{filledSlotCount}/{resolvedMaxPlayers}";
+		playerCountText.text = $"PLAYER IN ROOM: {filledSlotCount}/{resolvedMaxPlayers}";
 		playerCountText.color = filledSlotCount >= resolvedMaxPlayers ? fullColor : waitingColor;
 	}
 
