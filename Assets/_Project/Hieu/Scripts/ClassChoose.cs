@@ -54,9 +54,15 @@ public class ClassChoose : MonoBehaviour
         confirmedClassName = pendingClassName;
         LastConfirmedClassName = confirmedClassName;
 
+        SharedRoomSessionManager sessionManager = SharedRoomSessionManager.EnsureInstance();
+        if (sessionManager != null)
+        {
+            sessionManager.SetLocalClass(confirmedClassName);
+            sessionManager.SetLocalReady(true);
+        }
+
         if (lobbyUI != null)
         {
-            lobbyUI.SendMessage("SetPlayerCount", 1, SendMessageOptions.DontRequireReceiver);
             lobbyUI.SendMessage("SetLocalPlayerClass", confirmedClassName, SendMessageOptions.DontRequireReceiver);
         }
 

@@ -1,4 +1,7 @@
+using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ButtonClick : MonoBehaviour
 {
@@ -9,6 +12,15 @@ public class ButtonClick : MonoBehaviour
 	[SerializeField] private GameObject exitButton;
 	[SerializeField] private GameObject roomSelectionUI;
 	[SerializeField] private GameObject classChooseUI;
+	[SerializeField] private CanvasGroup roomSelectionCanvasGroup;
+
+	[Header("Room Input")]
+	[SerializeField] private TMP_InputField roomIdTmpInputField;
+	[SerializeField] private InputField roomIdLegacyInputField;
+	[SerializeField] private TMP_Text roomFeedbackTmpText;
+	[SerializeField] private Text roomFeedbackLegacyText;
+
+	private bool roomActionInProgress;
 
 	private void Awake()
 	{
@@ -34,6 +46,8 @@ public class ButtonClick : MonoBehaviour
 		{
 			classChooseUI.SetActive(false);
 		}
+
+		SetRoomFeedback(string.Empty);
 
 		SetMainMenuButtonsVisible(true);
 	}
@@ -79,6 +93,7 @@ public class ButtonClick : MonoBehaviour
 			return;
 		}
 
+		SetMainMenuButtonsVisible(false);
 		roomSelectionUI.SetActive(true);
 	}
 
@@ -90,6 +105,7 @@ public class ButtonClick : MonoBehaviour
 		}
 
 		roomSelectionUI.SetActive(false);
+		SetMainMenuButtonsVisible(true);
 	}
 
 	public void ToggleRoomSelectionUI()
@@ -102,14 +118,14 @@ public class ButtonClick : MonoBehaviour
 		roomSelectionUI.SetActive(!roomSelectionUI.activeSelf);
 	}
 
-	public void OnCreateRoomClicked()
+	public async void OnCreateRoomClicked()
 	{
-		OpenClassChooseUI();
+		await HandleRoomActionAsync(isCreateAction: true);
 	}
 
-	public void OnJoinRoomClicked()
+	public async void OnJoinRoomClicked()
 	{
-		OpenClassChooseUI();
+		await HandleRoomActionAsync(isCreateAction: false);
 	}
 
 	private void OpenClassChooseUI()
@@ -128,6 +144,95 @@ public class ButtonClick : MonoBehaviour
 			}
 
 			classChooseUI.SetActive(true);
+		}
+	}
+
+	private async Task HandleRoomActionAsync(bool isCreateAction)
+	{
+		if (roomActionInProgress)
+		{
+			return;
+		}
+
+		string roomId = GetRoomIdInput();
+		if (string.IsNullOrWhiteSpace(roomId))
+		{
+			SetRoomFeedback("Hay nhap Room ID.");
+			return;
+		}
+
+		SharedRoomSessionManager sessionManager = SharedRoomSessionManager.EnsureInstance();
+		if (sessionManager == null)
+		{
+			SetRoomFeedback("Khong tao duoc Session Manager.");
+			return;
+		}
+
+		roomActionInProgress = true;
+		SetRoomSelectionInteractable(false);
+		SetRoomFeedback(isCreateAction ? "Dang tao room..." : "Dang join room...");
+
+		bool success = isCreateAction
+			? await sessionManager.CreateRoomAsync(roomId)
+			: await sessionManager.JoinRoomAsync(roomId);
+
+		roomActionInProgress = false;
+		SetRoomSelectionInteractable(true);
+
+		if (!success)
+		{
+			SetRoomFeedback(isCreateAction ? "Tao room that bai." : "Join room that bai.");
+			return;
+		}
+
+		SetRoomFeedback(string.Empty);
+		OpenClassChooseUI();
+	}
+
+	private string GetRoomIdInput()
+	{
+		if (roomIdTmpInputField != null)
+		{
+			return roomIdTmpInputField.text;
+		}
+
+		if (roomIdLegacyInputField != null)
+		{
+			return roomIdLegacyInputField.text;
+		}
+
+		return string.Empty;
+	}
+
+	private void SetRoomSelectionInteractable(bool isInteractable)
+	{
+		if (roomSelectionCanvasGroup != null)
+		{
+			roomSelectionCanvasGroup.interactable = isInteractable;
+			roomSelectionCanvasGroup.blocksRaycasts = isInteractable;
+		}
+
+		if (roomIdTmpInputField != null)
+		{
+			roomIdTmpInputField.interactable = isInteractable;
+		}
+
+		if (roomIdLegacyInputField != null)
+		{
+			roomIdLegacyInputField.interactable = isInteractable;
+		}
+	}
+
+	private void SetRoomFeedback(string message)
+	{
+		if (roomFeedbackTmpText != null)
+		{
+			roomFeedbackTmpText.text = message;
+		}
+
+		if (roomFeedbackLegacyText != null)
+		{
+			roomFeedbackLegacyText.text = message;
 		}
 	}
 

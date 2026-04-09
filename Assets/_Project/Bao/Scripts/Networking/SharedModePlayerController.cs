@@ -72,6 +72,19 @@ public class SharedModePlayerController : NetworkBehaviour
     public PlayerWeaponType WeaponType => weaponType;
     public bool UsesBow => weaponType == PlayerWeaponType.Bow;
 
+    public void ApplySpawnClass(SharedPlayerClassType classType)
+    {
+        switch (classType)
+        {
+            case SharedPlayerClassType.Archer:
+                weaponType = PlayerWeaponType.Bow;
+                break;
+            case SharedPlayerClassType.Knight:
+                weaponType = PlayerWeaponType.Sword;
+                break;
+        }
+    }
+
     public int Health
     {
         get => NetHealthState.Current;
@@ -104,6 +117,14 @@ public class SharedModePlayerController : NetworkBehaviour
 
     public override void Spawned()
     {
+        if (HasStateAuthority && Object != null && Object.InputAuthority.IsRealPlayer)
+        {
+            if (SharedRoomSessionManager.TryGetPlayerClass(Runner, Object.InputAuthority, out SharedPlayerClassType selectedClass))
+            {
+                ApplySpawnClass(selectedClass);
+            }
+        }
+
         cc = GetComponent<NetworkCharacterController>();
         cc.acceleration = instantAcceleration;
         cc.braking = instantBraking;

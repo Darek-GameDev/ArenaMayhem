@@ -165,7 +165,8 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
             return;
         }
 
-        bool isSwordPlayer = player.PlayerId % 2 == 1;
+        SharedPlayerClassType selectedClass = ResolveSelectedClass(runner, player);
+        bool isSwordPlayer = SharedPlayerClassTypeUtility.IsSwordClass(selectedClass);
         NetworkObject prefabToSpawn = isSwordPlayer ? swordPrefab : archerPrefab;
 
         if (prefabToSpawn == null)
@@ -182,6 +183,12 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         {
             spawnedPlayers[player] = spawned;
             runner.SetPlayerObject(player, spawned);
+
+            SharedModePlayerController playerController = spawned.GetComponent<SharedModePlayerController>();
+            if (playerController != null)
+            {
+                playerController.ApplySpawnClass(selectedClass);
+            }
 
             if (player == runner.LocalPlayer)
             {
@@ -216,6 +223,24 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
             runner.Despawn(obj);
         }
 
+        spawnedPlayers.Remove(player);
+
+    }
+
+    private static SharedPlayerClassType ResolveSelectedClass(NetworkRunner sourceRunner, PlayerRef player)
+    {
+        if (SharedRoomSessionManager.TryGetPlayerClass(sourceRunner, player, out SharedPlayerClassType networkClass))
+        {
+            return networkClass;
+        }
+
+        SharedPlayerClassType fallbackClass = SharedPlayerClassTypeUtility.FromClassName(ClassChoose.LastConfirmedClassName);
+        if (fallbackClass != SharedPlayerClassType.Unknown)
+        {
+            return fallbackClass;
+        }
+
+        return SharedPlayerClassType.Knight;
     }
 
     private Vector3 GetSpawnPosition()
