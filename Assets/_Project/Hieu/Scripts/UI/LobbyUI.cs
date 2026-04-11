@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Generic;
-using Fusion;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class LobbyUI : MonoBehaviour
@@ -29,127 +28,129 @@ public class LobbyUI : MonoBehaviour
 	[SerializeField] private Button startGameButton;
 	[SerializeField] private Button leaveRoomButton;
 	[SerializeField] private Button removeRoomButton;
-	[SerializeField] private Button readyButton;
-	[SerializeField] private TMP_Text readyButtonTmpText;
-	[SerializeField] private Text readyButtonLegacyText;
-	[SerializeField] private TMP_Text lobbyStatusTmpText;
-	[SerializeField] private Text lobbyStatusLegacyText;
 
 	[Header("Lobby Status")]
 	[SerializeField] private TMP_Text playerCountText;
 	[SerializeField] private PlayerAvatarSlot[] playerAvatarSlots;
-	[SerializeField] private int maxPlayers = 6;
-	[SerializeField] private int offlinePlayerCount = 1;
-	[SerializeField] private bool offlineRoomOwner = true;
+	[SerializeField] private int maxPlayers = 4;
+	[SerializeField] private int currentPlayerCount = 1;
+	[SerializeField] private bool isRoomOwner = true;
 	[SerializeField] private Color waitingColor = Color.white;
 	[SerializeField] private Color fullColor = Color.red;
+
+	[Header("Scene")]
+	[SerializeField] private string gameSceneName;
 
 	[Header("Rules")]
 	[SerializeField] private bool autoApplyFirstSlotFromClassChoose = true;
 	[SerializeField] private string defaultClassName = "Knight";
-
-	private SharedRoomSessionManager sessionManager;
+	[SerializeField] private int requiredPlayersToStart = 1;
+	[SerializeField] private bool hideLobbyOnSceneStart = true;
 
 	private void Awake()
 	{
 		RefreshLobbyUI();
 	}
 
+	private void Start()
+	{
+		if (!hideLobbyOnSceneStart)
+		{
+			return;
+		}
+
+		if (gameObject != null)
+		{
+			gameObject.SetActive(false);
+		}
+	}
+
 	private void OnEnable()
 	{
-		ResolveSessionManager();
 		RefreshLobbyUI();
 	}
 
 	private void Update()
 	{
-		RefreshLobbyUI();
+		RefreshButtonVisibility();
 	}
 
 	public void OnStartGameClicked()
 	{
-		ResolveSessionManager();
-		if (sessionManager == null)
+		if (string.IsNullOrWhiteSpace(gameSceneName))
 		{
-			SetLobbyStatus("Chua co Session Manager.");
+			Debug.LogWarning("LobbyUI: chua gan ten scene game.");
 			return;
 		}
 
-		if (!sessionManager.StartGameIfReady())
+		if (currentPlayerCount < Mathf.Max(1, requiredPlayersToStart))
 		{
-			if (sessionManager.CanStartGame(out string reason))
-			{
-				SetLobbyStatus("Khong the bat dau tran.");
-			}
-			else
-			{
-				SetLobbyStatus(reason);
-			}
+			return;
 		}
+
+		SharedRoomSessionManager sessionManager = SharedRoomSessionManager.Instance;
+		if (sessionManager != null && sessionManager.HasActiveSession)
+		{
+			sessionManager.StartGameIfReady();
+			return;
+		}
+
+		if (gameObject != null)
+		{
+			gameObject.SetActive(false);
+		}
+
+		SceneManager.LoadScene(gameSceneName);
 	}
 
 	public void OnLeaveRoomClicked()
 	{
-		ResolveSessionManager();
-		if (sessionManager != null)
-		{
-			sessionManager.LeaveRoom();
-		}
-
 		ExitRoomToMenu();
 	}
 
 	public void OnRemoveRoomClicked()
 	{
-		ResolveSessionManager();
-		if (sessionManager != null && !sessionManager.IsLocalPlayerOwner())
+		if (!isRoomOwner)
 		{
-			SetLobbyStatus("Chi owner moi duoc remove room.");
 			return;
-		}
-
-		if (sessionManager != null)
-		{
-			sessionManager.LeaveRoom();
 		}
 
 		ExitRoomToMenu();
 	}
 
-	public void OnReadyClicked()
+	public void ResetLobbyUI()
 	{
-		ResolveSessionManager();
-		if (sessionManager == null || !sessionManager.HasActiveSession)
+		currentPlayerCount = 1;
+		isRoomOwner = true;
+
+		if (playerAvatarSlots != null)
 		{
-			return;
+			for (int i = 0; i < playerAvatarSlots.Length; i++)
+			{
+				if (playerAvatarSlots[i] != null)
+				{
+					playerAvatarSlots[i].avatarKind = AvatarKind.None;
+				}
+			}
 		}
 
-		bool nextReady = !sessionManager.IsLocalPlayerReady();
-		sessionManager.SetLocalReady(nextReady);
 		RefreshLobbyUI();
 	}
 
 	public void SetRoomOwner(bool value)
 	{
-		offlineRoomOwner = value;
-		RefreshLobbyUI();
+		isRoomOwner = value;
+		RefreshButtonVisibility();
 	}
 
 	public void SetPlayerCount(int count)
 	{
-		offlinePlayerCount = Mathf.Clamp(count, 0, GetResolvedMaxPlayers());
+		currentPlayerCount = Mathf.Clamp(count, 0, GetMaxPlayers());
 		RefreshLobbyUI();
 	}
 
 	public void SetLocalPlayerClass(string className)
 	{
-		ResolveSessionManager();
-		if (sessionManager != null)
-		{
-			sessionManager.SetLocalClass(className);
-			sessionManager.SetLocalReady(true);
-		}
-
 		SetSlotClass(0, className);
 	}
 
@@ -177,51 +178,10 @@ public class LobbyUI : MonoBehaviour
 
 	public void RefreshLobbyUI()
 	{
-		ResolveSessionManager();
 		ApplyDefaultLocalSlotIfNeeded();
+		int resolvedMaxPlayers = GetMaxPlayers();
+		int displayedPlayerCount = Mathf.Clamp(currentPlayerCount, 0, resolvedMaxPlayers);
 
-		int resolvedMaxPlayers = GetResolvedMaxPlayers();
-		int displayedPlayerCount;
-		bool isRoomOwner;
-		bool localReady;
-		bool canStart;
-		string statusMessage;
-
-		if (sessionManager != null && sessionManager.HasActiveSession)
-		{
-			displayedPlayerCount = Mathf.Clamp(sessionManager.GetJoinedPlayerCount(), 0, resolvedMaxPlayers);
-			isRoomOwner = sessionManager.IsLocalPlayerOwner();
-			localReady = sessionManager.IsLocalPlayerReady();
-			canStart = sessionManager.CanStartGame(out statusMessage);
-			ApplySlotsFromSession(displayedPlayerCount);
-		}
-		else
-		{
-			displayedPlayerCount = Mathf.Clamp(offlinePlayerCount, 0, resolvedMaxPlayers);
-			isRoomOwner = offlineRoomOwner;
-			localReady = true;
-			canStart = displayedPlayerCount >= 1;
-			statusMessage = string.Empty;
-			ApplyOfflineSlots(displayedPlayerCount);
-		}
-
-		UpdatePlayerCountText(displayedPlayerCount, resolvedMaxPlayers);
-		RefreshButtonVisibility(isRoomOwner, canStart);
-		RefreshReadyButton(localReady);
-		SetLobbyStatus(statusMessage);
-	}
-
-	private void ResolveSessionManager()
-	{
-		if (sessionManager == null)
-		{
-			sessionManager = SharedRoomSessionManager.Instance;
-		}
-	}
-
-	private void ApplySlotsFromSession(int displayedPlayerCount)
-	{
-		IReadOnlyList<PlayerRef> players = sessionManager.GetPlayersOrderedById();
 		for (int i = 0; i < playerAvatarSlots.Length; i++)
 		{
 			PlayerAvatarSlot slot = playerAvatarSlots[i];
@@ -232,48 +192,18 @@ public class LobbyUI : MonoBehaviour
 
 			bool occupied = i < displayedPlayerCount;
 			SetSlotVisible(slot, occupied);
-			if (!occupied)
-			{
-				continue;
-			}
 
-			AvatarKind avatarKind = slot.avatarKind;
-			if (i < players.Count)
-			{
-				SharedPlayerClassType classType = sessionManager.GetPlayerClass(players[i], SharedPlayerClassType.Unknown);
-				avatarKind = GetAvatarKind(classType);
-				if (avatarKind == AvatarKind.None)
-				{
-					avatarKind = slot.avatarKind != AvatarKind.None ? slot.avatarKind : GetAvatarKind(defaultClassName);
-				}
-			}
-
-			slot.avatarKind = avatarKind;
-
-			ApplyAvatarKindToSlot(slot, avatarKind);
-		}
-	}
-
-	private void ApplyOfflineSlots(int displayedPlayerCount)
-	{
-		for (int i = 0; i < playerAvatarSlots.Length; i++)
-		{
-			PlayerAvatarSlot slot = playerAvatarSlots[i];
-			if (slot == null)
-			{
-				continue;
-			}
-
-			bool occupied = i < displayedPlayerCount;
-			SetSlotVisible(slot, occupied);
 			if (occupied)
 			{
 				ApplyAvatarKindToSlot(slot, slot.avatarKind);
 			}
 		}
+
+		UpdatePlayerCountText(displayedPlayerCount, resolvedMaxPlayers);
+		RefreshButtonVisibility();
 	}
 
-	private void RefreshButtonVisibility(bool isRoomOwner, bool canStart)
+	private void RefreshButtonVisibility()
 	{
 		if (leaveRoomButton != null)
 		{
@@ -287,27 +217,7 @@ public class LobbyUI : MonoBehaviour
 
 		if (startGameButton != null)
 		{
-			startGameButton.gameObject.SetActive(isRoomOwner);
-			startGameButton.interactable = isRoomOwner && canStart;
-		}
-	}
-
-	private void RefreshReadyButton(bool localReady)
-	{
-		if (readyButton != null)
-		{
-			readyButton.interactable = sessionManager != null && sessionManager.HasActiveSession;
-		}
-
-		string readyLabel = localReady ? "UNREADY" : "READY";
-		if (readyButtonTmpText != null)
-		{
-			readyButtonTmpText.text = readyLabel;
-		}
-
-		if (readyButtonLegacyText != null)
-		{
-			readyButtonLegacyText.text = readyLabel;
+			startGameButton.interactable = currentPlayerCount >= Mathf.Max(1, requiredPlayersToStart);
 		}
 	}
 
@@ -318,26 +228,8 @@ public class LobbyUI : MonoBehaviour
 			return;
 		}
 
-		playerCountText.text = $"{filledSlotCount}/{resolvedMaxPlayers}";
+		playerCountText.text = $"PLAYER IN ROOM: {filledSlotCount}/{resolvedMaxPlayers}";
 		playerCountText.color = filledSlotCount >= resolvedMaxPlayers ? fullColor : waitingColor;
-	}
-
-	private void SetLobbyStatus(string message)
-	{
-		if (string.IsNullOrWhiteSpace(message))
-		{
-			message = string.Empty;
-		}
-
-		if (lobbyStatusTmpText != null)
-		{
-			lobbyStatusTmpText.text = message;
-		}
-
-		if (lobbyStatusLegacyText != null)
-		{
-			lobbyStatusLegacyText.text = message;
-		}
 	}
 
 	private void ApplyDefaultLocalSlotIfNeeded()
@@ -348,7 +240,12 @@ public class LobbyUI : MonoBehaviour
 		}
 
 		PlayerAvatarSlot firstSlot = playerAvatarSlots[0];
-		if (firstSlot == null || firstSlot.avatarKind != AvatarKind.None)
+		if (firstSlot == null)
+		{
+			return;
+		}
+
+		if (firstSlot.avatarKind != AvatarKind.None)
 		{
 			return;
 		}
@@ -360,7 +257,7 @@ public class LobbyUI : MonoBehaviour
 		}
 	}
 
-	private static void ApplyAvatarKindToSlot(PlayerAvatarSlot slot, AvatarKind avatarKind)
+	private void ApplyAvatarKindToSlot(PlayerAvatarSlot slot, AvatarKind avatarKind)
 	{
 		if (slot == null)
 		{
@@ -378,7 +275,7 @@ public class LobbyUI : MonoBehaviour
 		}
 	}
 
-	private static void SetSlotVisible(PlayerAvatarSlot slot, bool visible)
+	private void SetSlotVisible(PlayerAvatarSlot slot, bool visible)
 	{
 		if (slot == null)
 		{
@@ -406,16 +303,16 @@ public class LobbyUI : MonoBehaviour
 
 	private AvatarKind GetAvatarKind(string className)
 	{
-		return GetAvatarKind(SharedPlayerClassTypeUtility.FromClassName(className));
-	}
-
-	private static AvatarKind GetAvatarKind(SharedPlayerClassType classType)
-	{
-		switch (classType)
+		if (string.IsNullOrWhiteSpace(className))
 		{
-			case SharedPlayerClassType.Knight:
+			return AvatarKind.None;
+		}
+
+		switch (className.Trim())
+		{
+			case "Knight":
 				return AvatarKind.Knight;
-			case SharedPlayerClassType.Archer:
+			case "Archer":
 				return AvatarKind.Archer;
 			default:
 				return AvatarKind.None;
@@ -435,13 +332,8 @@ public class LobbyUI : MonoBehaviour
 		}
 	}
 
-	private int GetResolvedMaxPlayers()
+	private int GetMaxPlayers()
 	{
-		if (sessionManager != null)
-		{
-			return sessionManager.MaxPlayersPerRoom;
-		}
-
 		if (maxPlayers > 0)
 		{
 			return maxPlayers;

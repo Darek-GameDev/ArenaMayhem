@@ -17,6 +17,11 @@ public class Dotween : MonoBehaviour
 
     private Sequence currentSequence;
 
+    private bool IsTargetReady()
+    {
+        return settingsPanel != null && panelTransform != null && panelCanvasGroup != null;
+    }
+
     private void Awake()
     {
         if (settingsPanel == null)
@@ -56,7 +61,7 @@ public class Dotween : MonoBehaviour
 
     public void ShowSettings()
     {
-        if (settingsPanel == null || panelTransform == null || panelCanvasGroup == null)
+        if (!IsTargetReady())
         {
             return;
         }
@@ -86,7 +91,7 @@ public class Dotween : MonoBehaviour
 
     public void HideSettings()
     {
-        if (settingsPanel == null || panelTransform == null || panelCanvasGroup == null || !settingsPanel.activeSelf)
+        if (!IsTargetReady() || !settingsPanel.activeSelf)
         {
             return;
         }
@@ -129,7 +134,7 @@ public class Dotween : MonoBehaviour
 
     public void HideSettingsImmediate()
     {
-        if (settingsPanel == null || panelTransform == null || panelCanvasGroup == null)
+        if (!IsTargetReady())
         {
             return;
         }
@@ -143,6 +148,11 @@ public class Dotween : MonoBehaviour
     }
 
     private void OnDestroy()
+    {
+        currentSequence?.Kill();
+    }
+
+    private void OnDisable()
     {
         currentSequence?.Kill();
     }

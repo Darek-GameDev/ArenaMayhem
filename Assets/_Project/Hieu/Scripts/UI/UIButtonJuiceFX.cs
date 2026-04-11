@@ -105,10 +105,16 @@ public class UIButtonJuiceFX : MonoBehaviour,
             return;
         }
 
+        if (targetTransform == null)
+        {
+            return;
+        }
+
         targetTransform.DOKill();
         targetTransform.localScale = baseScale;
         targetTransform
             .DOPunchScale(Vector3.one * clickPulseStrength, clickPulseDuration, 10, 0.7f)
+            .SetLink(gameObject, LinkBehaviour.KillOnDisable)
             .SetUpdate(true);
     }
 
@@ -120,6 +126,11 @@ public class UIButtonJuiceFX : MonoBehaviour,
         {
             targetTransform.localScale = baseScale;
         }
+    }
+
+    private void OnDestroy()
+    {
+        scaleTween?.Kill();
     }
 
     private bool CanInteract()
@@ -139,10 +150,16 @@ public class UIButtonJuiceFX : MonoBehaviour,
 
     private void AnimateToScale(Vector3 targetScale, Ease ease)
     {
+        if (targetTransform == null)
+        {
+            return;
+        }
+
         scaleTween?.Kill();
         scaleTween = targetTransform
             .DOScale(targetScale, animDuration)
             .SetEase(ease)
+            .SetLink(gameObject, LinkBehaviour.KillOnDisable)
             .SetUpdate(true);
     }
 }

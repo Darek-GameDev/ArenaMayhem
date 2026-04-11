@@ -8,6 +8,8 @@ using UnityEngine.InputSystem;
 [DisallowMultipleComponent]
 public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 {
+    private const string GameplaySceneName = "MainMap";
+
     [Header("References")]
     [SerializeField] private NetworkRunner runner;
     [SerializeField] private PlayerInput playerInput;
@@ -21,6 +23,7 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
     private readonly Dictionary<PlayerRef, NetworkObject> spawnedPlayers = new Dictionary<PlayerRef, NetworkObject>();
     private bool callbacksRegistered;
+    private bool spawnRequestInProgress;
 
     private bool prevJump;
     private bool prevSprint;
@@ -39,6 +42,7 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     {
         TryResolveReferences();
         TryRegisterCallbacks();
+        RequestSpawnLocalPlayer();
     }
 
     private void Update()
@@ -88,6 +92,8 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         runner.RemoveCallbacks(this);
         runner.AddCallbacks(this);
         callbacksRegistered = true;
+
+        RequestSpawnLocalPlayer();
     }
 
     private void UnregisterCallbacks()
@@ -160,55 +166,7 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
             return;
         }
 
-        if (spawnedPlayers.ContainsKey(player))
-        {
-            return;
-        }
-
-        SharedPlayerClassType selectedClass = ResolveSelectedClass(runner, player);
-        bool isSwordPlayer = SharedPlayerClassTypeUtility.IsSwordClass(selectedClass);
-        NetworkObject prefabToSpawn = isSwordPlayer ? swordPrefab : archerPrefab;
-
-        if (prefabToSpawn == null)
-        {
-            Debug.LogWarning($"SharedModeRunnerCallbacks: missing {(isSwordPlayer ? "swordPrefab" : "archerPrefab")}.");
-            return;
-        }
-
-        Vector3 spawnPosition = GetSpawnPosition();
-        Quaternion spawnRotation = Quaternion.identity;
-
-        NetworkObject spawned = runner.Spawn(prefabToSpawn, spawnPosition, spawnRotation, player);
-        if (spawned != null)
-        {
-            spawnedPlayers[player] = spawned;
-            runner.SetPlayerObject(player, spawned);
-
-            SharedModePlayerController playerController = spawned.GetComponent<SharedModePlayerController>();
-            if (playerController != null)
-            {
-                playerController.ApplySpawnClass(selectedClass);
-            }
-
-            if (player == runner.LocalPlayer)
-            {
-                PlayerInput localInput = spawned.GetComponent<PlayerInput>();
-                if (localInput == null)
-                {
-                    localInput = spawned.GetComponentInChildren<PlayerInput>(true);
-                }
-
-                if (localInput != null)
-                {
-                    playerInput = localInput;
-                    warnedMissingInput = false;
-                    if (playerInput.currentActionMap == null || playerInput.currentActionMap.name != "Player")
-                    {
-                        playerInput.SwitchCurrentActionMap("Player");
-                    }
-                }
-            }
-        }
+        TrySpawnLocalPlayer(runner);
     }
 
     void INetworkRunnerCallbacks.OnPlayerLeft(NetworkRunner runner, PlayerRef player)
@@ -410,5 +368,121 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     void INetworkRunnerCallbacks.OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data) { }
     void INetworkRunnerCallbacks.OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) { }
     void INetworkRunnerCallbacks.OnSceneLoadStart(NetworkRunner runner) { }
-    void INetworkRunnerCallbacks.OnSceneLoadDone(NetworkRunner runner) { }
+    void INetworkRunnerCallbacks.OnSceneLoadDone(NetworkRunner runner)
+    {
+        RequestSpawnLocalPlayer(runner);
+    }
+
+    private void RequestSpawnLocalPlayer()
+    {
+        if (runner == null)
+        {
+            return;
+        }
+
+        RequestSpawnLocalPlayer(runner);
+    }
+
+    private void RequestSpawnLocalPlayer(NetworkRunner currentRunner)
+    {
+        if (currentRunner == null || spawnRequestInProgress)
+        {
+            return;
+        }
+
+        StartCoroutine(SpawnLocalPlayerNextFrame(currentRunner));
+    }
+
+    private System.Collections.IEnumerator SpawnLocalPlayerNextFrame(NetworkRunner currentRunner)
+    {
+        spawnRequestInProgress = true;
+        yield return null;
+
+        if (!string.Equals(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, GameplaySceneName, StringComparison.OrdinalIgnoreCase))
+        {
+            spawnRequestInProgress = false;
+            yield break;
+        }
+
+        TrySpawnLocalPlayer(currentRunner);
+        spawnRequestInProgress = false;
+    }
+
+    private void TrySpawnLocalPlayer(NetworkRunner currentRunner)
+    {
+        if (currentRunner == null || currentRunner.GameMode != GameMode.Shared || !currentRunner.LocalPlayer.IsRealPlayer)
+        {
+            return;
+        }
+
+        PlayerRef localPlayer = currentRunner.LocalPlayer;
+        if (spawnedPlayers.ContainsKey(localPlayer))
+        {
+            return;
+        }
+
+        NetworkObject existingPlayerObject = currentRunner.GetPlayerObject(localPlayer);
+        if (existingPlayerObject != null)
+        {
+            spawnedPlayers[localPlayer] = existingPlayerObject;
+            CacheLocalPlayerInput(existingPlayerObject);
+            return;
+        }
+
+        SharedPlayerClassType selectedClass = ResolveSelectedClass(currentRunner, localPlayer);
+        bool isSwordPlayer = SharedPlayerClassTypeUtility.IsSwordClass(selectedClass);
+        NetworkObject prefabToSpawn = isSwordPlayer ? swordPrefab : archerPrefab;
+
+        if (prefabToSpawn == null)
+        {
+            Debug.LogWarning($"SharedModeRunnerCallbacks: missing {(isSwordPlayer ? "swordPrefab" : "archerPrefab")}.");
+            return;
+        }
+
+        Vector3 spawnPosition = GetSpawnPosition();
+        Quaternion spawnRotation = Quaternion.identity;
+
+        NetworkObject spawned = currentRunner.Spawn(prefabToSpawn, spawnPosition, spawnRotation, localPlayer);
+        if (spawned == null)
+        {
+            return;
+        }
+
+        spawnedPlayers[localPlayer] = spawned;
+        currentRunner.SetPlayerObject(localPlayer, spawned);
+
+        SharedModePlayerController playerController = spawned.GetComponent<SharedModePlayerController>();
+        if (playerController != null)
+        {
+            playerController.ApplySpawnClass(selectedClass);
+        }
+
+        CacheLocalPlayerInput(spawned);
+    }
+
+    private void CacheLocalPlayerInput(NetworkObject playerObject)
+    {
+        if (playerObject == null)
+        {
+            return;
+        }
+
+        PlayerInput localInput = playerObject.GetComponent<PlayerInput>();
+        if (localInput == null)
+        {
+            localInput = playerObject.GetComponentInChildren<PlayerInput>(true);
+        }
+
+        if (localInput == null)
+        {
+            return;
+        }
+
+        playerInput = localInput;
+        warnedMissingInput = false;
+        if (playerInput.currentActionMap == null || playerInput.currentActionMap.name != "Player")
+        {
+            playerInput.SwitchCurrentActionMap("Player");
+        }
+    }
 }

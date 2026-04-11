@@ -14,11 +14,11 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
     public static SharedRoomSessionManager Instance { get; private set; }
 
     [Header("Room Rules")]
-    [SerializeField] private int minPlayersToStart = 3;
+    [SerializeField] private int minPlayersToStart = 1;
     [SerializeField] private int maxPlayersPerRoom = 6;
 
     [Header("Scene")]
-    [SerializeField] private string mainGameSceneName = "MainGame";
+    [SerializeField] private string mainGameSceneName = "MainMap";
 
     [Header("Runner")]
     [SerializeField] private NetworkRunner runner;
@@ -34,6 +34,10 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
     private bool callbacksRegistered;
     private bool isBusy;
     private string currentRoomId;
+    private SharedPlayerClassType pendingLocalClass = SharedPlayerClassType.Unknown;
+    private bool hasPendingLocalClass;
+    private bool pendingLocalReady;
+    private bool hasPendingLocalReady;
 
     public NetworkRunner Runner => runner;
     public bool IsBusy => isBusy;
@@ -65,6 +69,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         ResolveRunner();
         RegisterCallbacksIfNeeded();
+        ApplyPendingLocalState();
     }
 
     private void Update()
@@ -74,6 +79,8 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             ResolveRunner();
             RegisterCallbacksIfNeeded();
         }
+
+        ApplyPendingLocalState();
     }
 
     private void OnDisable()
@@ -119,23 +126,14 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public bool SetLocalClass(SharedPlayerClassType classType)
     {
-        if (!HasActiveSession || !runner.LocalPlayer.IsRealPlayer)
-        {
-            return false;
-        }
-
         if (classType == SharedPlayerClassType.Unknown)
         {
             return false;
         }
 
-        string key = SharedPlayerClassTypeUtility.GetClassPropertyKey(runner.LocalPlayer);
-        var updates = new Dictionary<string, SessionProperty>
-        {
-            [key] = (int)classType,
-        };
-
-        return TryUpdateSessionProperties(updates);
+        pendingLocalClass = classType;
+        hasPendingLocalClass = true;
+        return true;
     }
 
     public bool SetLocalClass(string className)
@@ -145,25 +143,16 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public bool SetLocalReady(bool isReady)
     {
-        if (!HasActiveSession || !runner.LocalPlayer.IsRealPlayer)
-        {
-            return false;
-        }
-
-        string key = SharedPlayerClassTypeUtility.GetReadyPropertyKey(runner.LocalPlayer);
-        var updates = new Dictionary<string, SessionProperty>
-        {
-            [key] = isReady,
-        };
-
-        return TryUpdateSessionProperties(updates);
+        pendingLocalReady = isReady;
+        hasPendingLocalReady = true;
+        return true;
     }
 
     public bool IsLocalPlayerReady()
     {
-        if (!HasActiveSession || !runner.LocalPlayer.IsRealPlayer)
+        if (hasPendingLocalReady)
         {
-            return false;
+            return pendingLocalReady;
         }
 
         return IsPlayerReady(runner.LocalPlayer);
@@ -171,8 +160,22 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public SharedPlayerClassType GetPlayerClass(PlayerRef player, SharedPlayerClassType fallback = SharedPlayerClassType.Unknown)
     {
+        if (runner != null && runner.LocalPlayer == player && hasPendingLocalClass && pendingLocalClass != SharedPlayerClassType.Unknown)
+        {
+            return pendingLocalClass;
+        }
+
         if (!TryGetSessionProperty(SharedPlayerClassTypeUtility.GetClassPropertyKey(player), out SessionProperty property))
         {
+            if (player.IsRealPlayer && ClassChoose.LastConfirmedClassName != null)
+            {
+                SharedPlayerClassType localFallback = SharedPlayerClassTypeUtility.FromClassName(ClassChoose.LastConfirmedClassName);
+                if (localFallback != SharedPlayerClassType.Unknown)
+                {
+                    return localFallback;
+                }
+            }
+
             return fallback;
         }
 
@@ -181,9 +184,14 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public bool IsPlayerReady(PlayerRef player)
     {
+        if (runner != null && runner.LocalPlayer == player && hasPendingLocalReady)
+        {
+            return pendingLocalReady;
+        }
+
         if (!TryGetSessionProperty(SharedPlayerClassTypeUtility.GetReadyPropertyKey(player), out SessionProperty property))
         {
-            return false;
+            return runner != null && runner.LocalPlayer == player && hasPendingLocalReady ? pendingLocalReady : false;
         }
 
         return property;
@@ -240,18 +248,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public int GetJoinedPlayerCount()
     {
-        IReadOnlyList<PlayerRef> players = GetPlayersOrderedById();
-        if (players.Count > 0)
-        {
-            return players.Count;
-        }
-
-        if (HasActiveSession && runner.SessionInfo)
-        {
-            return Mathf.Max(0, runner.SessionInfo.PlayerCount);
-        }
-
-        return 0;
+        return GetPlayersOrderedById().Count;
     }
 
     public bool CanStartGame(out string reason)
@@ -271,9 +268,10 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         }
 
         int playerCount = GetJoinedPlayerCount();
-        if (playerCount < MinPlayersToStart)
+        const int requiredPlayersToStart = 1;
+        if (playerCount < requiredPlayersToStart)
         {
-            reason = $"Can toi thieu {MinPlayersToStart} nguoi.";
+            reason = $"Can toi thieu {requiredPlayersToStart} nguoi.";
             return false;
         }
 
@@ -283,17 +281,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             return false;
         }
 
-        IReadOnlyList<PlayerRef> players = GetPlayersOrderedById();
-        for (int i = 0; i < players.Count; i++)
-        {
-            if (!IsPlayerReady(players[i]))
-            {
-                reason = "Tat ca nguoi choi phai Ready.";
-                return false;
-            }
-        }
-
-        if (players.Count == 0)
+        if (playerCount == 0)
         {
             reason = "Khong co nguoi choi trong phong.";
             return false;
@@ -327,6 +315,13 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
     public static bool TryGetPlayerClass(NetworkRunner sourceRunner, PlayerRef player, out SharedPlayerClassType classType)
     {
         classType = SharedPlayerClassType.Unknown;
+
+        SharedRoomSessionManager sessionManager = Instance;
+        if (sessionManager != null && sessionManager.runner == sourceRunner && sessionManager.hasPendingLocalClass && sourceRunner != null && sourceRunner.LocalPlayer == player && sessionManager.pendingLocalClass != SharedPlayerClassType.Unknown)
+        {
+            classType = sessionManager.pendingLocalClass;
+            return true;
+        }
 
         if (sourceRunner == null || !sourceRunner.IsRunning)
         {
@@ -431,6 +426,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
                 connectedPlayers.Add(runner.LocalPlayer);
             }
 
+            ApplyPendingLocalState();
             EnsureOwnerProperty();
 
             if (verboseLogs)
@@ -497,6 +493,39 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             {
                 DontDestroyOnLoad(runner.gameObject);
             }
+        }
+    }
+
+    private void ApplyPendingLocalState()
+    {
+        if (!HasActiveSession || !runner.LocalPlayer.IsRealPlayer)
+        {
+            return;
+        }
+
+        Dictionary<string, SessionProperty> updates = null;
+
+        if (hasPendingLocalClass && pendingLocalClass != SharedPlayerClassType.Unknown)
+        {
+            updates ??= new Dictionary<string, SessionProperty>();
+            updates[SharedPlayerClassTypeUtility.GetClassPropertyKey(runner.LocalPlayer)] = (int)pendingLocalClass;
+        }
+
+        if (hasPendingLocalReady)
+        {
+            updates ??= new Dictionary<string, SessionProperty>();
+            updates[SharedPlayerClassTypeUtility.GetReadyPropertyKey(runner.LocalPlayer)] = pendingLocalReady;
+        }
+
+        if (updates == null || updates.Count == 0)
+        {
+            return;
+        }
+
+        if (TryUpdateSessionProperties(updates))
+        {
+            hasPendingLocalClass = false;
+            hasPendingLocalReady = false;
         }
     }
 
@@ -612,7 +641,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         PlayerRef smallest = default;
         bool found = false;
 
-        foreach (PlayerRef candidate in connectedPlayers)
+        foreach (PlayerRef candidate in GetPlayersOrderedById())
         {
             if (!candidate.IsRealPlayer)
             {
