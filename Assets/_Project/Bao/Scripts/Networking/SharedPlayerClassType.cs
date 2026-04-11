@@ -76,4 +76,36 @@ public static class SharedPlayerClassTypeUtility
     {
         return $"ready_{player.RawEncoded}";
     }
+
+    public static string GetPlayerStatePropertyKey(PlayerRef player)
+    {
+        return $"state_{player.RawEncoded}";
+    }
+
+    public static int EncodePlayerState(SharedPlayerClassType classType, bool isReady)
+    {
+        int encodedClass = ((int)classType) & 0x3;
+        return (encodedClass << 1) | (isReady ? 1 : 0);
+    }
+
+    public static SharedPlayerClassType DecodePlayerClass(int encodedState, SharedPlayerClassType fallback)
+    {
+        int encodedClass = (encodedState >> 1) & 0x3;
+        if (encodedClass == (int)SharedPlayerClassType.Knight)
+        {
+            return SharedPlayerClassType.Knight;
+        }
+
+        if (encodedClass == (int)SharedPlayerClassType.Archer)
+        {
+            return SharedPlayerClassType.Archer;
+        }
+
+        return fallback;
+    }
+
+    public static bool DecodePlayerReady(int encodedState)
+    {
+        return (encodedState & 0x1) != 0;
+    }
 }

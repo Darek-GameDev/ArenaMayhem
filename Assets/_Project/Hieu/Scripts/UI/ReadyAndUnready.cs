@@ -27,28 +27,32 @@ public class ReadyAndUnready : MonoBehaviour
 	private void Awake()
 	{
 		ResetPlayersToDefaultState();
+		DisableAllReadyVisuals();
 		RefreshReadyUI();
 	}
 
 	private void OnEnable()
 	{
 		ResetPlayersToDefaultState();
+		DisableAllReadyVisuals();
 		RefreshReadyUI();
 	}
 
 	private void Update()
 	{
+		SyncReadyStateFromSession();
+		DisableAllReadyVisuals();
 		RefreshReadyUI();
 	}
 
 	public void OnUnreadyClicked()
 	{
-		SetPlayerReady(localPlayerIndex, true);
+		// Ready flow is disabled for this lobby layout.
 	}
 
 	public void OnReadyClicked()
 	{
-		SetPlayerReady(localPlayerIndex, false);
+		// Ready flow is disabled for this lobby layout.
 	}
 
 	public void SetLocalPlayerIndex(int playerIndex)
@@ -137,28 +141,33 @@ public class ReadyAndUnready : MonoBehaviour
 				continue;
 			}
 
-			SetSlotState(slot, slot.isReady);
+			SetSlotState(slot, slot.isReady, i == localPlayerIndex);
 		}
 
 		UpdateStartState(currentPlayerCount > 0);
 	}
 
-	private void SetSlotState(PlayerReadySlot slot, bool isReady)
+	private void SetSlotState(PlayerReadySlot slot, bool isReady, bool isLocalSlot)
 	{
-		SetActiveSafe(slot.xMark, false);
-		SetActiveSafe(slot.tickMark, false);
-		SetActiveSafe(slot.unreadyButton, false);
-		SetActiveSafe(slot.readyButton, false);
+		bool showX = false;
+		bool showTick = false;
+		bool showReadyButton = false;
+		bool showUnreadyButton = false;
+
+		SetActiveSafe(slot.xMark, showX);
+		SetActiveSafe(slot.tickMark, showTick);
+		SetActiveSafe(slot.unreadyButton, showUnreadyButton);
+		SetActiveSafe(slot.readyButton, showReadyButton);
 
 		SetButtonInteractable(slot.xMark, false);
 		SetButtonInteractable(slot.tickMark, false);
-		SetButtonInteractable(slot.unreadyButton, false);
-		SetButtonInteractable(slot.readyButton, false);
+		SetButtonInteractable(slot.unreadyButton, showUnreadyButton);
+		SetButtonInteractable(slot.readyButton, showReadyButton);
 
-		SetCanvasGroupState(slot.xMark, false);
-		SetCanvasGroupState(slot.tickMark, false);
-		SetCanvasGroupState(slot.unreadyButton, false);
-		SetCanvasGroupState(slot.readyButton, false);
+		SetCanvasGroupState(slot.xMark, showX);
+		SetCanvasGroupState(slot.tickMark, showTick);
+		SetCanvasGroupState(slot.unreadyButton, showUnreadyButton);
+		SetCanvasGroupState(slot.readyButton, showReadyButton);
 	}
 
 	private void SetSlotEmptyState(PlayerReadySlot slot)
@@ -275,5 +284,94 @@ public class ReadyAndUnready : MonoBehaviour
 		}
 
 		return 1;
+	}
+
+	private void SyncReadyStateFromSession()
+	{
+		SharedRoomSessionManager sessionManager = SharedRoomSessionManager.Instance;
+		if (sessionManager == null || !sessionManager.HasActiveSession || playerSlots == null)
+		{
+			return;
+		}
+
+		var players = sessionManager.GetPlayersOrderedById();
+		currentPlayerCount = Mathf.Clamp(players.Count, 0, playerSlots.Length);
+
+		if (sessionManager.Runner != null && sessionManager.Runner.LocalPlayer.IsRealPlayer)
+		{
+			for (int i = 0; i < players.Count; i++)
+			{
+				if (players[i] == sessionManager.Runner.LocalPlayer)
+				{
+					localPlayerIndex = i;
+					break;
+				}
+			}
+		}
+
+		for (int i = 0; i < playerSlots.Length; i++)
+		{
+			if (playerSlots[i] == null)
+			{
+				continue;
+			}
+
+			if (i >= players.Count)
+			{
+				playerSlots[i].isReady = false;
+				continue;
+			}
+
+			playerSlots[i].isReady = sessionManager.IsPlayerReady(players[i]);
+		}
+	}
+
+	private void DisableAllReadyVisuals()
+	{
+		if (playerSlots == null)
+		{
+			return;
+		}
+
+		for (int i = 0; i < playerSlots.Length; i++)
+		{
+			PlayerReadySlot slot = playerSlots[i];
+			if (slot == null)
+			{
+				continue;
+			}
+
+			SetActiveSafe(slot.xMark, false);
+			SetActiveSafe(slot.tickMark, false);
+			SetActiveSafe(slot.readyButton, false);
+			SetActiveSafe(slot.unreadyButton, false);
+
+			HideReadyNamedChildren(slot.slotRoot);
+		}
+	}
+
+	private void HideReadyNamedChildren(GameObject root)
+	{
+		if (root == null)
+		{
+			return;
+		}
+
+		Transform[] children = root.GetComponentsInChildren<Transform>(true);
+		for (int i = 0; i < children.Length; i++)
+		{
+			Transform child = children[i];
+			if (child == null || child == root.transform)
+			{
+				continue;
+			}
+
+			string loweredName = child.name.ToLowerInvariant();
+			bool isReadyVisual = loweredName.Contains("tick") || loweredName.Contains("ready") || loweredName.Contains("xmark") || loweredName.Contains("check") || loweredName == "x";
+			if (isReadyVisual)
+			{
+				child.gameObject.SetActive(false);
+			}
+		}
 	}
 }
