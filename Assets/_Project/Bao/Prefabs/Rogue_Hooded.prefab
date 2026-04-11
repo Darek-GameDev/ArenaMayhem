@@ -827,7 +827,7 @@ Transform:
   m_Children:
   - {fileID: 1913416203336772178}
   m_Father: {fileID: 2137574569504275921}
-  m_LocalEulerAnglesHint: {x: 0.00000027235205, y: -0.000002934847, z: 90.00001}
+  m_LocalEulerAnglesHint: {x: 0.00000034757653, y: -0.000004358301, z: 90.00001}
 --- !u!1 &5414071887725926632
 GameObject:
   m_ObjectHideFlags: 0
@@ -1510,6 +1510,8 @@ GameObject:
   - component: {fileID: 2954118687832947223}
   - component: {fileID: 896624991062604839}
   - component: {fileID: 5015241082328425243}
+  - component: {fileID: 283928957776423584}
+  - component: {fileID: 8421834788039775916}
   m_Layer: 0
   m_Name: Rogue_Hooded
   m_TagString: Untagged
@@ -2014,6 +2016,141 @@ MonoBehaviour:
   showAnimationDuration: 0.25
   hideAnimationDuration: 0.15
   minScale: 0.6
+--- !u!82 &283928957776423584
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7530822878995127408}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &8421834788039775916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7530822878995127408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20331d3fdeb781546a67db570a4a9590, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoundEffect
+  audioSource: {fileID: 283928957776423584}
+  autoDetectCharacterType: 1
+  characterType: 1
+  volumeMultiplier: 1
+  randomPitchRange: 0.05
+  debugLogs: 1
+  useMouseInput: 1
+  useDedicatedRuntimeSource: 1
+  useCameraFallbackPlayAtPoint: 1
+  meleeComboResetSeconds: 0.8
+  forceAudibleAtRuntime: 1
+  fallbackSourceVolume: 1
+  meleeAttack1: {fileID: 0}
+  meleeAttack2: {fileID: 0}
+  meleeAttack3: {fileID: 0}
+  meleeBlock: {fileID: 0}
+  hurtSound: {fileID: 8300000, guid: 2dbb859fab4459f4d816cd0471180648, type: 3}
+  deathSound: {fileID: 8300000, guid: 3810b26a4dd1acc4289e927a80c8f769, type: 3}
+  jumpUpSound: {fileID: 8300000, guid: 65e59b2c339644a4ba6e7c7860de125f, type: 3}
+  landSound: {fileID: 8300000, guid: 23884159d1b646d43af7445e0b9213e8, type: 3}
+  autoPlayJumpLandByGroundedState: 0
+  playJumpSoundWhenLeaveGround: 1
+  playLandSoundWhenTouchGround: 1
+  minAirborneTimeForLandSound: 0.08
+  bowDraw: {fileID: 8300000, guid: 7372779da200bdf4688ca7f25e187a7d, type: 3}
+  bowShoot: {fileID: 8300000, guid: 0726acfa03f862c428751939cb249f88, type: 3}
 --- !u!1 &7940896968262706577
 GameObject:
   m_ObjectHideFlags: 0
@@ -2367,8 +2504,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8677975100146075059}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.13608086, y: -8.2420043e-10, z: 1.13211114e-10, w: 0.99069774}
-  m_LocalPosition: {x: 0, y: 2.25, z: -4}
+  m_LocalRotation: {x: 0.08599728, y: 0.887655, z: -0.4129107, w: 0.18487272}
+  m_LocalPosition: {x: -1.1183043, y: 4.4556828, z: 2.5682797}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2451,7 +2588,7 @@ MonoBehaviour:
     SplineCurvature: 0.5
   RecenteringTarget: 2
   HorizontalAxis:
-    Value: 0
+    Value: 156.47028
     Center: 0
     Range: {x: -180, y: 180}
     Wrap: 1
@@ -2461,7 +2598,7 @@ MonoBehaviour:
       Time: 2
     Restrictions: 0
   VerticalAxis:
-    Value: 17.5
+    Value: 36.13777
     Center: 17.5
     Range: {x: -10, y: 45}
     Wrap: 0
@@ -2549,6 +2686,8 @@ MonoBehaviour:
       Input:
         InputAction: {fileID: -5630151704836100654, guid: 1d6e640e716dc4ff6989b73d02023f2b, type: 3}
         Gain: 1
+        LegacyInput: 
+        LegacyGain: 1
         CancelDeltaTime: 0
       InputValue: 0
       Driver:
@@ -2560,8 +2699,10 @@ MonoBehaviour:
       Input:
         InputAction: {fileID: -5630151704836100654, guid: 1d6e640e716dc4ff6989b73d02023f2b, type: 3}
         Gain: -1
+        LegacyInput: 
+        LegacyGain: 1
         CancelDeltaTime: 0
-      InputValue: 0
+      InputValue: -0
       Driver:
         AccelTime: 0.2
         DecelTime: 0.2
@@ -2571,8 +2712,10 @@ MonoBehaviour:
       Input:
         InputAction: {fileID: 5082991133974614888, guid: 1d6e640e716dc4ff6989b73d02023f2b, type: 3}
         Gain: -1
+        LegacyInput: 
+        LegacyGain: 1
         CancelDeltaTime: 0
-      InputValue: 0
+      InputValue: -0
       Driver:
         AccelTime: 0
         DecelTime: 0
@@ -2609,7 +2752,7 @@ Transform:
   m_Children:
   - {fileID: 5156800762047061922}
   m_Father: {fileID: 8707332123201808784}
-  m_LocalEulerAnglesHint: {x: 0.00000027235353, y: 0.0000029361975, z: -0.0000050043905}
+  m_LocalEulerAnglesHint: {x: 0.00000027244653, y: 0.0000034955817, z: -0.000006058044}
 --- !u!1001 &8094391342122948372
 PrefabInstance:
   m_ObjectHideFlags: 0
