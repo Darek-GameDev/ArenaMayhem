@@ -15,19 +15,19 @@ public class LeaveRoomandRemoveRoom : MonoBehaviour
     [Header("Options")]
     [SerializeField] private bool clearRoomInputOnRemove = true;
 
-    public void OnLeaveRoomClicked()
+    public async void OnLeaveRoomClicked()
     {
         SharedRoomSessionManager sessionManager = SharedRoomSessionManager.Instance;
         if (sessionManager != null)
         {
             // Leave current Fusion/Photon room.
-            sessionManager.LeaveRoom();
+            await sessionManager.LeaveRoom();
         }
 
         OpenMenuUI();
     }
 
-    public void OnRemoveRoomClicked()
+    public async void OnRemoveRoomClicked()
     {
         SharedRoomSessionManager sessionManager = SharedRoomSessionManager.Instance;
         if (sessionManager != null && sessionManager.HasActiveSession && !sessionManager.IsLocalPlayerOwner())
@@ -38,7 +38,7 @@ public class LeaveRoomandRemoveRoom : MonoBehaviour
 
         if (sessionManager != null)
         {
-            sessionManager.RemoveRoomAndKickAll();
+            await sessionManager.RemoveRoomAndKickAll();
         }
 
         DeleteCreatedRoomId();
@@ -77,6 +77,12 @@ public class LeaveRoomandRemoveRoom : MonoBehaviour
 
     private void OpenMenuUI()
     {
+        ButtonClick buttonClick = FindFirstObjectByType<ButtonClick>();
+        if (buttonClick != null)
+        {
+            buttonClick.ResetToMainMenu();
+        }
+
         if (lobbyUI != null)
         {
             lobbyUI.SetActive(false);

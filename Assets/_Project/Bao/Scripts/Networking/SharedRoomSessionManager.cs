@@ -11,7 +11,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 {
     public const string OwnerPropertyKey = "owner";
     public const string ForceCloseRoomPropertyKey = "force_close_room";
-    private const string PlayerStateSlotKeyPrefix = "state_";
+    private const string PlayerStatePropertyKeyPrefix = "state_";
 
     public static SharedRoomSessionManager Instance { get; private set; }
 
@@ -48,7 +48,9 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
     private int lastPublishedLocalSlotIndex = -1;
     private int lastPublishedLocalState = int.MinValue;
     private string lastPublishedLocalProfilePayload = string.Empty;
+    private string lastPublishedLocalStateKey = string.Empty;
     private bool isForceCloseHandling;
+    private bool recreateRunnerOnNextResolve;
 
     public NetworkRunner Runner => runner;
     public bool IsBusy => isBusy;
@@ -131,12 +133,12 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         return await StartOrJoinRoomAsync(roomId, allowCreateRoom: false);
     }
 
-    public async void LeaveRoom()
+    public async Task LeaveRoom()
     {
         await ShutdownRunnerAsync();
     }
 
-    public async void RemoveRoomAndKickAll()
+    public async Task RemoveRoomAndKickAll()
     {
         if (!HasActiveSession)
         {
@@ -169,6 +171,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
         pendingLocalClass = classType;
         hasPendingLocalClass = true;
+        ApplyPendingLocalState();
         return true;
     }
 
@@ -181,6 +184,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         pendingLocalReady = isReady;
         hasPendingLocalReady = true;
+        ApplyPendingLocalState();
         return true;
     }
 
@@ -197,7 +201,13 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
         PlayerPrefs.SetString("PLAYER_DISPLAY_NAME", normalized);
         PlayerPrefs.Save();
+        ApplyPendingLocalState();
         return true;
+    }
+
+    public void FlushLocalStateToSession()
+    {
+        ApplyPendingLocalState();
     }
 
     public string GetPlayerName(PlayerRef player, string fallback = "Player")
@@ -207,9 +217,18 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             return pendingLocalPlayerName;
         }
 
-        if (TryGetSessionProperty(SharedPlayerClassTypeUtility.GetPlayerStatePropertyKey(player), out SessionProperty property) && TryDecodePlayerProfile(property, out _, out string synchronizedName))
+        if (TryGetPlayerStateProperty(player, out SessionProperty property) && TryDecodePlayerProfile(property, out _, out string synchronizedName) && !string.IsNullOrWhiteSpace(synchronizedName))
         {
+            if (verboseLogs)
+            {
+                Debug.Log($"SharedRoomSessionManager: GetPlayerName({player.RawEncoded}) = {synchronizedName}");
+            }
             return synchronizedName;
+        }
+
+        if (verboseLogs)
+        {
+            Debug.LogWarning($"SharedRoomSessionManager: GetPlayerName({player.RawEncoded}) fallback={fallback} (property not found or decode failed)");
         }
 
         if (runner != null && runner.LocalPlayer == player)
@@ -241,9 +260,9 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             return pendingLocalClass;
         }
 
-        if (!TryGetSessionProperty(SharedPlayerClassTypeUtility.GetPlayerStatePropertyKey(player), out SessionProperty property))
+        if (!TryGetPlayerStateProperty(player, out SessionProperty property))
         {
-            if (player.IsRealPlayer && ClassChoose.LastConfirmedClassName != null)
+            if (runner != null && runner.LocalPlayer == player && ClassChoose.LastConfirmedClassName != null)
             {
                 SharedPlayerClassType localFallback = SharedPlayerClassTypeUtility.FromClassName(ClassChoose.LastConfirmedClassName);
                 if (localFallback != SharedPlayerClassType.Unknown)
@@ -270,7 +289,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             return pendingLocalReady;
         }
 
-        if (!TryGetSessionProperty(SharedPlayerClassTypeUtility.GetPlayerStatePropertyKey(player), out SessionProperty property))
+        if (!TryGetPlayerStateProperty(player, out SessionProperty property))
         {
             return runner != null && runner.LocalPlayer == player && hasPendingLocalReady ? pendingLocalReady : false;
         }
@@ -317,18 +336,8 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
                 }
             }
         }
-        else
-        {
-            foreach (PlayerRef player in connectedPlayers)
-            {
-                if (player.IsRealPlayer)
-                {
-                    orderedPlayersCache.Add(player);
-                }
-            }
-        }
 
-        orderedPlayersCache.Sort((a, b) => a.RawEncoded.CompareTo(b.RawEncoded));
+        orderedPlayersCache.Sort((left, right) => left.RawEncoded.CompareTo(right.RawEncoded));
         return orderedPlayersCache;
     }
 
@@ -426,8 +435,9 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             return false;
         }
 
+        SessionProperty property;
         string playerKey = SharedPlayerClassTypeUtility.GetPlayerStatePropertyKey(player);
-        if (!properties.TryGetValue(playerKey, out SessionProperty property))
+        if (!properties.TryGetValue(playerKey, out property))
         {
             return false;
         }
@@ -460,6 +470,12 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         {
             ResolveRunner();
             RegisterCallbacksIfNeeded();
+
+            if (runner == null)
+            {
+                runner = CreateFreshRunner();
+                RegisterCallbacksIfNeeded();
+            }
 
             if (runner == null)
             {
@@ -522,6 +538,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             lastPublishedLocalSlotIndex = -1;
             lastPublishedLocalState = int.MinValue;
             lastPublishedLocalProfilePayload = string.Empty;
+            lastPublishedLocalStateKey = string.Empty;
 
             ApplyPendingLocalState();
             EnsureOwnerProperty();
@@ -562,15 +579,35 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             Debug.LogWarning($"SharedRoomSessionManager: shutdown loi -> {ex.Message}");
         }
 
+        if (runner != null)
+        {
+            Destroy(runner);
+            runner = null;
+            callbacksRegistered = false;
+        }
+
+        recreateRunnerOnNextResolve = true;
         connectedPlayers.Clear();
         currentRoomId = null;
         lastPublishedLocalSlotIndex = -1;
         lastPublishedLocalState = int.MinValue;
         lastPublishedLocalProfilePayload = string.Empty;
+        lastPublishedLocalStateKey = string.Empty;
     }
 
     private void ResolveRunner()
     {
+        if (runner != null && !runner.IsRunning)
+        {
+            runner = null;
+        }
+
+        if (runner == null && recreateRunnerOnNextResolve)
+        {
+            runner = CreateFreshRunner();
+            recreateRunnerOnNextResolve = false;
+        }
+
         if (runner == null)
         {
             runner = GetComponent<NetworkRunner>();
@@ -583,17 +620,30 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
         if (runner == null && createRunnerIfMissing)
         {
-            runner = gameObject.AddComponent<NetworkRunner>();
+            runner = CreateFreshRunner();
         }
 
         if (runner != null)
         {
             runner.ProvideInput = true;
-            if (dontDestroyOnLoad)
+            if (dontDestroyOnLoad && runner.gameObject != gameObject)
             {
                 DontDestroyOnLoad(runner.gameObject);
             }
         }
+    }
+
+    private NetworkRunner CreateFreshRunner()
+    {
+        GameObject runnerObject = new GameObject($"{nameof(SharedRoomSessionManager)}_{nameof(NetworkRunner)}");
+        NetworkRunner freshRunner = runnerObject.AddComponent<NetworkRunner>();
+
+        if (dontDestroyOnLoad)
+        {
+            DontDestroyOnLoad(runnerObject);
+        }
+
+        return freshRunner;
     }
 
     private void ApplyPendingLocalState()
@@ -623,12 +673,14 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
         int encodedState = SharedPlayerClassTypeUtility.EncodePlayerState(classToStore, readyToStore);
         string profilePayload = BuildPlayerProfilePayload(encodedState, nameToStore);
+        string playerIdKey = SharedPlayerClassTypeUtility.GetPlayerStatePropertyKey(runner.LocalPlayer);
 
         bool shouldRepublish = hasPendingLocalClass
             || hasPendingLocalReady
             || hasPendingLocalPlayerName
             || encodedState != lastPublishedLocalState
-            || !string.Equals(profilePayload, lastPublishedLocalProfilePayload, StringComparison.Ordinal);
+            || !string.Equals(profilePayload, lastPublishedLocalProfilePayload, StringComparison.Ordinal)
+            || !string.Equals(playerIdKey, lastPublishedLocalStateKey, StringComparison.OrdinalIgnoreCase);
 
         if (!shouldRepublish)
         {
@@ -637,7 +689,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
         Dictionary<string, SessionProperty> updates = null;
         updates ??= new Dictionary<string, SessionProperty>();
-        updates[SharedPlayerClassTypeUtility.GetPlayerStatePropertyKey(runner.LocalPlayer)] = profilePayload;
+        updates[playerIdKey] = profilePayload;
 
         if (updates == null || updates.Count == 0)
         {
@@ -651,6 +703,16 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             hasPendingLocalPlayerName = false;
             lastPublishedLocalState = encodedState;
             lastPublishedLocalProfilePayload = profilePayload;
+            lastPublishedLocalStateKey = playerIdKey;
+            
+            if (verboseLogs)
+            {
+                Debug.Log($"SharedRoomSessionManager: published state_<{runner.LocalPlayer.RawEncoded}> = name:{nameToStore}, class:{classToStore}");
+            }
+        }
+        else if (verboseLogs)
+        {
+            Debug.LogWarning($"SharedRoomSessionManager: failed to publish state for player {runner.LocalPlayer.RawEncoded} (will retry next frame)");
         }
     }
 
@@ -690,12 +752,37 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             return false;
         }
 
+        const int maxCustomSessionProperties = 10;
+        int propertiesCount = sessionInfo.Properties != null ? sessionInfo.Properties.Count : 0;
+        
+        if (verboseLogs)
+        {
+            Debug.Log($"SharedRoomSessionManager.TryUpdateSessionProperties: current count={propertiesCount}, keys={string.Join(", ", updates.Keys)}, maxAllowed={maxCustomSessionProperties}");
+        }
+        int newKeyCount = 0;
+
         Dictionary<string, SessionProperty> filteredUpdates = null;
         foreach (KeyValuePair<string, SessionProperty> item in updates)
         {
-            if (string.IsNullOrEmpty(item.Key) || !sessionInfo.Properties.ContainsKey(item.Key))
+            if (string.IsNullOrEmpty(item.Key))
             {
                 continue;
+            }
+
+            bool keyExists = sessionInfo.Properties.ContainsKey(item.Key);
+            if (!keyExists)
+            {
+                if (!IsPlayerStatePropertyKey(item.Key))
+                {
+                    continue;
+                }
+
+                if (propertiesCount + newKeyCount >= maxCustomSessionProperties)
+                {
+                    continue;
+                }
+
+                newKeyCount++;
             }
 
             filteredUpdates ??= new Dictionary<string, SessionProperty>();
@@ -711,86 +798,50 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         return true;
     }
 
+    private static bool IsPlayerStatePropertyKey(string key)
+    {
+        return !string.IsNullOrEmpty(key) && key.StartsWith(PlayerStatePropertyKeyPrefix, StringComparison.OrdinalIgnoreCase);
+    }
+
     private Dictionary<string, SessionProperty> BuildInitialSessionProperties()
     {
         // Fusion allows max 10 custom session properties.
-        // We use: owner (1) + force_close (1) + (6 players × 1 property each) = 8
-        const int slotCount = 6;
-        var properties = new Dictionary<string, SessionProperty>(slotCount + 2)
+        // We use: owner (1) + force_close (1) + per-player states (lazy-populated).
+        var properties = new Dictionary<string, SessionProperty>(2)
         {
             [OwnerPropertyKey] = 0,
             [ForceCloseRoomPropertyKey] = 0,
         };
-
-        for (int encodedPlayer = 1; encodedPlayer <= slotCount; encodedPlayer++)
-        {
-            PlayerRef playerRef = PlayerRef.FromEncoded(encodedPlayer);
-            properties[SharedPlayerClassTypeUtility.GetPlayerStatePropertyKey(playerRef)] = SharedPlayerClassTypeUtility.EncodePlayerState(SharedPlayerClassType.Unknown, false);
-        }
 
         return properties;
     }
 
     private bool TryGetPlayerStateProperty(PlayerRef player, out SessionProperty property)
     {
-        return TryGetSessionProperty(SharedPlayerClassTypeUtility.GetPlayerStatePropertyKey(player), out property);
-    }
-
-    private bool TryGetPlayerSlotIndex(PlayerRef player, out int slotIndex)
-    {
-        slotIndex = -1;
-        if (!player.IsRealPlayer)
+        if (TryGetSessionProperty(SharedPlayerClassTypeUtility.GetPlayerStatePropertyKey(player), out property))
         {
-            return false;
-        }
-
-        IReadOnlyList<PlayerRef> players = GetPlayersOrderedById();
-        for (int i = 0; i < players.Count; i++)
-        {
-            if (players[i] == player)
+            if (verboseLogs)
             {
-                slotIndex = i;
-                return true;
+                Debug.Log($"SharedRoomSessionManager: TryGetPlayerStateProperty({player.RawEncoded}) = success");
             }
+            return true;
         }
 
+        if (verboseLogs)
+        {
+            Debug.LogWarning($"SharedRoomSessionManager: TryGetPlayerStateProperty({player.RawEncoded}) = NOT FOUND");
+        }
+
+        property = default;
         return false;
     }
 
-    private static bool TryGetPlayerSlotIndex(NetworkRunner sourceRunner, PlayerRef player, out int slotIndex)
+    private string ResolvePlayerStatePropertyKey(PlayerRef player)
     {
-        slotIndex = -1;
-        if (sourceRunner == null || !sourceRunner.IsRunning || !player.IsRealPlayer)
-        {
-            return false;
-        }
-
-        List<PlayerRef> sortedPlayers = new List<PlayerRef>();
-        foreach (PlayerRef activePlayer in sourceRunner.ActivePlayers)
-        {
-            if (activePlayer.IsRealPlayer)
-            {
-                sortedPlayers.Add(activePlayer);
-            }
-        }
-
-        sortedPlayers.Sort((a, b) => a.RawEncoded.CompareTo(b.RawEncoded));
-        for (int i = 0; i < sortedPlayers.Count; i++)
-        {
-            if (sortedPlayers[i] == player)
-            {
-                slotIndex = i;
-                return true;
-            }
-        }
-
-        return false;
+        return SharedPlayerClassTypeUtility.GetPlayerStatePropertyKey(player);
     }
 
-    private static string GetPlayerStateSlotPropertyKey(int slotIndex)
-    {
-        return $"{PlayerStateSlotKeyPrefix}{slotIndex}";
-    }
+
 
     private static string BuildPlayerProfilePayload(int encodedState, string playerName)
     {
@@ -955,7 +1006,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         }
 
         isForceCloseHandling = true;
-        LeaveRoom();
+        _ = LeaveRoom();
     }
 
     private static string NormalizeRoomId(string roomId)
@@ -995,6 +1046,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         }
 
         EnsureOwnerProperty();
+        ApplyPendingLocalState();
     }
 
     void INetworkRunnerCallbacks.OnPlayerLeft(NetworkRunner sourceRunner, PlayerRef player)

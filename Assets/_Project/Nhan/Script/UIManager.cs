@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour, INetworkRunnerCallbacks
     public GameObject menuUI;
     public GameObject lobbyUI;
     public GameObject roomCreateUI;
+    public ButtonClick buttonClick;
 
     private NetworkRunner _runner;
 
@@ -29,13 +30,31 @@ public class UIManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         Debug.LogError($"🔴 [UIManager] ĐÃ CHẠY VÀO ONSHUTDOWN! LÝ DO: {shutdownReason}");
         
-        // Cố tình Delay 0.1 giây để đợi các script khác tắt UI hoặc Fusion dọn dẹp xong
+        CancelInvoke(nameof(ForceShowMenu));
+
+        // Delay ngắn để đợi các script khác tắt UI hoặc Fusion dọn dẹp xong
         Invoke(nameof(ForceShowMenu), 0.1f);
     }
 
     // --- ĐÂY CHÍNH LÀ ĐOẠN ĐÃ ĐƯỢC CẬP NHẬT ---
     private void ForceShowMenu()
     {
+        SharedRoomSessionManager sessionManager = SharedRoomSessionManager.Instance;
+        if (sessionManager != null && sessionManager.HasActiveSession)
+        {
+            return;
+        }
+
+        if (buttonClick == null)
+        {
+            buttonClick = FindFirstObjectByType<ButtonClick>();
+        }
+
+        if (buttonClick != null)
+        {
+            buttonClick.ResetToMainMenu();
+        }
+
         // Tắt các giao diện phòng
         if (lobbyUI != null) lobbyUI.SetActive(false);
         if (roomCreateUI != null) roomCreateUI.SetActive(false);

@@ -13,6 +13,7 @@ public class ButtonClick : MonoBehaviour
 	[SerializeField] private GameObject startButton;
 	[SerializeField] private GameObject settingsButton;
 	[SerializeField] private GameObject exitButton;
+	[SerializeField] private GameObject lobbyUI;
 	[SerializeField] private GameObject roomSelectionUI;
 	[SerializeField] private GameObject classChooseUI;
 	[SerializeField] private CanvasGroup roomSelectionCanvasGroup;
@@ -206,6 +207,7 @@ public class ButtonClick : MonoBehaviour
 		}
 
 		SetRoomFeedback(string.Empty);
+		sessionManager.FlushLocalStateToSession();
 
 		if (isCreateAction)
 		{
@@ -255,6 +257,35 @@ public class ButtonClick : MonoBehaviour
 	private static string LoadPlayerName()
 	{
 		return PlayerPrefs.GetString(PlayerNamePrefsKey, string.Empty);
+	}
+
+	public void ResetToMainMenu()
+	{
+		roomActionInProgress = false;
+		SetRoomSelectionInteractable(true);
+		SetRoomFeedback(string.Empty);
+		SetMainMenuButtonsVisible(true);
+
+		if (settingsUI != null)
+		{
+			settingsUI.HideSettingsImmediate();
+		}
+
+		if (classChooseUI != null)
+		{
+			ClassChoose classChoose = classChooseUI.GetComponent<ClassChoose>();
+			if (classChoose != null)
+			{
+				classChoose.ResetSelectionUI();
+			}
+
+			classChooseUI.SetActive(false);
+		}
+
+		if (roomSelectionUI != null)
+		{
+			roomSelectionUI.SetActive(true);
+		}
 	}
 
 	private void SetRoomSelectionInteractable(bool isInteractable)

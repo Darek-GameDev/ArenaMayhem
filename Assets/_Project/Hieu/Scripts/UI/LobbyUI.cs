@@ -55,11 +55,7 @@ public class LobbyUI : MonoBehaviour
 
 	private void Awake()
 	{
-		// Auto-discover playerAvatarSlots if not manually assigned
-		if (playerAvatarSlots == null || playerAvatarSlots.Length == 0)
-		{
-			AutoDiscoverPlayerSlots();
-		}
+		EnsurePlayerSlotsConfigured();
 		
 		// Always resolve slot avatar references first, regardless of enableLegacyAvatarSync
 		ResolveSlotAvatarReferences();
@@ -83,10 +79,37 @@ public class LobbyUI : MonoBehaviour
 
 	private void OnEnable()
 	{
+		EnsurePlayerSlotsConfigured();
 		ResolveSlotAvatarReferences();
 		currentPlayerCount = 0;
 		SyncLobbyFromSession();
 		RefreshLobbyUI();
+	}
+
+	private void EnsurePlayerSlotsConfigured()
+	{
+		if (playerAvatarSlots == null || playerAvatarSlots.Length == 0)
+		{
+			AutoDiscoverPlayerSlots();
+			return;
+		}
+
+		bool hasMissingRoot = false;
+		for (int i = 0; i < playerAvatarSlots.Length; i++)
+		{
+			if (playerAvatarSlots[i] == null || playerAvatarSlots[i].slotRoot == null)
+			{
+				hasMissingRoot = true;
+				break;
+			}
+		}
+
+		if (!hasMissingRoot)
+		{
+			return;
+		}
+
+		AutoDiscoverPlayerSlots();
 	}
 
 	private void Update()
@@ -123,18 +146,31 @@ public class LobbyUI : MonoBehaviour
 		SceneManager.LoadScene(gameSceneName);
 	}
 
-	public void OnLeaveRoomClicked()
+	public async void OnLeaveRoomClicked()
 	{
+		SharedRoomSessionManager sessionManager = SharedRoomSessionManager.Instance;
+		if (sessionManager != null)
+		{
+			await sessionManager.LeaveRoom();
+		}
+
 		ExitRoomToMenu();
 	}
 
-	public void OnRemoveRoomClicked()
+	public async void OnRemoveRoomClicked()
 	{
 		if (!isRoomOwner)
 		{
 			return;
 		}
 
+		SharedRoomSessionManager sessionManager = SharedRoomSessionManager.Instance;
+		if (sessionManager != null)
+		{
+			await sessionManager.RemoveRoomAndKickAll();
+		}
+
+		ResetLobbyUI();
 		ExitRoomToMenu();
 	}
 
@@ -248,10 +284,12 @@ public class LobbyUI : MonoBehaviour
 	{
 		int resolvedMaxPlayers = GetMaxPlayers();
 		int displayedPlayerCount = Mathf.Clamp(currentPlayerCount, 0, resolvedMaxPlayers);
+		SharedRoomSessionManager sessionManager = SharedRoomSessionManager.Instance;
+		bool hasActiveSession = sessionManager != null && sessionManager.HasActiveSession;
 
 		if (playerAvatarSlots != null)
 		{
-			if (enableLegacyAvatarSync)
+			if (enableLegacyAvatarSync && !hasActiveSession)
 			{
 				ApplyDefaultLocalSlotIfNeeded();
 			}
@@ -344,18 +382,10 @@ public class LobbyUI : MonoBehaviour
 
 	private void AutoDiscoverPlayerSlots()
 	{
-		// Try to find all slot root objects by looking for children containing "slot" in their names
+		// Try to find all slot root objects by searching the whole UI hierarchy.
 		Transform canvasTransform = gameObject.transform;
 		List<GameObject> slotRoots = new List<GameObject>();
-
-		// Search for GameObjects containing "slot" in their names (case-insensitive)
-		foreach (Transform child in canvasTransform)
-		{
-			if (child.name.ToLowerInvariant().Contains("slot"))
-			{
-				slotRoots.Add(child.gameObject);
-			}
-		}
+		CollectSlotRoots(canvasTransform, slotRoots);
 
 		// Sort by name for consistent ordering
 		slotRoots.Sort((a, b) => a.name.CompareTo(b.name));
@@ -373,6 +403,41 @@ public class LobbyUI : MonoBehaviour
 			playerAvatarSlots[i] = new PlayerAvatarSlot();
 			playerAvatarSlots[i].slotRoot = slotRoots[i];
 		}
+	}
+
+	private static void CollectSlotRoots(Transform root, List<GameObject> slotRoots)
+	{
+		if (root == null || slotRoots == null)
+		{
+			return;
+		}
+
+		for (int i = 0; i < root.childCount; i++)
+		{
+			Transform child = root.GetChild(i);
+			if (child == null)
+			{
+				continue;
+			}
+
+			if (IsLikelyPlayerSlotName(child.name))
+			{
+				slotRoots.Add(child.gameObject);
+			}
+
+			CollectSlotRoots(child, slotRoots);
+		}
+	}
+
+	private static bool IsLikelyPlayerSlotName(string objectName)
+	{
+		if (string.IsNullOrWhiteSpace(objectName))
+		{
+			return false;
+		}
+
+		string loweredName = objectName.Trim().ToLowerInvariant();
+		return loweredName.StartsWith("slot");
 	}
 
 	private static TMP_Text FindTextByKeyword(Transform root, string keyword)
@@ -544,9 +609,32 @@ public class LobbyUI : MonoBehaviour
 			slot.slotRoot.SetActive(visible);
 		}
 
+		if (visible)
+		{
+			EnsureSlotTextObjectsActive(slot);
+		}
+
 		if (!visible)
 		{
 			SetSlotDisplayText(slot, emptyPlayerName, emptyClassName);
+		}
+	}
+
+	private static void EnsureSlotTextObjectsActive(PlayerAvatarSlot slot)
+	{
+		if (slot == null)
+		{
+			return;
+		}
+
+		if (slot.playerNameTmpText != null)
+		{
+			slot.playerNameTmpText.gameObject.SetActive(true);
+		}
+
+		if (slot.classNameTmpText != null)
+		{
+			slot.classNameTmpText.gameObject.SetActive(true);
 		}
 	}
 

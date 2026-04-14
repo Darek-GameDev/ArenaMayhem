@@ -28,14 +28,6 @@ public class ClassChoose : MonoBehaviour
         UpdateClassLabel(defaultClassName);
         RefreshAcceptState();
 
-        if (lobbyUI != null)
-        {
-            lobbyUI.SetActive(false);
-        }
-    }
-
-    public void OnKnightClicked()
-    {
         SetPendingClass("Knight");
     }
 
@@ -59,6 +51,7 @@ public class ClassChoose : MonoBehaviour
         {
             sessionManager.SetLocalClass(confirmedClassName);
             sessionManager.SetLocalReady(true);
+            sessionManager.FlushLocalStateToSession();
         }
 
         // Activate lobby UI before calling SetLocalPlayerClass to ensure Coroutine runs.

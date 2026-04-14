@@ -234,6 +234,7 @@ MonoBehaviour:
   startButton: {fileID: 524957214}
   settingsButton: {fileID: 1321070146}
   exitButton: {fileID: 585426227}
+  lobbyUI: {fileID: 7286812649901721268}
   roomSelectionUI: {fileID: 1842916187}
   classChooseUI: {fileID: 1071511699}
   roomSelectionCanvasGroup: {fileID: 891118515}
@@ -623,6 +624,7 @@ MonoBehaviour:
   menuUI: {fileID: 1054284515}
   lobbyUI: {fileID: 7286812649901721268}
   roomCreateUI: {fileID: 1842916187}
+  buttonClick: {fileID: 0}
 --- !u!114 &731945301
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1018,6 +1020,42 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 779736250311606710, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 779736250311606710, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 779736250311606710, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 524097043}
+    - target: {fileID: 779736250311606710, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Target
+      value: 
+      objectReference: {fileID: 59725593}
+    - target: {fileID: 779736250311606710, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 779736250311606710, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: PlayClickSound
+      objectReference: {fileID: 0}
+    - target: {fileID: 779736250311606710, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 779736250311606710, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
+      value: ClickSound, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 779736250311606710, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 880454740219826390, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -1037,6 +1075,46 @@ PrefabInstance:
     - target: {fileID: 1525648596990355854, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
       propertyPath: m_Name
       value: Class Name
+      objectReference: {fileID: 0}
+    - target: {fileID: 1691800229526482578, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1691800229526482578, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1691800229526482578, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 524097043}
+    - target: {fileID: 1691800229526482578, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Target
+      value: 
+      objectReference: {fileID: 59725593}
+    - target: {fileID: 1691800229526482578, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1691800229526482578, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: PlayClickSound
+      objectReference: {fileID: 0}
+    - target: {fileID: 1691800229526482578, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1691800229526482578, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: ClickSound, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1691800229526482578, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
+      value: LeaveRoomandRemoveRoom, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1691800229526482578, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 1835880065416992862, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
       propertyPath: player1.slotRoot
@@ -1293,6 +1371,46 @@ PrefabInstance:
     - target: {fileID: 7290458863090995095, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7370488685946012411, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7370488685946012411, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7370488685946012411, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 524097043}
+    - target: {fileID: 7370488685946012411, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Target
+      value: 
+      objectReference: {fileID: 59725593}
+    - target: {fileID: 7370488685946012411, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7370488685946012411, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: PlayClickSound
+      objectReference: {fileID: 0}
+    - target: {fileID: 7370488685946012411, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7370488685946012411, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: ClickSound, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7370488685946012411, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
+      value: LeaveRoomandRemoveRoom, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7370488685946012411, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7554378748164688254, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
       propertyPath: m_Name

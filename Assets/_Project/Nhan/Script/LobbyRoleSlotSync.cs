@@ -1,3 +1,4 @@
+using System;
 using Fusion;
 using UnityEngine;
 
@@ -250,6 +251,43 @@ public class LobbyRoleSlotSync : MonoBehaviour
         if (compact != null)
         {
             return compact.gameObject;
+        }
+
+        Transform recursive = FindChildByExactName(slotsContainer, slotName);
+        if (recursive != null)
+        {
+            return recursive.gameObject;
+        }
+
+        recursive = FindChildByExactName(slotsContainer, compactName);
+        if (recursive != null)
+        {
+            return recursive.gameObject;
+        }
+
+        return null;
+    }
+
+    private static Transform FindChildByExactName(Transform root, string targetName)
+    {
+        if (root == null || string.IsNullOrWhiteSpace(targetName))
+        {
+            return null;
+        }
+
+        Transform[] children = root.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < children.Length; i++)
+        {
+            Transform child = children[i];
+            if (child == null || child == root)
+            {
+                continue;
+            }
+
+            if (string.Equals(child.name, targetName, StringComparison.OrdinalIgnoreCase))
+            {
+                return child;
+            }
         }
 
         return null;
