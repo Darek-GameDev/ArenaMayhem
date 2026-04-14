@@ -28,6 +28,9 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     private bool prevJump;
     private bool prevSprint;
     private bool prevAttack;
+    private bool prevAttackSecondary;
+    private bool prevWeaponSlot1;
+    private bool prevWeaponSlot2;
     private bool prevBlock;
     private bool prevAim;
     private bool warnedMissingInput;
@@ -114,6 +117,9 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         bool jumpHeld = ReadButtonHeld("Jump");
         bool sprintHeld = ReadButtonHeld("Sprint");
         bool attackHeld = ReadButtonHeld("Attack");
+        bool attackSecondaryHeld = false;
+        bool weaponSlot1Held = ReadButtonHeld("Previous");
+        bool weaponSlot2Held = ReadButtonHeld("Next");
         bool blockHeld = ReadButtonHeld("Block");
         bool aimHeld = ReadButtonHeld("Aim");
 
@@ -124,12 +130,18 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         buttons.Set((int)PlayerInputButton.Jump, jumpHeld);
         buttons.Set((int)PlayerInputButton.Sprint, sprintHeld);
         buttons.Set((int)PlayerInputButton.Attack, attackHeld);
+        buttons.Set((int)PlayerInputButton.AttackSecondary, attackSecondaryHeld);
+        buttons.Set((int)PlayerInputButton.WeaponSlot1, weaponSlot1Held);
+        buttons.Set((int)PlayerInputButton.WeaponSlot2, weaponSlot2Held);
         buttons.Set((int)PlayerInputButton.Block, blockHeld);
         buttons.Set((int)PlayerInputButton.Aim, aimHeld);
 
         ComputeTransitions(jumpHeld, ref prevJump, out NetworkBool jumpPressed, out NetworkBool jumpReleased);
         ComputeTransitions(sprintHeld, ref prevSprint, out NetworkBool sprintPressed, out NetworkBool sprintReleased);
         ComputeTransitions(attackHeld, ref prevAttack, out NetworkBool attackPressed, out NetworkBool attackReleased);
+        ComputeTransitions(attackSecondaryHeld, ref prevAttackSecondary, out NetworkBool attackSecondaryPressed, out NetworkBool attackSecondaryReleased);
+        ComputeTransitions(weaponSlot1Held, ref prevWeaponSlot1, out NetworkBool weaponSlot1Pressed, out NetworkBool weaponSlot1Released);
+        ComputeTransitions(weaponSlot2Held, ref prevWeaponSlot2, out NetworkBool weaponSlot2Pressed, out NetworkBool weaponSlot2Released);
         ComputeTransitions(blockHeld, ref prevBlock, out NetworkBool blockPressed, out NetworkBool blockReleased);
         ComputeTransitions(aimHeld, ref prevAim, out NetworkBool aimPressed, out NetworkBool aimReleased);
 
@@ -144,6 +156,12 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
             SprintReleased = sprintReleased,
             AttackPressed = attackPressed,
             AttackReleased = attackReleased,
+            AttackSecondaryPressed = attackSecondaryPressed,
+            AttackSecondaryReleased = attackSecondaryReleased,
+            WeaponSlot1Pressed = weaponSlot1Pressed,
+            WeaponSlot1Released = weaponSlot1Released,
+            WeaponSlot2Pressed = weaponSlot2Pressed,
+            WeaponSlot2Released = weaponSlot2Released,
             BlockPressed = blockPressed,
             BlockReleased = blockReleased,
             AimPressed = aimPressed,
@@ -287,6 +305,10 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
                 return keyboard != null && keyboard.leftShiftKey.isPressed;
             case "Attack":
                 return mouse != null && mouse.leftButton.isPressed;
+            case "Previous":
+                return keyboard != null && keyboard.digit1Key.isPressed;
+            case "Next":
+                return keyboard != null && keyboard.digit2Key.isPressed;
             case "Block":
                 return mouse != null && mouse.rightButton.isPressed;
             default:

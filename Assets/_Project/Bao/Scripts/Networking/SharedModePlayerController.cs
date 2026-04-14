@@ -1,5 +1,6 @@
 using Fusion;
 using UnityEngine;
+using UnityEngine.UI;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(NetworkCharacterController))]
@@ -49,11 +50,18 @@ public class SharedModePlayerController : NetworkBehaviour
     [SerializeField] private float bowMoveSpeedMultiplier = 1.2f;
     [SerializeField] private float bowAimMoveSpeedMultiplier = 0.65f;
     [SerializeField] private BowWeapon bowWeapon;
+    [SerializeField] private BowWeapon.ProjectileType defaultBowProjectileType = BowWeapon.ProjectileType.Primary;
     [SerializeField] private float bowAimRayDistance = 200f;
     [SerializeField] private LayerMask bowAimLayerMask = ~0;
 
     [Header("Health")]
     [SerializeField] private int maxHealth = 10;
+
+    [Header("Minimap Icon")]
+    [SerializeField] private Sprite localPlayerMinimapSprite;
+    [SerializeField] private Sprite enemyMinimapSprite;
+    [SerializeField] private string minimapCanvasName = "CanvasIconPlayer";
+    [SerializeField] private string minimapIconName = "Icon";
 
     [Networked] public PlayerHealthNetworkState NetHealthState { get; set; }
     [Networked] public NetworkBool IsBlocking { get; set; }
@@ -71,9 +79,15 @@ public class SharedModePlayerController : NetworkBehaviour
     [Networked] public NetworkBool IsAiming { get; set; }
     [Networked] public NetworkBool BowRequireAimRelease { get; set; }
     [Networked] public NetworkBool BlockRequireRelease { get; set; }
+    [Networked] public BowWeapon.ProjectileType SelectedBowProjectileType { get; set; }
 
     private NetworkCharacterController cc;
     private CursorLockController cursorLockController;
+    private Image minimapIconImage;
+    private RawImage minimapIconRawImage;
+    private bool minimapIconResolved;
+    private bool minimapIconApplied;
+    private bool lastMinimapWasLocal;
 
     public PlayerWeaponType WeaponType => weaponType;
     public bool UsesBow => weaponType == PlayerWeaponType.Bow;
@@ -168,6 +182,7 @@ public class SharedModePlayerController : NetworkBehaviour
             IsAiming = false;
             BowRequireAimRelease = false;
             BlockRequireRelease = false;
+            SelectedBowProjectileType = defaultBowProjectileType;
         }
 
         if (bowWeapon == null)
@@ -179,6 +194,13 @@ public class SharedModePlayerController : NetworkBehaviour
         {
             gameObject.AddComponent<PlayerAimCameraController>();
         }
+
+        RefreshMinimapIcon(forceRefresh: true);
+    }
+
+    private void Update()
+    {
+        RefreshMinimapIcon(forceRefresh: false);
     }
 
     private void ConfigureCameraOwnership()
@@ -208,6 +230,121 @@ public class SharedModePlayerController : NetworkBehaviour
         {
             cameraTransform = Camera.main.transform;
         }
+    }
+
+    private void RefreshMinimapIcon(bool forceRefresh)
+    {
+        bool isLocal = Object != null && Object.IsValid && Object.HasInputAuthority;
+
+        if (!forceRefresh && minimapIconApplied && lastMinimapWasLocal == isLocal)
+        {
+            return;
+        }
+
+        ResolveMinimapIconGraphic();
+        if (!minimapIconResolved)
+        {
+            return;
+        }
+
+        if (localPlayerMinimapSprite == null && minimapIconImage != null && minimapIconImage.sprite != null)
+        {
+            localPlayerMinimapSprite = minimapIconImage.sprite;
+        }
+
+        Sprite targetSprite = isLocal ? localPlayerMinimapSprite : enemyMinimapSprite;
+        if (targetSprite == null)
+        {
+            return;
+        }
+
+        if (minimapIconImage != null)
+        {
+            minimapIconImage.sprite = targetSprite;
+        }
+
+        if (minimapIconRawImage != null)
+        {
+            ApplySpriteToRawImage(minimapIconRawImage, targetSprite);
+        }
+
+        minimapIconApplied = true;
+        lastMinimapWasLocal = isLocal;
+    }
+
+    private void ResolveMinimapIconGraphic()
+    {
+        if (minimapIconResolved && (minimapIconImage != null || minimapIconRawImage != null))
+        {
+            return;
+        }
+
+        Transform iconTransform = null;
+
+        if (!string.IsNullOrWhiteSpace(minimapCanvasName))
+        {
+            Transform canvasTransform = transform.Find(minimapCanvasName);
+            if (canvasTransform != null && !string.IsNullOrWhiteSpace(minimapIconName))
+            {
+                iconTransform = canvasTransform.Find(minimapIconName);
+            }
+
+            if (iconTransform == null && canvasTransform != null)
+            {
+                iconTransform = canvasTransform;
+            }
+        }
+
+        if (iconTransform == null)
+        {
+            Image[] allImages = GetComponentsInChildren<Image>(true);
+            for (int i = 0; i < allImages.Length; i++)
+            {
+                Image candidate = allImages[i];
+                if (candidate != null && candidate.gameObject.name == minimapIconName)
+                {
+                    minimapIconImage = candidate;
+                    minimapIconResolved = true;
+                    return;
+                }
+            }
+
+            RawImage[] allRawImages = GetComponentsInChildren<RawImage>(true);
+            for (int i = 0; i < allRawImages.Length; i++)
+            {
+                RawImage candidate = allRawImages[i];
+                if (candidate != null && candidate.gameObject.name == minimapIconName)
+                {
+                    minimapIconRawImage = candidate;
+                    minimapIconResolved = true;
+                    return;
+                }
+            }
+
+            return;
+        }
+
+        minimapIconImage = iconTransform.GetComponent<Image>();
+        minimapIconRawImage = iconTransform.GetComponent<RawImage>();
+        minimapIconResolved = minimapIconImage != null || minimapIconRawImage != null;
+    }
+
+    private static void ApplySpriteToRawImage(RawImage rawImage, Sprite sprite)
+    {
+        if (rawImage == null || sprite == null || sprite.texture == null)
+        {
+            return;
+        }
+
+        rawImage.texture = sprite.texture;
+
+        Rect rect = sprite.textureRect;
+        Texture texture = sprite.texture;
+        rawImage.uvRect = new Rect(
+            rect.x / texture.width,
+            rect.y / texture.height,
+            rect.width / texture.width,
+            rect.height / texture.height);
     }
 
     public override void FixedUpdateNetwork()
@@ -350,6 +487,7 @@ public class SharedModePlayerController : NetworkBehaviour
             NextBowShotAllowedAt = 0f;
             BowRequireAimRelease = false;
             BlockRequireRelease = false;
+            SelectedBowProjectileType = defaultBowProjectileType;
         }
     }
 
@@ -368,6 +506,7 @@ public class SharedModePlayerController : NetworkBehaviour
         ComboStep = 0;
         BowRequireAimRelease = false;
         BlockRequireRelease = false;
+        SelectedBowProjectileType = defaultBowProjectileType;
 
         if (NetCombatState == CombatState.Attacking || NetCombatState == CombatState.BlockHit)
         {
@@ -520,8 +659,21 @@ public class SharedModePlayerController : NetworkBehaviour
             NetCombatState = CombatState.Aiming;
         }
 
+        if (input.WeaponSlot1Pressed)
+        {
+            SelectedBowProjectileType = BowWeapon.ProjectileType.Primary;
+        }
+
+        if (input.WeaponSlot2Pressed)
+        {
+            SelectedBowProjectileType = BowWeapon.ProjectileType.Secondary;
+        }
+
         bool canFireNow = simTime >= NextBowShotAllowedAt;
-        bool fireRequested = input.AttackPressed && (!bowRequireAimToFire || IsAiming);
+        bool primaryPressed = input.AttackPressed;
+        bool fireRequested = primaryPressed && (!bowRequireAimToFire || IsAiming);
+        BowWeapon.ProjectileType projectileType = SelectedBowProjectileType;
+
         if (fireRequested && canFireNow)
         {
             AttackPressed = true;
@@ -529,7 +681,7 @@ public class SharedModePlayerController : NetworkBehaviour
             NetCombatState = CombatState.Attacking;
             NextBowShotAllowedAt = simTime + bowFireCooldownSeconds;
 
-            FireBowProjectile();
+            FireBowProjectile(projectileType);
 
             if (bowAutoExitAimOnShoot)
             {
@@ -554,7 +706,7 @@ public class SharedModePlayerController : NetworkBehaviour
         }
     }
 
-    private void FireBowProjectile()
+    private void FireBowProjectile(BowWeapon.ProjectileType projectileType)
     {
         if (bowWeapon == null)
         {
@@ -573,11 +725,11 @@ public class SharedModePlayerController : NetworkBehaviour
         }
 
         Vector3 aimPoint = BowWeapon.GetAimPointFromCamera(transform, bowAimRayDistance, bowAimLayerMask);
-        RPC_SpawnBowProjectile(aimPoint, attackerRef);
+        RPC_SpawnBowProjectile(aimPoint, attackerRef, projectileType);
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_SpawnBowProjectile(Vector3 aimPoint, PlayerRef attackerRef)
+    private void RPC_SpawnBowProjectile(Vector3 aimPoint, PlayerRef attackerRef, BowWeapon.ProjectileType projectileType)
     {
         if (bowWeapon == null)
         {
@@ -589,7 +741,7 @@ public class SharedModePlayerController : NetworkBehaviour
             return;
         }
 
-        bowWeapon.SpawnProjectile(transform, attackerRef, aimPoint, HasStateAuthority);
+        bowWeapon.SpawnProjectile(transform, attackerRef, aimPoint, HasStateAuthority, projectileType);
     }
 
     private Vector3 GetAimForward()
@@ -600,7 +752,7 @@ public class SharedModePlayerController : NetworkBehaviour
             return transform.forward;
         }
 
-        // Get aim direction from screen center for consistent rotation
+        // Get aim direction from screen center for consistent rotatio
         Ray screenCenterRay = mainCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         Vector3 forward = screenCenterRay.direction;
         forward.y = 0f;

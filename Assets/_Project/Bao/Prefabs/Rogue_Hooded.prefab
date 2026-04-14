@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4292833838475769078}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: spine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41,7 +41,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 392296535065112993}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: lowerarm.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -73,7 +73,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4639112101796187449}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: upperarm.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -106,7 +106,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8494888724445961906}
   - component: {fileID: 7452487005193186608}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RogueHooded_LegLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -220,7 +220,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6093561809655486171}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: toes.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -252,7 +252,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7517884041768836128}
   - component: {fileID: 6723691629020281184}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RogueHooded_ArmLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -366,7 +366,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6305758691891158134}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: wrist.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -398,7 +398,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4659062326251776510}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: foot.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -431,7 +431,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1690698404365470783}
   - component: {fileID: 1583647267544335828}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RogueHooded_Mask
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -545,7 +545,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2483657341426614733}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: chest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -579,7 +579,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2336801771539081092}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: upperleg.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -611,7 +611,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7141855631206416452}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: lowerarm.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -643,7 +643,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4195466830111758306}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: hips
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -668,6 +668,81 @@ Transform:
   - {fileID: 5293013212841334914}
   m_Father: {fileID: 4698055996057535523}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3569730656646474003
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5491711824445884621}
+  - component: {fileID: 4060639402261121196}
+  - component: {fileID: 6027355616854766566}
+  m_Layer: 5
+  m_Name: Icon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &5491711824445884621
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3569730656646474003}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3005160652551798667}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &4060639402261121196
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3569730656646474003}
+  m_CullTransparentMesh: 1
+--- !u!114 &6027355616854766566
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3569730656646474003}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 3134cc369e58da949a9d3eab9b68a4de, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &4043049097069110145
 GameObject:
   m_ObjectHideFlags: 0
@@ -677,7 +752,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5293013212841334914}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: upperleg.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -709,7 +784,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2137574569504275921}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: hand.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -732,6 +807,108 @@ Transform:
   - {fileID: 419255757138411773}
   m_Father: {fileID: 6305758691891158134}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4608610809813791240
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3005160652551798667}
+  - component: {fileID: 1418117006631821352}
+  - component: {fileID: 7226418882695669322}
+  - component: {fileID: 2829331578876940660}
+  m_Layer: 5
+  m_Name: CanvasIconPlayer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &3005160652551798667
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4608610809813791240}
+  m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: -0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.005, y: 0.0049999994, z: 0.0049999994}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5491711824445884621}
+  m_Father: {fileID: 2353180543090716247}
+  m_LocalEulerAnglesHint: {x: 90, y: 180, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 3.709999}
+  m_SizeDelta: {x: 1920, y: 1080}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!223 &1418117006631821352
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4608610809813791240}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!114 &7226418882695669322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4608610809813791240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
+  m_UiScaleMode: 0
+  m_ReferencePixelsPerUnit: 100
+  m_ScaleFactor: 1
+  m_ReferenceResolution: {x: 800, y: 600}
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 0
+  m_PhysicalUnit: 3
+  m_FallbackScreenDPI: 96
+  m_DefaultSpriteDPI: 96
+  m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 1
+--- !u!114 &2829331578876940660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4608610809813791240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &5027261576327187290
 GameObject:
   m_ObjectHideFlags: 0
@@ -741,7 +918,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2690147133779266270}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: wrist.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -773,7 +950,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8707332123201808784}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: hand.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -805,7 +982,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 419255757138411773}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: handslot.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -838,7 +1015,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8595990080876693352}
   - component: {fileID: 89779534289452181}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RogueHooded_Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -952,7 +1129,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6404221940419493260}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: upperarm.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -984,7 +1161,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3490897971030987704}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: lowerleg.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1016,7 +1193,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4698055996057535523}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1048,7 +1225,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3095959583218784998}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Rig_Medium
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1080,7 +1257,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 71115698785480844}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: lowerleg.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1114,7 +1291,7 @@ GameObject:
   - component: {fileID: 1346985541919212429}
   - component: {fileID: 1912570720686666007}
   - component: {fileID: 8637543650377592754}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: arrow_bow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1203,7 +1380,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4289332655643346878}
   - component: {fileID: 670389967597395490}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RogueHooded_LegRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1318,7 +1495,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4682554571145602001}
   - component: {fileID: 1611105158341691328}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RogueHooded_Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1432,7 +1609,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5156800762047061922}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Arrow.Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1464,7 +1641,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1986714213276070499}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: foot.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1510,7 +1687,7 @@ GameObject:
   - component: {fileID: 2954118687832947223}
   - component: {fileID: 896624991062604839}
   - component: {fileID: 5015241082328425243}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Rogue_Hooded
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1540,6 +1717,7 @@ Transform:
   - {fileID: 4289332655643346878}
   - {fileID: 1690698404365470783}
   - {fileID: 3420941178070116290}
+  - {fileID: 3005160652551798667}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &425858959708846246
@@ -1789,6 +1967,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMoment
   walkSpeed: 2.3
   runSpeed: 5.5
+  bowMoveSpeedMultiplier: 1.2
+  bowAimMoveSpeedMultiplier: 0.65
   rotationSpeed: 10
   jumpHeight: 1.5
   jumpCooldown: 0.25
@@ -1811,6 +1991,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAttack
   comboStep: 0
   blockCooldown: 0.25
+  blockDuration: 0.5
   useBow: 1
   weapon: {fileID: 0}
   bowWeapon: {fileID: 5444498085118543086}
@@ -1860,16 +2041,24 @@ MonoBehaviour:
   cameraTransform: {fileID: 0}
   playerCameraRoot: {fileID: 0}
   blockCooldownSeconds: 0.25
+  blockDurationSeconds: 0.5
+  blockFrontDotThreshold: 0.5
   weaponType: 1
   bowRequireAimToFire: 1
   bowAutoExitAimOnShoot: 0
   bowFireCooldownSeconds: 0.5
+  bowMoveSpeedMultiplier: 1.2
+  bowAimMoveSpeedMultiplier: 0.65
   bowWeapon: {fileID: 0}
   bowAimRayDistance: 200
   bowAimLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
   maxHealth: 10
+  localPlayerMinimapSprite: {fileID: 0}
+  enemyMinimapSprite: {fileID: 21300000, guid: 235aabd143e14aa40a9c9cc4ac5b2561, type: 3}
+  minimapCanvasName: CanvasIconPlayer
+  minimapIconName: Icon
   _IsBlocking:
     _value: 0
   _AttackPressed:
@@ -1882,10 +2071,13 @@ MonoBehaviour:
   _NetLocomotionState: 0
   _NetCombatState: 0
   _NextBlockAllowedAt: 0
+  _BlockUntil: 0
   _NextBowShotAllowedAt: 0
   _IsAiming:
     _value: 0
   _BowRequireAimRelease:
+    _value: 0
+  _BlockRequireRelease:
     _value: 0
 --- !u!114 &6969320276120120523
 MonoBehaviour:
@@ -1920,10 +2112,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BowWeapon
   projectilePrefab: {fileID: 9140349176642002788, guid: a462466558a64314c9244d521a518cb3, type: 3}
-  projectileSpawnPoint: {fileID: 1346985541919212429}
   projectileSpeed: 40
   projectileLifetime: 4
   damage: 1
+  secondaryProjectilePrefab: {fileID: 6074116667436370333, guid: b9db04e0ff9ae984ebcd7e2f1aa5d19c, type: 3}
+  secondaryProjectileSpeed: 22
+  secondaryProjectileLifetime: 5
+  secondaryDamage: 2
+  projectileSpawnPoint: {fileID: 1346985541919212429}
 --- !u!114 &1996908816946458932
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1963,6 +2159,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
   maxHealth: 10
   logDamage: 1
+  blockFrontDotThreshold: 0.5
   playerAttack: {fileID: 6206074856843633806}
 --- !u!114 &2954118687832947223
 MonoBehaviour:
@@ -2024,7 +2221,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4124739381495205819}
   - component: {fileID: 7641369807108768615}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RogueHooded_Cape
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2138,7 +2335,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 751218426750238505}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: toes.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2169,7 +2366,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3596131640008089973}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2200,7 +2397,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1913416203336772178}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Bow.Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2233,7 +2430,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3422914076925366494}
   - component: {fileID: 5771911640544518828}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RogueHooded_ArmRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2352,7 +2549,7 @@ GameObject:
   - component: {fileID: 3934683523483113249}
   - component: {fileID: 9051745478278079527}
   - component: {fileID: 439040984557659279}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: FreeLook Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2549,6 +2746,8 @@ MonoBehaviour:
       Input:
         InputAction: {fileID: -5630151704836100654, guid: 1d6e640e716dc4ff6989b73d02023f2b, type: 3}
         Gain: 1
+        LegacyInput: 
+        LegacyGain: 1
         CancelDeltaTime: 0
       InputValue: 0
       Driver:
@@ -2560,6 +2759,8 @@ MonoBehaviour:
       Input:
         InputAction: {fileID: -5630151704836100654, guid: 1d6e640e716dc4ff6989b73d02023f2b, type: 3}
         Gain: -1
+        LegacyInput: 
+        LegacyGain: 1
         CancelDeltaTime: 0
       InputValue: 0
       Driver:
@@ -2571,6 +2772,8 @@ MonoBehaviour:
       Input:
         InputAction: {fileID: 5082991133974614888, guid: 1d6e640e716dc4ff6989b73d02023f2b, type: 3}
         Gain: -1
+        LegacyInput: 
+        LegacyGain: 1
         CancelDeltaTime: 0
       InputValue: 0
       Driver:
@@ -2587,7 +2790,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 528078961780437591}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: handslot.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2662,6 +2865,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: bow
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 219f895202bebcb4d81d24c0bd326ec7, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2693,7 +2900,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BowWeapon
   projectilePrefab: {fileID: 9140349176642002788, guid: a462466558a64314c9244d521a518cb3, type: 3}
-  projectileSpawnPoint: {fileID: 1346985541919212429}
   projectileSpeed: 28
   projectileLifetime: 4
   damage: 1
+  secondaryProjectilePrefab: {fileID: 0}
+  secondaryProjectileSpeed: 22
+  secondaryProjectileLifetime: 5
+  secondaryDamage: 2
+  projectileSpawnPoint: {fileID: 1346985541919212429}

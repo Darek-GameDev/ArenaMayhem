@@ -6,8 +6,11 @@ public enum PlayerInputButton
     Jump = 0,
     Sprint = 1,
     Attack = 2,
-    Block = 3,
-    Aim = 4,
+    AttackSecondary = 3,
+    Block = 4,
+    Aim = 5,
+    WeaponSlot1 = 6,
+    WeaponSlot2 = 7,
 }
 
 public struct PlayerNetworkInput : INetworkInput
@@ -23,6 +26,12 @@ public struct PlayerNetworkInput : INetworkInput
     public NetworkBool SprintReleased;
     public NetworkBool AttackPressed;
     public NetworkBool AttackReleased;
+    public NetworkBool AttackSecondaryPressed;
+    public NetworkBool AttackSecondaryReleased;
+    public NetworkBool WeaponSlot1Pressed;
+    public NetworkBool WeaponSlot1Released;
+    public NetworkBool WeaponSlot2Pressed;
+    public NetworkBool WeaponSlot2Released;
     public NetworkBool BlockPressed;
     public NetworkBool BlockReleased;
     public NetworkBool AimPressed;

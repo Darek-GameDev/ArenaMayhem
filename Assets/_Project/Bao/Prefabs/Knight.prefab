@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7401790052997741284}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Sword_Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43,7 +43,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2043126677228340951}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: wrist.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -76,7 +76,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6705673282349894126}
   - component: {fileID: 7179737855264721107}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Knight_Head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -192,7 +192,7 @@ GameObject:
   - component: {fileID: 6600658307478396472}
   - component: {fileID: 8232060534915246837}
   - component: {fileID: 8884756799800620211}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: shield_badge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -271,6 +271,81 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &821596966411870985
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4007343071856899199}
+  - component: {fileID: 9209065586053043264}
+  - component: {fileID: 662583943116075264}
+  m_Layer: 5
+  m_Name: Icon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &4007343071856899199
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 821596966411870985}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3931605545745853842}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &9209065586053043264
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 821596966411870985}
+  m_CullTransparentMesh: 1
+--- !u!114 &662583943116075264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 821596966411870985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 3134cc369e58da949a9d3eab9b68a4de, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &835924561861457670
 GameObject:
   m_ObjectHideFlags: 0
@@ -280,7 +355,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6327057474746433733}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: toes.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -312,7 +387,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9028651142890697608}
   - component: {fileID: 8743403088711556063}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Knight_ArmLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -426,7 +501,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2938029665669664114}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: wrist.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -463,7 +538,7 @@ GameObject:
   - component: {fileID: 6596471642982314759}
   - component: {fileID: 1065920074174279541}
   - component: {fileID: 8364955289241187018}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: FreeLook Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -695,6 +770,108 @@ MonoBehaviour:
         DecelTime: 0
   PlayerIndex: -1
   AutoEnableInputs: 1
+--- !u!1 &1651747784116553255
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3931605545745853842}
+  - component: {fileID: 4091046760396474139}
+  - component: {fileID: 4090715397183821517}
+  - component: {fileID: 7249114099058859082}
+  m_Layer: 5
+  m_Name: CanvasIconPlayer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &3931605545745853842
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1651747784116553255}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: -0.7071068, w: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.005, y: 0.005, z: 0.005}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4007343071856899199}
+  m_Father: {fileID: 2510753202262350095}
+  m_LocalEulerAnglesHint: {x: 90, y: 180, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 3.36}
+  m_SizeDelta: {x: 1920, y: 1080}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!223 &4091046760396474139
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1651747784116553255}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!114 &4090715397183821517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1651747784116553255}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
+  m_UiScaleMode: 0
+  m_ReferencePixelsPerUnit: 100
+  m_ScaleFactor: 1
+  m_ReferenceResolution: {x: 800, y: 600}
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 0
+  m_PhysicalUnit: 3
+  m_FallbackScreenDPI: 96
+  m_DefaultSpriteDPI: 96
+  m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 1
+--- !u!114 &7249114099058859082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1651747784116553255}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &1662225279165033993
 GameObject:
   m_ObjectHideFlags: 0
@@ -704,7 +881,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7852795607138742217}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: hand.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -737,7 +914,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2002326785241718173}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: toes.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -770,7 +947,7 @@ GameObject:
   - component: {fileID: 7821199271928163132}
   - component: {fileID: 1995872744766509599}
   - component: {fileID: 8024925658585386498}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: sword_2handed_color
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -859,7 +1036,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8991966017644708955}
   - component: {fileID: 8781491216726498230}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Knight_Cape
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -973,7 +1150,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3036390534055957105}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: hand.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1007,7 +1184,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1072980133293613067}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: upperleg.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1049,7 +1226,7 @@ GameObject:
   - component: {fileID: 332275863031541011}
   - component: {fileID: 8715086339708990136}
   - component: {fileID: 2167511110069939194}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Knight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1080,6 +1257,7 @@ Transform:
   - {fileID: 7228714643834347289}
   - {fileID: 3133936757872311639}
   - {fileID: 8116854721037594584}
+  - {fileID: 3931605545745853842}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!95 &4199562101423113685
@@ -1317,6 +1495,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   walkSpeed: 2.5
   runSpeed: 4
+  bowMoveSpeedMultiplier: 1.2
+  bowAimMoveSpeedMultiplier: 0.65
   rotationSpeed: 10
   jumpHeight: 2
   jumpCooldown: 1.25
@@ -1339,6 +1519,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   comboStep: 0
   blockCooldown: 0.25
+  blockDuration: 0.5
   useBow: 0
   weapon: {fileID: 0}
   bowWeapon: {fileID: 0}
@@ -1363,6 +1544,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   maxHealth: 100
   logDamage: 1
+  blockFrontDotThreshold: 0.5
   playerAttack: {fileID: 0}
 --- !u!114 &5726066979813479603
 MonoBehaviour:
@@ -1439,16 +1621,24 @@ MonoBehaviour:
   cameraTransform: {fileID: 0}
   playerCameraRoot: {fileID: 0}
   blockCooldownSeconds: 0.25
+  blockDurationSeconds: 0.5
+  blockFrontDotThreshold: 0.5
   weaponType: 0
   bowRequireAimToFire: 1
   bowAutoExitAimOnShoot: 0
   bowFireCooldownSeconds: 0.35
+  bowMoveSpeedMultiplier: 1.2
+  bowAimMoveSpeedMultiplier: 0.65
   bowWeapon: {fileID: 0}
   bowAimRayDistance: 200
   bowAimLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
   maxHealth: 10
+  localPlayerMinimapSprite: {fileID: 0}
+  enemyMinimapSprite: {fileID: 21300000, guid: 235aabd143e14aa40a9c9cc4ac5b2561, type: 3}
+  minimapCanvasName: CanvasIconPlayer
+  minimapIconName: Icon
   _IsBlocking:
     _value: 0
   _AttackPressed:
@@ -1461,10 +1651,13 @@ MonoBehaviour:
   _NetLocomotionState: 0
   _NetCombatState: 0
   _NextBlockAllowedAt: 0
+  _BlockUntil: 0
   _NextBowShotAllowedAt: 0
   _IsAiming:
     _value: 0
   _BowRequireAimRelease:
+    _value: 0
+  _BlockRequireRelease:
     _value: 0
 --- !u!1 &2794010901955814116
 GameObject:
@@ -1476,7 +1669,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7228714643834347289}
   - component: {fileID: 4948314397846886857}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Knight_LegRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1590,7 +1783,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3133936757872311639}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Rig_Medium
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1622,7 +1815,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6997332625867518626}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: lowerarm.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1654,7 +1847,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4787684275451036699}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: handslot.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1686,7 +1879,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8837404943608015916}
   - component: {fileID: 8792829108957069994}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Knight_LegLeft
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1801,7 +1994,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7059762944750813934}
   - component: {fileID: 5565441145868811692}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Knight_Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1917,7 +2110,7 @@ GameObject:
   - component: {fileID: 2859323968295392221}
   - component: {fileID: 1808936607457201171}
   - component: {fileID: 8181645079667978253}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: shield_round
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2005,7 +2198,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 918965511617586222}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: hips
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2040,7 +2233,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7924816012947073873}
   - component: {fileID: 1825082135678973075}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Knight_Helmet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2155,7 +2348,7 @@ GameObject:
   m_Component:
   - component: {fileID: 306655296197061737}
   - component: {fileID: 447227787962765383}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Knight_ArmRight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2269,7 +2462,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 686940847025777077}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: chest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2305,7 +2498,7 @@ GameObject:
   - component: {fileID: 3768260019479063769}
   - component: {fileID: 6753789866563446036}
   - component: {fileID: 6116514677499161104}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: shield_round_barbarian
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2395,7 +2588,7 @@ GameObject:
   - component: {fileID: 2039880295757638049}
   - component: {fileID: 4075067544431942665}
   - component: {fileID: 2981370195291057678}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: shield_round_color
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2483,7 +2676,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8242912230372463205}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: lowerleg.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2515,7 +2708,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6539121209636741412}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: handslot.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2546,7 +2739,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1469412204982611021}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Shield_Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2582,7 +2775,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1712456424924442816}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: lowerleg.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2616,7 +2809,7 @@ GameObject:
   - component: {fileID: 8251713869531644891}
   - component: {fileID: 9018285093100146825}
   - component: {fileID: 887698466063773831}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: sword_2handed
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2704,7 +2897,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8313285854687873995}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: upperarm.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2736,7 +2929,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4907617786303838611}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: upperarm.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2768,7 +2961,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3728333188544913056}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: foot.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2802,7 +2995,7 @@ GameObject:
   - component: {fileID: 2045861121162578762}
   - component: {fileID: 3037102778545130028}
   - component: {fileID: 8866738668249663527}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: shield_badge_color
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2890,7 +3083,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1706749036400606867}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2923,7 +3116,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1117387548537619841}
   - component: {fileID: 2354650891657853105}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Knight_HelmetVisor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3041,7 +3234,7 @@ GameObject:
   - component: {fileID: 7532941537072145885}
   - component: {fileID: 3511273222469256478}
   - component: {fileID: 6142245328097047138}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: sword_1handed
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3168,7 +3361,7 @@ GameObject:
   - component: {fileID: 9215935252232325865}
   - component: {fileID: 3686005149924772733}
   - component: {fileID: 4760950020056537592}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: sword_2handed
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3258,7 +3451,7 @@ GameObject:
   - component: {fileID: 1001474962753772398}
   - component: {fileID: 8490757988956116431}
   - component: {fileID: 1111492757814100974}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: sword_1handed
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3346,7 +3539,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2953163484923833555}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Sword_Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3380,7 +3573,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3272057448603652970}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: upperleg.l
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3412,7 +3605,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8468741008938673630}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: spine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3444,7 +3637,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2659268639034489684}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: head
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3475,7 +3668,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9129733864391505306}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: lowerarm.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3507,7 +3700,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1482089853714751612}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: foot.r
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3541,7 +3734,7 @@ GameObject:
   - component: {fileID: 7304339951026379160}
   - component: {fileID: 716454826372822850}
   - component: {fileID: 5443069737517004838}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: sword_2handed_color
   m_TagString: Untagged
   m_Icon: {fileID: 0}

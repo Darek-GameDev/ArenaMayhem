@@ -1,5 +1,4 @@
 using Fusion;
-using System.Collections.Generic;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -22,14 +21,11 @@ public class LobbyRoleSlotSync : MonoBehaviour
     [SerializeField] private SlotView player5 = new SlotView();
     [SerializeField] private SlotView player6 = new SlotView();
     [SerializeField] private bool autoFindBySlotNames = true;
-    [SerializeField] private bool fallbackToContainerChildOrder = true;
     [SerializeField] private bool cloneMissingRoleImagesFromSlot1 = true;
     [SerializeField] private bool hideUnusedSlots = true;
 
     [Header("Fallback")]
     [SerializeField] private SharedPlayerClassType fallbackClass = SharedPlayerClassType.Unknown;
-
-    private readonly Dictionary<int, SharedPlayerClassType> cachedClassByPlayerId = new Dictionary<int, SharedPlayerClassType>();
 
     private void Awake()
     {
@@ -69,28 +65,9 @@ public class LobbyRoleSlotSync : MonoBehaviour
 
             SlotView slot = slots[i];
 
-            if (slot.slotRoot == null)
-            {
-                if (slot.knightImage != null)
-                {
-                    Transform parent = slot.knightImage.transform.parent;
-                    slot.slotRoot = parent != null ? parent.gameObject : slot.knightImage;
-                }
-                else if (slot.archerImage != null)
-                {
-                    Transform parent = slot.archerImage.transform.parent;
-                    slot.slotRoot = parent != null ? parent.gameObject : slot.archerImage;
-                }
-            }
-
             if (slot.slotRoot == null && autoFindBySlotNames)
             {
                 slot.slotRoot = FindSlotRoot(i);
-            }
-
-            if (slot.slotRoot == null && fallbackToContainerChildOrder)
-            {
-                slot.slotRoot = FindSlotRootByIndex(i);
             }
 
             if (slot.slotRoot == null)
@@ -121,13 +98,11 @@ public class LobbyRoleSlotSync : MonoBehaviour
         SharedRoomSessionManager sessionManager = SharedRoomSessionManager.Instance;
         if (sessionManager == null || !sessionManager.HasActiveSession)
         {
-            cachedClassByPlayerId.Clear();
             ApplyOfflineVisualState();
             return;
         }
 
         var players = sessionManager.GetPlayersOrderedById();
-        PruneClassCache(players);
 
         for (int i = 0; i < slots.Length; i++)
         {
@@ -146,78 +121,14 @@ public class LobbyRoleSlotSync : MonoBehaviour
                 continue;
             }
 
-            SharedPlayerClassType classType = ResolvePlayerClass(sessionManager, players[i]);
-            SetRoleVisible(slot, classType);
-        }
-    }
-
-    private SharedPlayerClassType ResolvePlayerClass(SharedRoomSessionManager sessionManager, PlayerRef player)
-    {
-        if (sessionManager != null && sessionManager.Runner != null && SharedRoomSessionManager.TryGetPlayerClass(sessionManager.Runner, player, out SharedPlayerClassType networkClass) && networkClass != SharedPlayerClassType.Unknown)
-        {
-            cachedClassByPlayerId[player.RawEncoded] = networkClass;
-            return networkClass;
-        }
-
-        SharedPlayerClassType directClass = sessionManager.GetPlayerClass(player, SharedPlayerClassType.Unknown);
-        if (directClass != SharedPlayerClassType.Unknown)
-        {
-            cachedClassByPlayerId[player.RawEncoded] = directClass;
-            return directClass;
-        }
-
-        if (sessionManager != null && sessionManager.Runner != null && sessionManager.Runner.LocalPlayer == player)
-        {
-            SharedPlayerClassType localClass = SharedPlayerClassTypeUtility.FromClassName(ClassChoose.LastConfirmedClassName);
-            if (localClass != SharedPlayerClassType.Unknown)
+            SharedPlayerClassType classType = sessionManager.GetPlayerClass(players[i], SharedPlayerClassType.Unknown);
+            if (classType == SharedPlayerClassType.Unknown)
             {
-                cachedClassByPlayerId[player.RawEncoded] = localClass;
-                return localClass;
-            }
-
-            return SharedPlayerClassType.Unknown;
-        }
-
-        return SharedPlayerClassType.Unknown;
-    }
-
-    private void PruneClassCache(IReadOnlyList<PlayerRef> activePlayers)
-    {
-        if (cachedClassByPlayerId.Count == 0)
-        {
-            return;
-        }
-
-        HashSet<int> activeIds = new HashSet<int>();
-        for (int i = 0; i < activePlayers.Count; i++)
-        {
-            activeIds.Add(activePlayers[i].RawEncoded);
-        }
-
-        List<int> toRemove = null;
-        foreach (KeyValuePair<int, SharedPlayerClassType> pair in cachedClassByPlayerId)
-        {
-            if (activeIds.Contains(pair.Key))
-            {
+                SetRoleVisible(slot, SharedPlayerClassType.Unknown);
                 continue;
             }
 
-            if (toRemove == null)
-            {
-                toRemove = new List<int>();
-            }
-
-            toRemove.Add(pair.Key);
-        }
-
-        if (toRemove == null)
-        {
-            return;
-        }
-
-        for (int i = 0; i < toRemove.Count; i++)
-        {
-            cachedClassByPlayerId.Remove(toRemove[i]);
+            SetRoleVisible(slot, classType);
         }
     }
 
@@ -342,17 +253,6 @@ public class LobbyRoleSlotSync : MonoBehaviour
         }
 
         return null;
-    }
-
-    private GameObject FindSlotRootByIndex(int slotIndex)
-    {
-        if (slotsContainer == null || slotIndex < 0 || slotIndex >= slotsContainer.childCount)
-        {
-            return null;
-        }
-
-        Transform child = slotsContainer.GetChild(slotIndex);
-        return child != null ? child.gameObject : null;
     }
 
     private static GameObject FindChildByKeyword(Transform root, string keyword)
