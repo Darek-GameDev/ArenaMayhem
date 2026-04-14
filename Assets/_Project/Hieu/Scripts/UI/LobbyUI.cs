@@ -35,7 +35,7 @@ public class LobbyUI : MonoBehaviour
 	[SerializeField] private TMP_Text playerCountText;
 	[SerializeField] private PlayerAvatarSlot[] playerAvatarSlots;
 	[SerializeField] private int maxPlayers = 4;
-	[SerializeField] private int currentPlayerCount = 1;
+	[SerializeField] private int currentPlayerCount = 0;
 	[SerializeField] private bool isRoomOwner = true;
 	[SerializeField] private Color waitingColor = Color.white;
 	[SerializeField] private Color fullColor = Color.red;
@@ -55,22 +55,16 @@ public class LobbyUI : MonoBehaviour
 
 	private void Awake()
 	{
-		Debug.Log($"LobbyUI.Awake() - playerAvatarSlots array length: {(playerAvatarSlots != null ? playerAvatarSlots.Length : 0)}");
-		
 		// Auto-discover playerAvatarSlots if not manually assigned
 		if (playerAvatarSlots == null || playerAvatarSlots.Length == 0)
 		{
-			Debug.LogWarning("LobbyUI: playerAvatarSlots not assigned in Inspector, attempting auto-discovery...");
 			AutoDiscoverPlayerSlots();
 		}
 		
 		// Always resolve slot avatar references first, regardless of enableLegacyAvatarSync
 		ResolveSlotAvatarReferences();
-		
-		if (enableLegacyAvatarSync)
-		{
-			Debug.Log("LobbyUI: enableLegacyAvatarSync is ON");
-		}
+
+		SyncLobbyFromSession();
 		RefreshLobbyUI();
 	}
 
@@ -89,19 +83,15 @@ public class LobbyUI : MonoBehaviour
 
 	private void OnEnable()
 	{
-		if (enableLegacyAvatarSync)
-		{
-			ResolveSlotAvatarReferences();
-		}
+		ResolveSlotAvatarReferences();
+		currentPlayerCount = 0;
+		SyncLobbyFromSession();
 		RefreshLobbyUI();
 	}
 
 	private void Update()
 	{
-		if (enableLegacyAvatarSync)
-		{
-			SyncLobbyFromSession();
-		}
+		SyncLobbyFromSession();
 		RefreshButtonVisibility();
 	}
 
@@ -150,7 +140,7 @@ public class LobbyUI : MonoBehaviour
 
 	public void ResetLobbyUI()
 	{
-		currentPlayerCount = 1;
+		currentPlayerCount = 0;
 		isRoomOwner = true;
 
 		if (playerAvatarSlots != null)
@@ -182,31 +172,25 @@ public class LobbyUI : MonoBehaviour
 	public void SetLocalPlayerClass(string className)
 	{
 		// Update first slot display immediately when class is chosen.
-		Debug.Log($"LobbyUI.SetLocalPlayerClass() called with className='{className}'");
-
 		if (playerAvatarSlots == null || playerAvatarSlots.Length == 0)
 		{
-			Debug.LogError("LobbyUI: playerAvatarSlots is NULL or empty!");
 			return;
 		}
 
 		PlayerAvatarSlot firstSlot = playerAvatarSlots[0];
 		if (firstSlot == null)
 		{
-			Debug.LogError("LobbyUI: firstSlot is NULL!");
 			return;
 		}
 
 		// Ensure text components are resolved before setting display text
 		if (firstSlot.playerNameTmpText == null || firstSlot.classNameTmpText == null)
 		{
-			Debug.Log("LobbyUI: Text components not resolved yet, calling ResolveSlotAvatarReferences()");
 			ResolveSlotAvatarReferences();
 		}
 
 		string classLabel = GetClassLabel(GetAvatarKind(className));
 		string playerName = PlayerPrefs.GetString("PLAYER_DISPLAY_NAME", "Player 1");
-		Debug.Log($"LobbyUI: About to call SetSlotDisplayText with playerName='{playerName}', classLabel='{classLabel}'");
 		
 		SetSlotDisplayText(firstSlot, playerName, classLabel);
 
@@ -265,9 +249,12 @@ public class LobbyUI : MonoBehaviour
 		int resolvedMaxPlayers = GetMaxPlayers();
 		int displayedPlayerCount = Mathf.Clamp(currentPlayerCount, 0, resolvedMaxPlayers);
 
-		if (enableLegacyAvatarSync && playerAvatarSlots != null)
+		if (playerAvatarSlots != null)
 		{
-			ApplyDefaultLocalSlotIfNeeded();
+			if (enableLegacyAvatarSync)
+			{
+				ApplyDefaultLocalSlotIfNeeded();
+			}
 
 			for (int i = 0; i < playerAvatarSlots.Length; i++)
 			{
@@ -282,7 +269,7 @@ public class LobbyUI : MonoBehaviour
 				bool occupied = i < displayedPlayerCount;
 				SetSlotVisible(slot, occupied);
 
-				if (occupied)
+				if (occupied && enableLegacyAvatarSync)
 				{
 					ApplyAvatarKindToSlot(slot, slot.avatarKind);
 				}
@@ -315,18 +302,14 @@ public class LobbyUI : MonoBehaviour
 	{
 		if (playerAvatarSlots == null)
 		{
-			Debug.LogError("LobbyUI: playerAvatarSlots is NULL!");
 			return;
 		}
-
-		Debug.Log($"LobbyUI: Resolving {playerAvatarSlots.Length} slots...");
 
 		for (int i = 0; i < playerAvatarSlots.Length; i++)
 		{
 			PlayerAvatarSlot slot = playerAvatarSlots[i];
 			if (slot == null)
 			{
-				Debug.LogWarning($"LobbyUI: Slot {i} is NULL!");
 				continue;
 			}
 
@@ -344,34 +327,17 @@ public class LobbyUI : MonoBehaviour
 
 			if (slot.slotRoot == null)
 			{
-				Debug.LogWarning($"LobbyUI: Slot {i} has no slotRoot!");
 				continue;
 			}
 
 			if (slot.playerNameTmpText == null)
 			{
 				slot.playerNameTmpText = FindTextByKeyword(slot.slotRoot.transform, "Player Name");
-				if (slot.playerNameTmpText != null)
-				{
-					Debug.Log($"LobbyUI: Found playerNameTmpText for slot {i}: {slot.playerNameTmpText.name}");
-				}
-				else
-				{
-					Debug.LogWarning($"LobbyUI: Could not find playerNameTmpText for slot {i}");
-				}
 			}
 
 			if (slot.classNameTmpText == null)
 			{
 				slot.classNameTmpText = FindTextByKeyword(slot.slotRoot.transform, "Class Name");
-				if (slot.classNameTmpText != null)
-				{
-					Debug.Log($"LobbyUI: Found classNameTmpText for slot {i}: {slot.classNameTmpText.name}");
-				}
-				else
-				{
-					Debug.LogWarning($"LobbyUI: Could not find classNameTmpText for slot {i}");
-				}
 			}
 		}
 	}
@@ -396,12 +362,9 @@ public class LobbyUI : MonoBehaviour
 
 		if (slotRoots.Count == 0)
 		{
-			Debug.LogWarning("LobbyUI: Could not auto-discover any player slots!");
 			playerAvatarSlots = new PlayerAvatarSlot[0];
 			return;
 		}
-
-		Debug.Log($"LobbyUI: Auto-discovered {slotRoots.Count} player slots");
 
 		// Create PlayerAvatarSlot instances for each discovered slot
 		playerAvatarSlots = new PlayerAvatarSlot[slotRoots.Count];
@@ -409,7 +372,6 @@ public class LobbyUI : MonoBehaviour
 		{
 			playerAvatarSlots[i] = new PlayerAvatarSlot();
 			playerAvatarSlots[i].slotRoot = slotRoots[i];
-			Debug.Log($"  Slot {i}: {slotRoots[i].name}");
 		}
 	}
 
@@ -476,16 +438,7 @@ public class LobbyUI : MonoBehaviour
 			AvatarKind resolvedAvatar = ToAvatarKind(classType);
 			string className = GetClassLabel(resolvedAvatar);
 
-			// Local player gets name from PlayerPrefs; remote players get generic names.
-			string playerName;
-			if (sessionManager.Runner != null && sessionManager.Runner.LocalPlayer == player)
-			{
-				playerName = PlayerPrefs.GetString("PLAYER_DISPLAY_NAME", $"Player {i + 1}");
-			}
-			else
-			{
-				playerName = $"Player {i + 1}";
-			}
+			string playerName = sessionManager.GetPlayerName(player, $"Player {i + 1}");
 
 			SetSlotDisplayText(slot, playerName, className);
 			if (resolvedAvatar != AvatarKind.None)
@@ -525,27 +478,23 @@ public class LobbyUI : MonoBehaviour
 	{
 		if (!autoApplyFirstSlotFromClassChoose || playerAvatarSlots == null || playerAvatarSlots.Length == 0)
 		{
-			Debug.Log($"LobbyUI: ApplyDefaultLocalSlotIfNeeded - skipped (autoApply={autoApplyFirstSlotFromClassChoose}, slots={playerAvatarSlots?.Length ?? 0})");
 			return;
 		}
 
 		PlayerAvatarSlot firstSlot = playerAvatarSlots[0];
 		if (firstSlot == null)
 		{
-			Debug.LogWarning("LobbyUI: ApplyDefaultLocalSlotIfNeeded - firstSlot is NULL");
 			return;
 		}
 
 		if (firstSlot.avatarKind != AvatarKind.None)
 		{
-			Debug.Log($"LobbyUI: ApplyDefaultLocalSlotIfNeeded - skipped (avatarKind already set to {firstSlot.avatarKind})");
 			return;
 		}
 
 		// Ensure text components are resolved
 		if (firstSlot.playerNameTmpText == null || firstSlot.classNameTmpText == null)
 		{
-			Debug.Log("LobbyUI: Text components not resolved yet, calling ResolveSlotAvatarReferences()");
 			ResolveSlotAvatarReferences();
 		}
 
@@ -555,12 +504,9 @@ public class LobbyUI : MonoBehaviour
 			firstSlot.avatarKind = GetAvatarKind(defaultClassName);
 		}
 
-		Debug.Log($"LobbyUI: ApplyDefaultLocalSlotIfNeeded - setting avatarKind to {firstSlot.avatarKind}");
-
 		// Load local player name from PlayerPrefs.
 		string localPlayerName = PlayerPrefs.GetString("PLAYER_DISPLAY_NAME", "Player 1");
-		Debug.Log($"LobbyUI: ApplyDefaultLocalSlotIfNeeded - localPlayerName from PlayerPrefs = '{localPlayerName}'");
-		
+
 		SetSlotDisplayText(firstSlot, localPlayerName, GetClassLabel(firstSlot.avatarKind));
 	}
 
@@ -581,6 +527,18 @@ public class LobbyUI : MonoBehaviour
 			return;
 		}
 
+		if (slot.slotRoot == null)
+		{
+			if (slot.playerNameTmpText != null)
+			{
+				slot.slotRoot = slot.playerNameTmpText.transform.parent != null ? slot.playerNameTmpText.transform.parent.gameObject : slot.playerNameTmpText.gameObject;
+			}
+			else if (slot.classNameTmpText != null)
+			{
+				slot.slotRoot = slot.classNameTmpText.transform.parent != null ? slot.classNameTmpText.transform.parent.gameObject : slot.classNameTmpText.gameObject;
+			}
+		}
+
 		if (slot.slotRoot != null)
 		{
 			slot.slotRoot.SetActive(visible);
@@ -596,35 +554,20 @@ public class LobbyUI : MonoBehaviour
 	{
 		if (slot == null)
 		{
-			Debug.LogWarning("LobbyUI: SetSlotDisplayText called with NULL slot!");
 			return;
 		}
 
 		string safePlayerName = string.IsNullOrWhiteSpace(playerName) ? emptyPlayerName : playerName.Trim();
 		string safeClassName = string.IsNullOrWhiteSpace(className) ? emptyClassName : className.Trim();
 
-		Debug.Log($"LobbyUI: SetSlotDisplayText - playerName='{safePlayerName}', className='{safeClassName}'");
-		Debug.Log($"  playerNameTmpText: {(slot.playerNameTmpText != null ? slot.playerNameTmpText.name : "NULL")}");
-		Debug.Log($"  classNameTmpText: {(slot.classNameTmpText != null ? slot.classNameTmpText.name : "NULL")}");
-
 		if (slot.playerNameTmpText != null)
 		{
 			slot.playerNameTmpText.text = safePlayerName;
-			Debug.Log($"  ✓ Set playerNameTmpText.text = '{safePlayerName}'");
-		}
-		else
-		{
-			Debug.LogWarning("  ✗ playerNameTmpText is NULL!");
 		}
 
 		if (slot.classNameTmpText != null)
 		{
 			slot.classNameTmpText.text = safeClassName;
-			Debug.Log($"  ✓ Set classNameTmpText.text = '{safeClassName}'");
-		}
-		else
-		{
-			Debug.LogWarning("  ✗ classNameTmpText is NULL!");
 		}
 	}
 

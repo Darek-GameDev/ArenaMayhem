@@ -43,8 +43,11 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
     private bool hasPendingLocalClass;
     private bool pendingLocalReady;
     private bool hasPendingLocalReady;
+    private string pendingLocalPlayerName;
+    private bool hasPendingLocalPlayerName;
     private int lastPublishedLocalSlotIndex = -1;
     private int lastPublishedLocalState = int.MinValue;
+    private string lastPublishedLocalProfilePayload = string.Empty;
     private bool isForceCloseHandling;
 
     public NetworkRunner Runner => runner;
@@ -183,12 +186,14 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public bool SetLocalPlayerName(string playerName)
     {
-        // Store player name in PlayerPrefs instead of session property to save bandwidth.
         string normalized = NormalizePlayerName(playerName);
         if (string.IsNullOrWhiteSpace(normalized))
         {
             return false;
         }
+
+        pendingLocalPlayerName = normalized;
+        hasPendingLocalPlayerName = true;
 
         PlayerPrefs.SetString("PLAYER_DISPLAY_NAME", normalized);
         PlayerPrefs.Save();
@@ -197,7 +202,16 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public string GetPlayerName(PlayerRef player, string fallback = "Player")
     {
-        // Return local player name from PlayerPrefs; remote players get generic names.
+        if (runner != null && runner.LocalPlayer == player && hasPendingLocalPlayerName && !string.IsNullOrWhiteSpace(pendingLocalPlayerName))
+        {
+            return pendingLocalPlayerName;
+        }
+
+        if (TryGetSessionProperty(SharedPlayerClassTypeUtility.GetPlayerStatePropertyKey(player), out SessionProperty property) && TryDecodePlayerProfile(property, out _, out string synchronizedName))
+        {
+            return synchronizedName;
+        }
+
         if (runner != null && runner.LocalPlayer == player)
         {
             string localName = PlayerPrefs.GetString("PLAYER_DISPLAY_NAME", string.Empty);
@@ -207,7 +221,6 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             }
         }
 
-        // Return generic name for remote players or if local name not set.
         return fallback;
     }
 
@@ -242,7 +255,11 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             return fallback;
         }
 
-        int encodedState = property;
+        if (!TryDecodePlayerState(property, out int encodedState))
+        {
+            return fallback;
+        }
+
         return SharedPlayerClassTypeUtility.DecodePlayerClass(encodedState, fallback);
     }
 
@@ -258,7 +275,11 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             return runner != null && runner.LocalPlayer == player && hasPendingLocalReady ? pendingLocalReady : false;
         }
 
-        int encodedState = property;
+        if (!TryDecodePlayerState(property, out int encodedState))
+        {
+            return false;
+        }
+
         return SharedPlayerClassTypeUtility.DecodePlayerReady(encodedState);
     }
 
@@ -405,18 +426,17 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             return false;
         }
 
-        if (!TryGetPlayerSlotIndex(sourceRunner, player, out int slotIndex))
+        string playerKey = SharedPlayerClassTypeUtility.GetPlayerStatePropertyKey(player);
+        if (!properties.TryGetValue(playerKey, out SessionProperty property))
         {
             return false;
         }
 
-        string slotKey = GetPlayerStateSlotPropertyKey(slotIndex);
-        if (!properties.TryGetValue(slotKey, out SessionProperty property))
+        if (!TryDecodePlayerState(property, out int encodedState))
         {
             return false;
         }
 
-        int encodedState = property;
         classType = SharedPlayerClassTypeUtility.DecodePlayerClass(encodedState, SharedPlayerClassType.Unknown);
         return classType != SharedPlayerClassType.Unknown;
     }
@@ -501,6 +521,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
             lastPublishedLocalSlotIndex = -1;
             lastPublishedLocalState = int.MinValue;
+            lastPublishedLocalProfilePayload = string.Empty;
 
             ApplyPendingLocalState();
             EnsureOwnerProperty();
@@ -545,6 +566,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         currentRoomId = null;
         lastPublishedLocalSlotIndex = -1;
         lastPublishedLocalState = int.MinValue;
+        lastPublishedLocalProfilePayload = string.Empty;
     }
 
     private void ResolveRunner()
@@ -594,8 +616,20 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             ? pendingLocalReady
             : IsPlayerReady(runner.LocalPlayer);
 
+        string nameToStore = hasPendingLocalPlayerName
+            ? pendingLocalPlayerName
+            : PlayerPrefs.GetString("PLAYER_DISPLAY_NAME", string.Empty);
+        nameToStore = NormalizePlayerName(nameToStore);
+
         int encodedState = SharedPlayerClassTypeUtility.EncodePlayerState(classToStore, readyToStore);
-        bool shouldRepublish = hasPendingLocalClass || hasPendingLocalReady || encodedState != lastPublishedLocalState;
+        string profilePayload = BuildPlayerProfilePayload(encodedState, nameToStore);
+
+        bool shouldRepublish = hasPendingLocalClass
+            || hasPendingLocalReady
+            || hasPendingLocalPlayerName
+            || encodedState != lastPublishedLocalState
+            || !string.Equals(profilePayload, lastPublishedLocalProfilePayload, StringComparison.Ordinal);
+
         if (!shouldRepublish)
         {
             return;
@@ -603,7 +637,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
         Dictionary<string, SessionProperty> updates = null;
         updates ??= new Dictionary<string, SessionProperty>();
-        updates[SharedPlayerClassTypeUtility.GetPlayerStatePropertyKey(runner.LocalPlayer)] = encodedState;
+        updates[SharedPlayerClassTypeUtility.GetPlayerStatePropertyKey(runner.LocalPlayer)] = profilePayload;
 
         if (updates == null || updates.Count == 0)
         {
@@ -614,7 +648,9 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         {
             hasPendingLocalClass = false;
             hasPendingLocalReady = false;
+            hasPendingLocalPlayerName = false;
             lastPublishedLocalState = encodedState;
+            lastPublishedLocalProfilePayload = profilePayload;
         }
     }
 
@@ -754,6 +790,56 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
     private static string GetPlayerStateSlotPropertyKey(int slotIndex)
     {
         return $"{PlayerStateSlotKeyPrefix}{slotIndex}";
+    }
+
+    private static string BuildPlayerProfilePayload(int encodedState, string playerName)
+    {
+        string safeName = string.IsNullOrWhiteSpace(playerName) ? string.Empty : playerName.Trim().Replace("|", "/");
+        return $"{encodedState}|{safeName}";
+    }
+
+    private static bool TryDecodePlayerProfile(SessionProperty property, out int encodedState, out string playerName)
+    {
+        encodedState = SharedPlayerClassTypeUtility.EncodePlayerState(SharedPlayerClassType.Unknown, false);
+        playerName = string.Empty;
+
+        if (property.IsString)
+        {
+            string payload = property;
+            if (string.IsNullOrWhiteSpace(payload))
+            {
+                return false;
+            }
+
+            int separatorIndex = payload.IndexOf('|');
+            if (separatorIndex <= 0)
+            {
+                return false;
+            }
+
+            string encodedPart = payload.Substring(0, separatorIndex);
+            if (!int.TryParse(encodedPart, out encodedState))
+            {
+                return false;
+            }
+
+            playerName = NormalizePlayerName(payload.Substring(separatorIndex + 1));
+            return true;
+        }
+
+        if (property.IsInt)
+        {
+            encodedState = property;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryDecodePlayerState(SessionProperty property, out int encodedState)
+    {
+        encodedState = SharedPlayerClassTypeUtility.EncodePlayerState(SharedPlayerClassType.Unknown, false);
+        return TryDecodePlayerProfile(property, out encodedState, out _);
     }
 
     private void EnsureOwnerProperty()
