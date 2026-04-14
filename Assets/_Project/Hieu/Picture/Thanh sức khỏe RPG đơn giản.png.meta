@@ -184,6 +184,50 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: "Thanh s\u1EE9c kh\u1ECFe RPG \u0111\u01A1n gi\u1EA3n_4"
+      rect:
+        serializedVersion: 2
+        x: 305
+        y: 106
+        width: 930
+        height: 82
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e080cd74f38f4a6499118edc294c94ca
+      internalID: -168336018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Thanh s\u1EE9c kh\u1ECFe RPG \u0111\u01A1n gi\u1EA3n_5"
+      rect:
+        serializedVersion: 2
+        x: 93
+        y: 796
+        width: 174
+        height: 183
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 43897abe664dc0f43aa61cafc9b19bd1
+      internalID: -818192839
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -204,6 +248,8 @@ TextureImporter:
       "Thanh s\u1EE9c kh\u1ECFe RPG \u0111\u01A1n gi\u1EA3n_1": 1788455534
       "Thanh s\u1EE9c kh\u1ECFe RPG \u0111\u01A1n gi\u1EA3n_2": 38771593
       "Thanh s\u1EE9c kh\u1ECFe RPG \u0111\u01A1n gi\u1EA3n_3": 1439418120
+      "Thanh s\u1EE9c kh\u1ECFe RPG \u0111\u01A1n gi\u1EA3n_4": -168336018
+      "Thanh s\u1EE9c kh\u1ECFe RPG \u0111\u01A1n gi\u1EA3n_5": -818192839
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

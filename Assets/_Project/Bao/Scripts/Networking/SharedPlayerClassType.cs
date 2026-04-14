@@ -82,6 +82,11 @@ public static class SharedPlayerClassTypeUtility
         return $"state_{player.RawEncoded}";
     }
 
+    public static string GetPlayerNamePropertyKey(PlayerRef player)
+    {
+        return $"name_{player.RawEncoded}";
+    }
+
     public static int EncodePlayerState(SharedPlayerClassType classType, bool isReady)
     {
         int encodedClass = ((int)classType) & 0x3;

@@ -10,6 +10,7 @@ using UnityEngine.SceneManagement;
 public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 {
     public const string OwnerPropertyKey = "owner";
+    public const string ForceCloseRoomPropertyKey = "force_close_room";
     private const string PlayerStateSlotKeyPrefix = "state_";
 
     public static SharedRoomSessionManager Instance { get; private set; }
@@ -44,6 +45,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
     private bool hasPendingLocalReady;
     private int lastPublishedLocalSlotIndex = -1;
     private int lastPublishedLocalState = int.MinValue;
+    private bool isForceCloseHandling;
 
     public NetworkRunner Runner => runner;
     public bool IsBusy => isBusy;
@@ -86,6 +88,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             RegisterCallbacksIfNeeded();
         }
 
+        HandleForceCloseSignal();
         ApplyPendingLocalState();
     }
 
@@ -130,6 +133,30 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         await ShutdownRunnerAsync();
     }
 
+    public async void RemoveRoomAndKickAll()
+    {
+        if (!HasActiveSession)
+        {
+            await ShutdownRunnerAsync();
+            return;
+        }
+
+        if (!IsLocalPlayerOwner())
+        {
+            Debug.LogWarning("SharedRoomSessionManager: chi owner moi duoc Remove Room.");
+            return;
+        }
+
+        var updates = new Dictionary<string, SessionProperty>
+        {
+            [ForceCloseRoomPropertyKey] = 1,
+        };
+
+        TryUpdateSessionProperties(updates);
+        await Task.Yield();
+        await ShutdownRunnerAsync();
+    }
+
     public bool SetLocalClass(SharedPlayerClassType classType)
     {
         if (classType == SharedPlayerClassType.Unknown)
@@ -152,6 +179,36 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         pendingLocalReady = isReady;
         hasPendingLocalReady = true;
         return true;
+    }
+
+    public bool SetLocalPlayerName(string playerName)
+    {
+        // Store player name in PlayerPrefs instead of session property to save bandwidth.
+        string normalized = NormalizePlayerName(playerName);
+        if (string.IsNullOrWhiteSpace(normalized))
+        {
+            return false;
+        }
+
+        PlayerPrefs.SetString("PLAYER_DISPLAY_NAME", normalized);
+        PlayerPrefs.Save();
+        return true;
+    }
+
+    public string GetPlayerName(PlayerRef player, string fallback = "Player")
+    {
+        // Return local player name from PlayerPrefs; remote players get generic names.
+        if (runner != null && runner.LocalPlayer == player)
+        {
+            string localName = PlayerPrefs.GetString("PLAYER_DISPLAY_NAME", string.Empty);
+            if (!string.IsNullOrWhiteSpace(localName))
+            {
+                return localName;
+            }
+        }
+
+        // Return generic name for remote players or if local name not set.
+        return fallback;
     }
 
     public bool IsLocalPlayerReady()
@@ -620,10 +677,13 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     private Dictionary<string, SessionProperty> BuildInitialSessionProperties()
     {
-        int slotCount = Mathf.Clamp(Mathf.Max(MaxPlayersPerRoom, sessionPropertySlotCount), 1, 9);
-        var properties = new Dictionary<string, SessionProperty>(slotCount + 1)
+        // Fusion allows max 10 custom session properties.
+        // We use: owner (1) + force_close (1) + (6 players × 1 property each) = 8
+        const int slotCount = 6;
+        var properties = new Dictionary<string, SessionProperty>(slotCount + 2)
         {
             [OwnerPropertyKey] = 0,
+            [ForceCloseRoomPropertyKey] = 0,
         };
 
         for (int encodedPlayer = 1; encodedPlayer <= slotCount; encodedPlayer++)
@@ -790,6 +850,28 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         return smallest == player;
     }
 
+    private void HandleForceCloseSignal()
+    {
+        if (isForceCloseHandling || !HasActiveSession)
+        {
+            return;
+        }
+
+        if (!TryGetSessionProperty(ForceCloseRoomPropertyKey, out SessionProperty property))
+        {
+            return;
+        }
+
+        int forceClose = property;
+        if (forceClose <= 0)
+        {
+            return;
+        }
+
+        isForceCloseHandling = true;
+        LeaveRoom();
+    }
+
     private static string NormalizeRoomId(string roomId)
     {
         if (string.IsNullOrWhiteSpace(roomId))
@@ -798,6 +880,18 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         }
 
         return roomId.Trim();
+    }
+
+    private static string NormalizePlayerName(string playerName)
+    {
+        if (string.IsNullOrWhiteSpace(playerName))
+        {
+            return string.Empty;
+        }
+
+        string trimmed = playerName.Trim();
+        const int maxLength = 20;
+        return trimmed.Length > maxLength ? trimmed.Substring(0, maxLength) : trimmed;
     }
 
     void INetworkRunnerCallbacks.OnPlayerJoined(NetworkRunner sourceRunner, PlayerRef player)
@@ -865,6 +959,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             return;
         }
 
+        isForceCloseHandling = false;
         connectedPlayers.Clear();
         currentRoomId = null;
     }

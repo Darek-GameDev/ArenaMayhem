@@ -61,19 +61,21 @@ public class ClassChoose : MonoBehaviour
             sessionManager.SetLocalReady(true);
         }
 
-        if (lobbyUI != null)
-        {
-            lobbyUI.SendMessage("SetLocalPlayerClass", confirmedClassName, SendMessageOptions.DontRequireReceiver);
-        }
-
-        if (classChooseUI != null)
-        {
-            classChooseUI.SetActive(false);
-        }
-
+        // Activate lobby UI before calling SetLocalPlayerClass to ensure Coroutine runs.
         if (lobbyUI != null)
         {
             lobbyUI.SetActive(true);
+            LobbyUI lobbyUIScript = lobbyUI.GetComponent<LobbyUI>();
+            if (lobbyUIScript != null)
+            {
+                lobbyUIScript.SetLocalPlayerClass(confirmedClassName);
+            }
+        }
+
+        // Close class choose UI.
+        if (classChooseUI != null)
+        {
+            classChooseUI.SetActive(false);
         }
     }
 
