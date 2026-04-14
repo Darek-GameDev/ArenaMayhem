@@ -40,10 +40,14 @@ public class SharedModePlayerController : NetworkBehaviour
 
     [Header("Combat")]
     [SerializeField] private float blockCooldownSeconds = 0.25f;
+    [SerializeField] private float blockDurationSeconds = 0.5f;
+    [SerializeField] [Range(-1f, 1f)] private float blockFrontDotThreshold = 0.5f;
     [SerializeField] private PlayerWeaponType weaponType = PlayerWeaponType.Sword;
     [SerializeField] private bool bowRequireAimToFire = true;
     [SerializeField] private bool bowAutoExitAimOnShoot = false;
     [SerializeField] private float bowFireCooldownSeconds = 0.35f;
+    [SerializeField] private float bowMoveSpeedMultiplier = 1.2f;
+    [SerializeField] private float bowAimMoveSpeedMultiplier = 0.65f;
     [SerializeField] private BowWeapon bowWeapon;
     [SerializeField] private float bowAimRayDistance = 200f;
     [SerializeField] private LayerMask bowAimLayerMask = ~0;
@@ -62,9 +66,11 @@ public class SharedModePlayerController : NetworkBehaviour
     [Networked] public LocomotionState NetLocomotionState { get; set; }
     [Networked] public CombatState NetCombatState { get; set; }
     [Networked] public float NextBlockAllowedAt { get; set; }
+    [Networked] public float BlockUntil { get; set; }
     [Networked] public float NextBowShotAllowedAt { get; set; }
     [Networked] public NetworkBool IsAiming { get; set; }
     [Networked] public NetworkBool BowRequireAimRelease { get; set; }
+    [Networked] public NetworkBool BlockRequireRelease { get; set; }
 
     private NetworkCharacterController cc;
     private CursorLockController cursorLockController;
@@ -157,9 +163,11 @@ public class SharedModePlayerController : NetworkBehaviour
             NetLocomotionState = LocomotionState.Idle;
             NetCombatState = CombatState.None;
             NextBlockAllowedAt = 0f;
+            BlockUntil = 0f;
             NextBowShotAllowedAt = 0f;
             IsAiming = false;
             BowRequireAimRelease = false;
+            BlockRequireRelease = false;
         }
 
         if (bowWeapon == null)
@@ -233,8 +241,16 @@ public class SharedModePlayerController : NetworkBehaviour
         bool sprintHeld = input.Buttons.IsSet((int)PlayerInputButton.Sprint);
         bool blockHeld = input.Buttons.IsSet((int)PlayerInputButton.Block);
         bool aimHeld = input.Buttons.IsSet((int)PlayerInputButton.Aim);
-
-        cc.maxSpeed = sprintHeld ? runSpeed : walkSpeed;
+        float swordBaseSpeed = sprintHeld ? runSpeed : walkSpeed;
+        if (UsesBow)
+        {
+            float speedMultiplier = aimHeld ? bowAimMoveSpeedMultiplier : bowMoveSpeedMultiplier;
+            cc.maxSpeed = swordBaseSpeed * Mathf.Max(0f, speedMultiplier);
+        }
+        else
+        {
+            cc.maxSpeed = swordBaseSpeed;
+        }
 
         Vector3 worldDirection = GetWorldMoveDirection(input.Move);
         cc.Move(worldDirection);
@@ -253,6 +269,16 @@ public class SharedModePlayerController : NetworkBehaviour
         }
 
         float simTime = (float)Runner.SimulationTime;
+        if (IsBlocking && simTime >= BlockUntil)
+        {
+            IsBlocking = false;
+            BlockRequireRelease = true;
+            NextBlockAllowedAt = simTime + blockCooldownSeconds;
+            if (NetCombatState == CombatState.Blocking || NetCombatState == CombatState.BlockHit)
+            {
+                NetCombatState = CombatState.None;
+            }
+        }
 
         if (UsesBow)
         {
@@ -282,13 +308,25 @@ public class SharedModePlayerController : NetworkBehaviour
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_RequestDamage(int amount)
     {
-        ApplyDamage(amount, default);
+        ApplyDamage(amount, default, default, false);
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_RequestDamageWithOrigin(int amount, Vector3 hitOrigin)
+    {
+        ApplyDamage(amount, default, hitOrigin, true);
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_RequestDamageFromPlayer(int amount, PlayerRef attackerRef)
     {
-        ApplyDamage(amount, attackerRef);
+        ApplyDamage(amount, attackerRef, default, false);
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_RequestDamageFromPlayerWithOrigin(int amount, PlayerRef attackerRef, Vector3 hitOrigin)
+    {
+        ApplyDamage(amount, attackerRef, hitOrigin, true);
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
@@ -308,8 +346,10 @@ public class SharedModePlayerController : NetworkBehaviour
             NetLocomotionState = LocomotionState.Idle;
             NetCombatState = CombatState.None;
             NextBlockAllowedAt = 0f;
+            BlockUntil = 0f;
             NextBowShotAllowedAt = 0f;
             BowRequireAimRelease = false;
+            BlockRequireRelease = false;
         }
     }
 
@@ -327,6 +367,7 @@ public class SharedModePlayerController : NetworkBehaviour
         AttackPressed = false;
         ComboStep = 0;
         BowRequireAimRelease = false;
+        BlockRequireRelease = false;
 
         if (NetCombatState == CombatState.Attacking || NetCombatState == CombatState.BlockHit)
         {
@@ -356,7 +397,7 @@ public class SharedModePlayerController : NetworkBehaviour
         KillCount += amount;
     }
 
-    private void ApplyDamage(int amount, PlayerRef attackerRef)
+    private void ApplyDamage(int amount, PlayerRef attackerRef, Vector3 hitOrigin, bool hasHitOrigin)
     {
         if (amount <= 0 || IsDead)
         {
@@ -368,7 +409,7 @@ public class SharedModePlayerController : NetworkBehaviour
         ComboStep = 0;
         IsAiming = false;
 
-        if (IsBlocking)
+        if (IsBlocking && CanBlockIncomingHit(hitOrigin, hasHitOrigin))
         {
             NetCombatState = CombatState.BlockHit;
             return;
@@ -418,20 +459,25 @@ public class SharedModePlayerController : NetworkBehaviour
         // Drive block from held state to avoid dropped pressed/released transitions.
         if (blockHeld)
         {
-            if (!IsBlocking && simTime >= NextBlockAllowedAt)
+            if (!IsBlocking && !BlockRequireRelease && simTime >= NextBlockAllowedAt)
             {
                 IsBlocking = true;
+                BlockUntil = simTime + blockDurationSeconds;
                 NetCombatState = CombatState.Blocking;
                 ComboStep = 0;
             }
         }
-        else if (IsBlocking)
+        else
         {
-            IsBlocking = false;
-            NextBlockAllowedAt = simTime + blockCooldownSeconds;
-            if (NetCombatState == CombatState.Blocking || NetCombatState == CombatState.BlockHit)
+            BlockRequireRelease = false;
+            if (IsBlocking)
             {
-                NetCombatState = CombatState.None;
+                IsBlocking = false;
+                NextBlockAllowedAt = simTime + blockCooldownSeconds;
+                if (NetCombatState == CombatState.Blocking || NetCombatState == CombatState.BlockHit)
+                {
+                    NetCombatState = CombatState.None;
+                }
             }
         }
 
@@ -644,5 +690,27 @@ public class SharedModePlayerController : NetworkBehaviour
         }
 
         healthBar.ConfigureForPlayer(this, hideLocalInputAuthority: true);
+    }
+
+    private bool CanBlockIncomingHit(Vector3 hitOrigin, bool hasHitOrigin)
+    {
+        if (!hasHitOrigin)
+        {
+            return true;
+        }
+
+        Vector3 toHitOrigin = hitOrigin - transform.position;
+        toHitOrigin.y = 0f;
+        if (toHitOrigin.sqrMagnitude <= 0.0001f)
+        {
+            return true;
+        }
+
+        Vector3 defenderForward = transform.forward;
+        defenderForward.y = 0f;
+        defenderForward.Normalize();
+
+        float dot = Vector3.Dot(defenderForward, toHitOrigin.normalized);
+        return dot >= blockFrontDotThreshold;
     }
 }

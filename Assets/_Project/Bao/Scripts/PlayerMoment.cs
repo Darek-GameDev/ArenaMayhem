@@ -6,6 +6,8 @@ public class PlayerMoment : MonoBehaviour
 {
     [SerializeField] private float walkSpeed = 2f;
     [SerializeField] private float runSpeed = 5f;
+    [SerializeField] private float bowMoveSpeedMultiplier = 1.2f;
+    [SerializeField] private float bowAimMoveSpeedMultiplier = 0.65f;
     [SerializeField] private float rotationSpeed = 10f;
     [SerializeField] private float jumpHeight = 1.5f;
     [SerializeField] private float jumpCooldown = 0.25f;
@@ -107,12 +109,18 @@ public class PlayerMoment : MonoBehaviour
         Vector3 move = forward * movementInput.y + right * movementInput.x;
 
         float maxSpeed = isRunning ? runSpeed : walkSpeed;
+        bool aiming = IsAiming();
+        if (playerAttack != null && playerAttack.UsesBow)
+        {
+            float speedMultiplier = aiming ? bowAimMoveSpeedMultiplier : bowMoveSpeedMultiplier;
+            maxSpeed *= Mathf.Max(0f, speedMultiplier);
+        }
+
         float targetSpeed = movementInput.magnitude > 0.1f ? maxSpeed : 0f;
         animator.SetFloat("Speed", targetSpeed, speedBlendDampTime, Time.deltaTime);
         Vector3 finalMove = Vector3.zero;
 
         Vector3 aimForward = GetAimForward();
-        bool aiming = IsAiming();
 
         if (move.magnitude > 0.1f)
         {

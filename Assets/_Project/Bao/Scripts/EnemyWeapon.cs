@@ -116,11 +116,13 @@ public class EnemyWeapon : MonoBehaviour
 
         if (networkTarget != null)
         {
-            networkTarget.RPC_RequestDamage(damage);
+            Vector3 hitOrigin = ownerRoot != null ? ownerRoot.position : transform.position;
+            networkTarget.RPC_RequestDamageWithOrigin(damage, hitOrigin);
         }
         else
         {
-            targetHealth.TakeDamage(damage);
+            Vector3 hitOrigin = ownerRoot != null ? ownerRoot.position : transform.position;
+            targetHealth.TakeDamageFromOrigin(damage, hitOrigin);
         }
 
         if (logHits)

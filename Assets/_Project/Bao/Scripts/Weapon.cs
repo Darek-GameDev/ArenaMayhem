@@ -136,6 +136,7 @@ public class Weapon : MonoBehaviour
         SharedModePlayerController ownerController = ownerRoot != null
             ? ownerRoot.GetComponentInParent<SharedModePlayerController>()
             : null;
+        Vector3 hitOrigin = ownerRoot != null ? ownerRoot.position : transform.position;
         PlayerRef attackerRef = default;
         if (ownerController != null && ownerController.Object != null && ownerController.Object.IsValid)
         {
@@ -146,11 +147,11 @@ public class Weapon : MonoBehaviour
         {
             if (attackerRef.IsRealPlayer)
             {
-                networkTarget.RPC_RequestDamageFromPlayer(damage, attackerRef);
+                networkTarget.RPC_RequestDamageFromPlayerWithOrigin(damage, attackerRef, hitOrigin);
             }
             else
             {
-                networkTarget.RPC_RequestDamage(damage);
+                networkTarget.RPC_RequestDamageWithOrigin(damage, hitOrigin);
             }
         }
         else if (enemyTarget != null)
@@ -166,7 +167,7 @@ public class Weapon : MonoBehaviour
         }
         else
         {
-            targetHealth.TakeDamage(damage);
+            targetHealth.TakeDamageFromOrigin(damage, hitOrigin);
         }
 
         if (logHits)

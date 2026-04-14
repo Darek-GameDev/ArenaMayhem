@@ -96,13 +96,14 @@ public class BowProjectile : MonoBehaviour
                 {
                     if (networkTarget != null)
                     {
+                        Vector3 hitOrigin = transform.position;
                         if (attackerRef.IsRealPlayer)
                         {
-                            networkTarget.RPC_RequestDamageFromPlayer(damage, attackerRef);
+                            networkTarget.RPC_RequestDamageFromPlayerWithOrigin(damage, attackerRef, hitOrigin);
                         }
                         else
                         {
-                            networkTarget.RPC_RequestDamage(damage);
+                            networkTarget.RPC_RequestDamageWithOrigin(damage, hitOrigin);
                         }
                     }
                     else if (enemyTarget != null)
@@ -118,7 +119,7 @@ public class BowProjectile : MonoBehaviour
                     }
                     else
                     {
-                        targetHealth.TakeDamage(damage);
+                        targetHealth.TakeDamageFromOrigin(damage, transform.position);
                     }
 
                     if (logHit)

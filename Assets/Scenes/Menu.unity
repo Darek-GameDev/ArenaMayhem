@@ -6587,9 +6587,10 @@ MonoBehaviour:
     knightImage: {fileID: 342744844}
     archerImage: {fileID: 1498119758}
   autoFindBySlotNames: 1
+  fallbackToContainerChildOrder: 1
   cloneMissingRoleImagesFromSlot1: 1
   hideUnusedSlots: 1
-  fallbackClass: 1
+  fallbackClass: 0
 --- !u!1 &1696668763
 GameObject:
   m_ObjectHideFlags: 0

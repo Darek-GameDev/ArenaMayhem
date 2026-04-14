@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class ClassChoose : MonoBehaviour
 {
@@ -25,6 +26,8 @@ public class ClassChoose : MonoBehaviour
 
     void Start()
     {
+        ResolveUiReferences();
+
         UpdateClassLabel(defaultClassName);
         RefreshAcceptState();
 
@@ -71,9 +74,17 @@ public class ClassChoose : MonoBehaviour
             classChooseUI.SetActive(false);
         }
 
+        ResolveUiReferences();
+
         if (lobbyUI != null)
         {
             lobbyUI.SetActive(true);
+            lobbyUI.SendMessage("RefreshLobbyUI", SendMessageOptions.DontRequireReceiver);
+            lobbyUI.SendMessage("SetPlayerCount", 1, SendMessageOptions.DontRequireReceiver);
+        }
+        else
+        {
+            Debug.LogWarning("ClassChoose: khong tim thay LobbyUI de hien thi sau khi Accept.");
         }
     }
 
@@ -93,6 +104,7 @@ public class ClassChoose : MonoBehaviour
     {
         pendingClassName = null;
         confirmedClassName = null;
+        LastConfirmedClassName = null;
         UpdateClassLabel(defaultClassName);
         RefreshAcceptState();
     }
@@ -123,6 +135,45 @@ public class ClassChoose : MonoBehaviour
         if (classNameText != null)
         {
             classNameText.text = className;
+        }
+    }
+
+    private void ResolveUiReferences()
+    {
+        if (classChooseUI == null)
+        {
+            classChooseUI = gameObject;
+        }
+
+        if (lobbyUI != null)
+        {
+            return;
+        }
+
+        LobbyUI[] lobbyCandidates = Resources.FindObjectsOfTypeAll<LobbyUI>();
+        Scene currentScene = gameObject.scene;
+
+        for (int i = 0; i < lobbyCandidates.Length; i++)
+        {
+            LobbyUI candidate = lobbyCandidates[i];
+            if (candidate == null)
+            {
+                continue;
+            }
+
+            GameObject candidateObject = candidate.gameObject;
+            if (candidateObject == null)
+            {
+                continue;
+            }
+
+            if (!candidateObject.scene.IsValid() || candidateObject.scene != currentScene)
+            {
+                continue;
+            }
+
+            lobbyUI = candidateObject;
+            return;
         }
     }
 }

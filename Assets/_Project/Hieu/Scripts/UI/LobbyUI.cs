@@ -87,10 +87,7 @@ public class LobbyUI : MonoBehaviour
 
 	private void Update()
 	{
-		if (enableLegacyAvatarSync)
-		{
-			SyncLobbyFromSession();
-		}
+		SyncLobbyFromSession();
 		RefreshButtonVisibility();
 	}
 
@@ -387,25 +384,42 @@ public class LobbyUI : MonoBehaviour
 			isRoomOwner = sessionManager.IsRoomOwner(sessionManager.Runner.LocalPlayer);
 		}
 
-		for (int i = 0; i < playerAvatarSlots.Length; i++)
+		if (enableLegacyAvatarSync && playerAvatarSlots != null)
 		{
-			PlayerAvatarSlot slot = playerAvatarSlots[i];
-			if (slot == null)
+			for (int i = 0; i < playerAvatarSlots.Length; i++)
 			{
-				continue;
-			}
+				PlayerAvatarSlot slot = playerAvatarSlots[i];
+				if (slot == null)
+				{
+					continue;
+				}
 
-			if (i >= players.Count)
-			{
-				slot.avatarKind = AvatarKind.None;
-				continue;
-			}
+				if (i >= players.Count)
+				{
+					slot.avatarKind = AvatarKind.None;
+					continue;
+				}
 
-			SharedPlayerClassType classType = sessionManager.GetPlayerClass(players[i], SharedPlayerClassType.Unknown);
-			AvatarKind resolvedAvatar = ToAvatarKind(classType);
-			if (resolvedAvatar != AvatarKind.None)
-			{
-				slot.avatarKind = resolvedAvatar;
+				SharedPlayerClassType classType = SharedPlayerClassType.Unknown;
+				if (sessionManager.Runner != null)
+				{
+					SharedRoomSessionManager.TryGetPlayerClass(sessionManager.Runner, players[i], out classType);
+				}
+
+				if (classType == SharedPlayerClassType.Unknown)
+				{
+					classType = sessionManager.GetPlayerClass(players[i], SharedPlayerClassType.Unknown);
+				}
+
+				AvatarKind resolvedAvatar = ToAvatarKind(classType);
+				if (resolvedAvatar != AvatarKind.None)
+				{
+					slot.avatarKind = resolvedAvatar;
+				}
+				else
+				{
+					slot.avatarKind = AvatarKind.None;
+				}
 			}
 		}
 

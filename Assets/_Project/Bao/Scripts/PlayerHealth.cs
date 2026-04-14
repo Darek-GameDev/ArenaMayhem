@@ -5,9 +5,11 @@ public class PlayerHealth : MonoBehaviour
 {
     [SerializeField] private int maxHealth = 10;
     [SerializeField] private bool logDamage = true;
+    [SerializeField] [Range(-1f, 1f)] private float blockFrontDotThreshold = 0.5f;
     [SerializeField] private PlayerAttack playerAttack;
     private int currentHealth;
     private SharedModePlayerController sharedModeController;
+    private bool lastHitWasBlocked;
 
     public int CurrentHealth => sharedModeController != null ? sharedModeController.Health : currentHealth;
     public int MaxHealth => sharedModeController != null ? sharedModeController.MaxHealth : maxHealth;
@@ -31,9 +33,27 @@ public class PlayerHealth : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
+        TakeDamageInternal(amount, default, false);
+    }
+
+    public void TakeDamageFromOrigin(int amount, Vector3 hitOrigin)
+    {
+        TakeDamageInternal(amount, hitOrigin, true);
+    }
+
+    private void TakeDamageInternal(int amount, Vector3 hitOrigin, bool hasHitOrigin)
+    {
         if (sharedModeController != null)
         {
-            sharedModeController.RPC_RequestDamage(amount);
+            if (hasHitOrigin)
+            {
+                sharedModeController.RPC_RequestDamageWithOrigin(amount, hitOrigin);
+            }
+            else
+            {
+                sharedModeController.RPC_RequestDamage(amount);
+            }
+
             return;
         }
 
@@ -41,6 +61,16 @@ public class PlayerHealth : MonoBehaviour
         {
             return;
         }
+
+        bool blockedHit = playerAttack != null && playerAttack.IsBlocking && CanBlockIncomingHit(hitOrigin, hasHitOrigin);
+        if (blockedHit)
+        {
+            lastHitWasBlocked = true;
+            ChangeState(HealthState.Hit);
+            return;
+        }
+
+        lastHitWasBlocked = false;
         ChangeState(HealthState.Hit);
         currentHealth = Mathf.Max(0, currentHealth - amount);
 
@@ -101,7 +131,7 @@ public class PlayerHealth : MonoBehaviour
         switch (newState)
         {
             case HealthState.Hit:
-                bool isBlocking = playerAttack != null && playerAttack.IsBlocking;
+                bool isBlocking = lastHitWasBlocked || (playerAttack != null && playerAttack.IsBlocking);
                 if (playerAttack != null)
                 {
                     playerAttack.ResetCombo();
@@ -118,11 +148,35 @@ public class PlayerHealth : MonoBehaviour
                 {
                     animator.SetTrigger("GetHit");
                 }
+
+                lastHitWasBlocked = false;
                 break;
             case HealthState.Dead:
                 animator.SetTrigger("DeadTrigger");
                 animator.SetBool("isDead", true);
                 break;
         }
-}
+    }
+
+    private bool CanBlockIncomingHit(Vector3 hitOrigin, bool hasHitOrigin)
+    {
+        if (!hasHitOrigin)
+        {
+            return true;
+        }
+
+        Vector3 toHitOrigin = hitOrigin - transform.position;
+        toHitOrigin.y = 0f;
+        if (toHitOrigin.sqrMagnitude <= 0.0001f)
+        {
+            return true;
+        }
+
+        Vector3 defenderForward = transform.forward;
+        defenderForward.y = 0f;
+        defenderForward.Normalize();
+
+        float dot = Vector3.Dot(defenderForward, toHitOrigin.normalized);
+        return dot >= blockFrontDotThreshold;
+    }
 }

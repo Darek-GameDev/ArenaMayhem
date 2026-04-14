@@ -5,6 +5,7 @@ public class PlayerAttack : MonoBehaviour
 {
     [SerializeField] private int comboStep = 0;
     [SerializeField] private float blockCooldown = 0.25f;
+    [SerializeField] private float blockDuration = 0.5f;
     public bool IsBlocking => currentState == AttackState.Block;
     public bool IsAiming => isAiming;
     public bool UsesBow => useBow;
@@ -33,6 +34,8 @@ public class PlayerAttack : MonoBehaviour
     private float nextBowShotTime;
     private bool isAiming;
     private bool bowRequireAimRelease;
+    private float blockUntilTime;
+    private bool blockRequireRelease;
 
     private const string AttackSwordTrigger = "AttackSword";
     private const string AttackBowTrigger = "AttackBow";
@@ -75,6 +78,21 @@ public class PlayerAttack : MonoBehaviour
         if (sharedModeController == null)
         {
             cursorLockController.SetActiveForLocalPlayer(true);
+        }
+    }
+
+    private void Update()
+    {
+        if (sharedModeController != null)
+        {
+            return;
+        }
+
+        if (currentState == AttackState.Block && Time.time >= blockUntilTime)
+        {
+            ChangeState(AttackState.Idle);
+            lastBlockTime = Time.time;
+            blockRequireRelease = true;
         }
     }
 
@@ -196,15 +214,19 @@ public class PlayerAttack : MonoBehaviour
         if(playerHealth != null && playerHealth.IsDead) return;
         if (context.performed)
         {
+            if (blockRequireRelease) return;
+
             bool canBlock = (Time.time - lastBlockTime) >= blockCooldown;
             if (!canBlock) return;
             
-            lastBlockTime = Time.time;
+            blockUntilTime = Time.time + blockDuration;
             ChangeState(AttackState.Block);
 
         }
         else if (context.canceled)
         {
+            lastBlockTime = Time.time;
+            blockRequireRelease = false;
             ChangeState(AttackState.Idle);
         }
     }
