@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.SceneManagement;
 
 public class ClassChoose : MonoBehaviour
 {
@@ -26,19 +25,9 @@ public class ClassChoose : MonoBehaviour
 
     void Start()
     {
-        ResolveUiReferences();
-
         UpdateClassLabel(defaultClassName);
         RefreshAcceptState();
 
-        if (lobbyUI != null)
-        {
-            lobbyUI.SetActive(false);
-        }
-    }
-
-    public void OnKnightClicked()
-    {
         SetPendingClass("Knight");
     }
 
@@ -62,29 +51,24 @@ public class ClassChoose : MonoBehaviour
         {
             sessionManager.SetLocalClass(confirmedClassName);
             sessionManager.SetLocalReady(true);
+            sessionManager.FlushLocalStateToSession();
         }
 
-        if (lobbyUI != null)
-        {
-            lobbyUI.SendMessage("SetLocalPlayerClass", confirmedClassName, SendMessageOptions.DontRequireReceiver);
-        }
-
-        if (classChooseUI != null)
-        {
-            classChooseUI.SetActive(false);
-        }
-
-        ResolveUiReferences();
-
+        // Activate lobby UI before calling SetLocalPlayerClass to ensure Coroutine runs.
         if (lobbyUI != null)
         {
             lobbyUI.SetActive(true);
-            lobbyUI.SendMessage("RefreshLobbyUI", SendMessageOptions.DontRequireReceiver);
-            lobbyUI.SendMessage("SetPlayerCount", 1, SendMessageOptions.DontRequireReceiver);
+            LobbyUI lobbyUIScript = lobbyUI.GetComponent<LobbyUI>();
+            if (lobbyUIScript != null)
+            {
+                lobbyUIScript.SetLocalPlayerClass(confirmedClassName);
+            }
         }
-        else
+
+        // Close class choose UI.
+        if (classChooseUI != null)
         {
-            Debug.LogWarning("ClassChoose: khong tim thay LobbyUI de hien thi sau khi Accept.");
+            classChooseUI.SetActive(false);
         }
     }
 
@@ -104,7 +88,6 @@ public class ClassChoose : MonoBehaviour
     {
         pendingClassName = null;
         confirmedClassName = null;
-        LastConfirmedClassName = null;
         UpdateClassLabel(defaultClassName);
         RefreshAcceptState();
     }
@@ -135,45 +118,6 @@ public class ClassChoose : MonoBehaviour
         if (classNameText != null)
         {
             classNameText.text = className;
-        }
-    }
-
-    private void ResolveUiReferences()
-    {
-        if (classChooseUI == null)
-        {
-            classChooseUI = gameObject;
-        }
-
-        if (lobbyUI != null)
-        {
-            return;
-        }
-
-        LobbyUI[] lobbyCandidates = Resources.FindObjectsOfTypeAll<LobbyUI>();
-        Scene currentScene = gameObject.scene;
-
-        for (int i = 0; i < lobbyCandidates.Length; i++)
-        {
-            LobbyUI candidate = lobbyCandidates[i];
-            if (candidate == null)
-            {
-                continue;
-            }
-
-            GameObject candidateObject = candidate.gameObject;
-            if (candidateObject == null)
-            {
-                continue;
-            }
-
-            if (!candidateObject.scene.IsValid() || candidateObject.scene != currentScene)
-            {
-                continue;
-            }
-
-            lobbyUI = candidateObject;
-            return;
         }
     }
 }

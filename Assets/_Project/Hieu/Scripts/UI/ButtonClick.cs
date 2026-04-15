@@ -5,16 +5,22 @@ using UnityEngine.UI;
 
 public class ButtonClick : MonoBehaviour
 {
+	private const string CreatedRoomIdPrefsKey = "CREATED_ROOM_ID";
+	private const string PlayerNamePrefsKey = "PLAYER_DISPLAY_NAME";
+
 	[Header("References")]
 	[SerializeField] private Dotween settingsUI;
 	[SerializeField] private GameObject startButton;
 	[SerializeField] private GameObject settingsButton;
 	[SerializeField] private GameObject exitButton;
+	[SerializeField] private GameObject lobbyUI;
 	[SerializeField] private GameObject roomSelectionUI;
 	[SerializeField] private GameObject classChooseUI;
 	[SerializeField] private CanvasGroup roomSelectionCanvasGroup;
 
 	[Header("Room Input")]
+	[SerializeField] private TMP_InputField playerNameTmpInputField;
+	[SerializeField] private InputField playerNameLegacyInputField;
 	[SerializeField] private TMP_InputField roomIdTmpInputField;
 	[SerializeField] private InputField roomIdLegacyInputField;
 	[SerializeField] private TMP_Text roomFeedbackTmpText;
@@ -168,6 +174,21 @@ public class ButtonClick : MonoBehaviour
 			return;
 		}
 
+		string playerName = GetPlayerNameInput();
+		if (string.IsNullOrWhiteSpace(playerName))
+		{
+			playerName = LoadPlayerName();
+		}
+
+		if (string.IsNullOrWhiteSpace(playerName))
+		{
+			playerName = $"Player{Random.Range(1000, 9999)}";
+		}
+
+		playerName = playerName.Trim();
+		sessionManager.SetLocalPlayerName(playerName);
+		SavePlayerName(playerName);
+
 		roomActionInProgress = true;
 		SetRoomSelectionInteractable(false);
 		SetRoomFeedback(isCreateAction ? "Dang tao room..." : "Dang join room...");
@@ -186,6 +207,14 @@ public class ButtonClick : MonoBehaviour
 		}
 
 		SetRoomFeedback(string.Empty);
+		sessionManager.FlushLocalStateToSession();
+
+		if (isCreateAction)
+		{
+			PlayerPrefs.SetString(CreatedRoomIdPrefsKey, roomId.Trim());
+			PlayerPrefs.Save();
+		}
+
 		OpenClassChooseUI();
 	}
 
@@ -202,6 +231,61 @@ public class ButtonClick : MonoBehaviour
 		}
 
 		return string.Empty;
+	}
+
+	private string GetPlayerNameInput()
+	{
+		if (playerNameTmpInputField != null)
+		{
+			return playerNameTmpInputField.text;
+		}
+
+		if (playerNameLegacyInputField != null)
+		{
+			return playerNameLegacyInputField.text;
+		}
+
+		return string.Empty;
+	}
+
+	private static void SavePlayerName(string playerName)
+	{
+		PlayerPrefs.SetString(PlayerNamePrefsKey, playerName);
+		PlayerPrefs.Save();
+	}
+
+	private static string LoadPlayerName()
+	{
+		return PlayerPrefs.GetString(PlayerNamePrefsKey, string.Empty);
+	}
+
+	public void ResetToMainMenu()
+	{
+		roomActionInProgress = false;
+		SetRoomSelectionInteractable(true);
+		SetRoomFeedback(string.Empty);
+		SetMainMenuButtonsVisible(true);
+
+		if (settingsUI != null)
+		{
+			settingsUI.HideSettingsImmediate();
+		}
+
+		if (classChooseUI != null)
+		{
+			ClassChoose classChoose = classChooseUI.GetComponent<ClassChoose>();
+			if (classChoose != null)
+			{
+				classChoose.ResetSelectionUI();
+			}
+
+			classChooseUI.SetActive(false);
+		}
+
+		if (roomSelectionUI != null)
+		{
+			roomSelectionUI.SetActive(true);
+		}
 	}
 
 	private void SetRoomSelectionInteractable(bool isInteractable)

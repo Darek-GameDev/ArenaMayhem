@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Fusion;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -17,8 +19,8 @@ public class LobbyUI : MonoBehaviour
 	private class PlayerAvatarSlot
 	{
 		public GameObject slotRoot;
-		public GameObject knightAvatar;
-		public GameObject archerAvatar;
+		public TMP_Text playerNameTmpText;
+		public TMP_Text classNameTmpText;
 
 		[NonSerialized] public AvatarKind avatarKind = AvatarKind.None;
 	}
@@ -33,7 +35,7 @@ public class LobbyUI : MonoBehaviour
 	[SerializeField] private TMP_Text playerCountText;
 	[SerializeField] private PlayerAvatarSlot[] playerAvatarSlots;
 	[SerializeField] private int maxPlayers = 4;
-	[SerializeField] private int currentPlayerCount = 1;
+	[SerializeField] private int currentPlayerCount = 0;
 	[SerializeField] private bool isRoomOwner = true;
 	[SerializeField] private Color waitingColor = Color.white;
 	[SerializeField] private Color fullColor = Color.red;
@@ -46,18 +48,19 @@ public class LobbyUI : MonoBehaviour
 	[SerializeField] private string defaultClassName = "Knight";
 	[SerializeField] private int requiredPlayersToStart = 1;
 	[SerializeField] private bool hideLobbyOnSceneStart = true;
-	[SerializeField] private bool enableLegacyAvatarSync = false;
+	[SerializeField] private bool enableLegacyAvatarSync = true;  // Changed to true for consistent syncing
 	[SerializeField] private bool hideLegacyReadyIconsInSlots = false;
-	[SerializeField] private bool cloneRoleImagesFromFirstSlot = true;
+	[SerializeField] private string emptyPlayerName = "PLAYER NAME";
+	[SerializeField] private string emptyClassName = "CLASS NAME";
 
 	private void Awake()
 	{
-		if (enableLegacyAvatarSync)
-		{
-			ResolveSlotAvatarReferences();
-			CloneMissingRoleImagesFromFirstSlot();
-			ResolveSlotAvatarReferences();
-		}
+		EnsurePlayerSlotsConfigured();
+		
+		// Always resolve slot avatar references first, regardless of enableLegacyAvatarSync
+		ResolveSlotAvatarReferences();
+
+		SyncLobbyFromSession();
 		RefreshLobbyUI();
 	}
 
@@ -76,13 +79,37 @@ public class LobbyUI : MonoBehaviour
 
 	private void OnEnable()
 	{
-		if (enableLegacyAvatarSync)
-		{
-			ResolveSlotAvatarReferences();
-			CloneMissingRoleImagesFromFirstSlot();
-			ResolveSlotAvatarReferences();
-		}
+		EnsurePlayerSlotsConfigured();
+		ResolveSlotAvatarReferences();
+		currentPlayerCount = 0;
+		SyncLobbyFromSession();
 		RefreshLobbyUI();
+	}
+
+	private void EnsurePlayerSlotsConfigured()
+	{
+		if (playerAvatarSlots == null || playerAvatarSlots.Length == 0)
+		{
+			AutoDiscoverPlayerSlots();
+			return;
+		}
+
+		bool hasMissingRoot = false;
+		for (int i = 0; i < playerAvatarSlots.Length; i++)
+		{
+			if (playerAvatarSlots[i] == null || playerAvatarSlots[i].slotRoot == null)
+			{
+				hasMissingRoot = true;
+				break;
+			}
+		}
+
+		if (!hasMissingRoot)
+		{
+			return;
+		}
+
+		AutoDiscoverPlayerSlots();
 	}
 
 	private void Update()
@@ -119,24 +146,37 @@ public class LobbyUI : MonoBehaviour
 		SceneManager.LoadScene(gameSceneName);
 	}
 
-	public void OnLeaveRoomClicked()
+	public async void OnLeaveRoomClicked()
 	{
+		SharedRoomSessionManager sessionManager = SharedRoomSessionManager.Instance;
+		if (sessionManager != null)
+		{
+			await sessionManager.LeaveRoom();
+		}
+
 		ExitRoomToMenu();
 	}
 
-	public void OnRemoveRoomClicked()
+	public async void OnRemoveRoomClicked()
 	{
 		if (!isRoomOwner)
 		{
 			return;
 		}
 
+		SharedRoomSessionManager sessionManager = SharedRoomSessionManager.Instance;
+		if (sessionManager != null)
+		{
+			await sessionManager.RemoveRoomAndKickAll();
+		}
+
+		ResetLobbyUI();
 		ExitRoomToMenu();
 	}
 
 	public void ResetLobbyUI()
 	{
-		currentPlayerCount = 1;
+		currentPlayerCount = 0;
 		isRoomOwner = true;
 
 		if (playerAvatarSlots != null)
@@ -167,12 +207,45 @@ public class LobbyUI : MonoBehaviour
 
 	public void SetLocalPlayerClass(string className)
 	{
-		if (!enableLegacyAvatarSync)
+		// Update first slot display immediately when class is chosen.
+		if (playerAvatarSlots == null || playerAvatarSlots.Length == 0)
 		{
 			return;
 		}
 
-		SetSlotClass(0, className);
+		PlayerAvatarSlot firstSlot = playerAvatarSlots[0];
+		if (firstSlot == null)
+		{
+			return;
+		}
+
+		// Ensure text components are resolved before setting display text
+		if (firstSlot.playerNameTmpText == null || firstSlot.classNameTmpText == null)
+		{
+			ResolveSlotAvatarReferences();
+		}
+
+		string classLabel = GetClassLabel(GetAvatarKind(className));
+		string playerName = PlayerPrefs.GetString("PLAYER_DISPLAY_NAME", "Player 1");
+		
+		SetSlotDisplayText(firstSlot, playerName, classLabel);
+
+		if (enableLegacyAvatarSync)
+		{
+			SetSlotClass(0, className);
+		}
+
+		// Schedule a refresh in the next frame to sync with session.
+		if (gameObject != null && gameObject.activeSelf)
+		{
+			StartCoroutine(RefreshLobbyOnNextFrame());
+		}
+	}
+
+	private System.Collections.IEnumerator RefreshLobbyOnNextFrame()
+	{
+		yield return null;
+		RefreshLobbyUI();
 	}
 
 	public void SetSlotClass(int slotIndex, string className)
@@ -211,10 +284,15 @@ public class LobbyUI : MonoBehaviour
 	{
 		int resolvedMaxPlayers = GetMaxPlayers();
 		int displayedPlayerCount = Mathf.Clamp(currentPlayerCount, 0, resolvedMaxPlayers);
+		SharedRoomSessionManager sessionManager = SharedRoomSessionManager.Instance;
+		bool hasActiveSession = sessionManager != null && sessionManager.HasActiveSession;
 
-		if (enableLegacyAvatarSync && playerAvatarSlots != null)
+		if (playerAvatarSlots != null)
 		{
-			ApplyDefaultLocalSlotIfNeeded();
+			if (enableLegacyAvatarSync && !hasActiveSession)
+			{
+				ApplyDefaultLocalSlotIfNeeded();
+			}
 
 			for (int i = 0; i < playerAvatarSlots.Length; i++)
 			{
@@ -229,7 +307,7 @@ public class LobbyUI : MonoBehaviour
 				bool occupied = i < displayedPlayerCount;
 				SetSlotVisible(slot, occupied);
 
-				if (occupied)
+				if (occupied && enableLegacyAvatarSync)
 				{
 					ApplyAvatarKindToSlot(slot, slot.avatarKind);
 				}
@@ -275,13 +353,13 @@ public class LobbyUI : MonoBehaviour
 
 			if (slot.slotRoot == null)
 			{
-				if (slot.knightAvatar != null)
+				if (slot.playerNameTmpText != null)
 				{
-					slot.slotRoot = slot.knightAvatar.transform.parent != null ? slot.knightAvatar.transform.parent.gameObject : slot.knightAvatar;
+					slot.slotRoot = slot.playerNameTmpText.transform.parent != null ? slot.playerNameTmpText.transform.parent.gameObject : slot.playerNameTmpText.gameObject;
 				}
-				else if (slot.archerAvatar != null)
+				else if (slot.classNameTmpText != null)
 				{
-					slot.slotRoot = slot.archerAvatar.transform.parent != null ? slot.archerAvatar.transform.parent.gameObject : slot.archerAvatar;
+					slot.slotRoot = slot.classNameTmpText.transform.parent != null ? slot.classNameTmpText.transform.parent.gameObject : slot.classNameTmpText.gameObject;
 				}
 			}
 
@@ -290,19 +368,79 @@ public class LobbyUI : MonoBehaviour
 				continue;
 			}
 
-			if (slot.knightAvatar == null)
+			if (slot.playerNameTmpText == null)
 			{
-				slot.knightAvatar = FindChildByKeyword(slot.slotRoot.transform, "knight");
+				slot.playerNameTmpText = FindTextByKeyword(slot.slotRoot.transform, "Player Name");
 			}
 
-			if (slot.archerAvatar == null)
+			if (slot.classNameTmpText == null)
 			{
-				slot.archerAvatar = FindChildByKeyword(slot.slotRoot.transform, "archer");
+				slot.classNameTmpText = FindTextByKeyword(slot.slotRoot.transform, "Class Name");
 			}
 		}
 	}
 
-	private static GameObject FindChildByKeyword(Transform root, string keyword)
+	private void AutoDiscoverPlayerSlots()
+	{
+		// Try to find all slot root objects by searching the whole UI hierarchy.
+		Transform canvasTransform = gameObject.transform;
+		List<GameObject> slotRoots = new List<GameObject>();
+		CollectSlotRoots(canvasTransform, slotRoots);
+
+		// Sort by name for consistent ordering
+		slotRoots.Sort((a, b) => a.name.CompareTo(b.name));
+
+		if (slotRoots.Count == 0)
+		{
+			playerAvatarSlots = new PlayerAvatarSlot[0];
+			return;
+		}
+
+		// Create PlayerAvatarSlot instances for each discovered slot
+		playerAvatarSlots = new PlayerAvatarSlot[slotRoots.Count];
+		for (int i = 0; i < slotRoots.Count; i++)
+		{
+			playerAvatarSlots[i] = new PlayerAvatarSlot();
+			playerAvatarSlots[i].slotRoot = slotRoots[i];
+		}
+	}
+
+	private static void CollectSlotRoots(Transform root, List<GameObject> slotRoots)
+	{
+		if (root == null || slotRoots == null)
+		{
+			return;
+		}
+
+		for (int i = 0; i < root.childCount; i++)
+		{
+			Transform child = root.GetChild(i);
+			if (child == null)
+			{
+				continue;
+			}
+
+			if (IsLikelyPlayerSlotName(child.name))
+			{
+				slotRoots.Add(child.gameObject);
+			}
+
+			CollectSlotRoots(child, slotRoots);
+		}
+	}
+
+	private static bool IsLikelyPlayerSlotName(string objectName)
+	{
+		if (string.IsNullOrWhiteSpace(objectName))
+		{
+			return false;
+		}
+
+		string loweredName = objectName.Trim().ToLowerInvariant();
+		return loweredName.StartsWith("slot");
+	}
+
+	private static TMP_Text FindTextByKeyword(Transform root, string keyword)
 	{
 		if (root == null || string.IsNullOrEmpty(keyword))
 		{
@@ -310,63 +448,24 @@ public class LobbyUI : MonoBehaviour
 		}
 
 		string loweredKeyword = keyword.ToLowerInvariant();
-		Transform[] children = root.GetComponentsInChildren<Transform>(true);
-		for (int i = 0; i < children.Length; i++)
+		TMP_Text[] texts = root.GetComponentsInChildren<TMP_Text>(true);
+		for (int i = 0; i < texts.Length; i++)
 		{
-			Transform child = children[i];
-			if (child == null || child == root)
+			TMP_Text candidate = texts[i];
+			if (candidate == null)
 			{
 				continue;
 			}
 
-			if (child.name.ToLowerInvariant().Contains(loweredKeyword))
+			if (candidate.name.ToLowerInvariant().Contains(loweredKeyword))
 			{
-				return child.gameObject;
+				return candidate;
 			}
 		}
 
 		return null;
 	}
 
-	private void CloneMissingRoleImagesFromFirstSlot()
-	{
-		if (!cloneRoleImagesFromFirstSlot || playerAvatarSlots == null || playerAvatarSlots.Length == 0)
-		{
-			return;
-		}
-
-		PlayerAvatarSlot templateSlot = playerAvatarSlots[0];
-		if (templateSlot == null || templateSlot.slotRoot == null)
-		{
-			return;
-		}
-
-		GameObject templateKnight = templateSlot.knightAvatar != null ? templateSlot.knightAvatar : FindChildByKeyword(templateSlot.slotRoot.transform, "knight");
-		GameObject templateArcher = templateSlot.archerAvatar != null ? templateSlot.archerAvatar : FindChildByKeyword(templateSlot.slotRoot.transform, "archer");
-
-		for (int i = 1; i < playerAvatarSlots.Length; i++)
-		{
-			PlayerAvatarSlot slot = playerAvatarSlots[i];
-			if (slot == null || slot.slotRoot == null)
-			{
-				continue;
-			}
-
-			if (slot.knightAvatar == null && templateKnight != null)
-			{
-				slot.knightAvatar = Instantiate(templateKnight, slot.slotRoot.transform, false);
-				slot.knightAvatar.name = $"P{i + 1}_Knight";
-				slot.knightAvatar.SetActive(false);
-			}
-
-			if (slot.archerAvatar == null && templateArcher != null)
-			{
-				slot.archerAvatar = Instantiate(templateArcher, slot.slotRoot.transform, false);
-				slot.archerAvatar.name = $"P{i + 1}_Archer";
-				slot.archerAvatar.SetActive(false);
-			}
-		}
-	}
 
 	private void SyncLobbyFromSession()
 	{
@@ -384,42 +483,32 @@ public class LobbyUI : MonoBehaviour
 			isRoomOwner = sessionManager.IsRoomOwner(sessionManager.Runner.LocalPlayer);
 		}
 
-		if (enableLegacyAvatarSync && playerAvatarSlots != null)
+		for (int i = 0; i < playerAvatarSlots.Length; i++)
 		{
-			for (int i = 0; i < playerAvatarSlots.Length; i++)
+			PlayerAvatarSlot slot = playerAvatarSlots[i];
+			if (slot == null)
 			{
-				PlayerAvatarSlot slot = playerAvatarSlots[i];
-				if (slot == null)
-				{
-					continue;
-				}
+				continue;
+			}
 
-				if (i >= players.Count)
-				{
-					slot.avatarKind = AvatarKind.None;
-					continue;
-				}
+			if (i >= players.Count)
+			{
+				slot.avatarKind = AvatarKind.None;
+				SetSlotDisplayText(slot, emptyPlayerName, emptyClassName);
+				continue;
+			}
 
-				SharedPlayerClassType classType = SharedPlayerClassType.Unknown;
-				if (sessionManager.Runner != null)
-				{
-					SharedRoomSessionManager.TryGetPlayerClass(sessionManager.Runner, players[i], out classType);
-				}
+			PlayerRef player = players[i];
+			SharedPlayerClassType classType = sessionManager.GetPlayerClass(player, SharedPlayerClassType.Unknown);
+			AvatarKind resolvedAvatar = ToAvatarKind(classType);
+			string className = GetClassLabel(resolvedAvatar);
 
-				if (classType == SharedPlayerClassType.Unknown)
-				{
-					classType = sessionManager.GetPlayerClass(players[i], SharedPlayerClassType.Unknown);
-				}
+			string playerName = sessionManager.GetPlayerName(player, $"Player {i + 1}");
 
-				AvatarKind resolvedAvatar = ToAvatarKind(classType);
-				if (resolvedAvatar != AvatarKind.None)
-				{
-					slot.avatarKind = resolvedAvatar;
-				}
-				else
-				{
-					slot.avatarKind = AvatarKind.None;
-				}
+			SetSlotDisplayText(slot, playerName, className);
+			if (resolvedAvatar != AvatarKind.None)
+			{
+				slot.avatarKind = resolvedAvatar;
 			}
 		}
 
@@ -468,11 +557,22 @@ public class LobbyUI : MonoBehaviour
 			return;
 		}
 
+		// Ensure text components are resolved
+		if (firstSlot.playerNameTmpText == null || firstSlot.classNameTmpText == null)
+		{
+			ResolveSlotAvatarReferences();
+		}
+
 		firstSlot.avatarKind = GetAvatarKind(ClassChoose.LastConfirmedClassName);
 		if (firstSlot.avatarKind == AvatarKind.None)
 		{
 			firstSlot.avatarKind = GetAvatarKind(defaultClassName);
 		}
+
+		// Load local player name from PlayerPrefs.
+		string localPlayerName = PlayerPrefs.GetString("PLAYER_DISPLAY_NAME", "Player 1");
+
+		SetSlotDisplayText(firstSlot, localPlayerName, GetClassLabel(firstSlot.avatarKind));
 	}
 
 	private void ApplyAvatarKindToSlot(PlayerAvatarSlot slot, AvatarKind avatarKind)
@@ -482,15 +582,7 @@ public class LobbyUI : MonoBehaviour
 			return;
 		}
 
-		if (slot.knightAvatar != null)
-		{
-			slot.knightAvatar.SetActive(avatarKind == AvatarKind.Knight);
-		}
-
-		if (slot.archerAvatar != null)
-		{
-			slot.archerAvatar.SetActive(avatarKind == AvatarKind.Archer);
-		}
+		SetSlotDisplayText(slot, ReadCurrentPlayerLabel(slot), GetClassLabel(avatarKind));
 	}
 
 	private void SetSlotVisible(PlayerAvatarSlot slot, bool visible)
@@ -500,22 +592,98 @@ public class LobbyUI : MonoBehaviour
 			return;
 		}
 
+		if (slot.slotRoot == null)
+		{
+			if (slot.playerNameTmpText != null)
+			{
+				slot.slotRoot = slot.playerNameTmpText.transform.parent != null ? slot.playerNameTmpText.transform.parent.gameObject : slot.playerNameTmpText.gameObject;
+			}
+			else if (slot.classNameTmpText != null)
+			{
+				slot.slotRoot = slot.classNameTmpText.transform.parent != null ? slot.classNameTmpText.transform.parent.gameObject : slot.classNameTmpText.gameObject;
+			}
+		}
+
 		if (slot.slotRoot != null)
 		{
 			slot.slotRoot.SetActive(visible);
 		}
 
+		if (visible)
+		{
+			EnsureSlotTextObjectsActive(slot);
+		}
+
 		if (!visible)
 		{
-			if (slot.knightAvatar != null)
-			{
-				slot.knightAvatar.SetActive(false);
-			}
+			SetSlotDisplayText(slot, emptyPlayerName, emptyClassName);
+		}
+	}
 
-			if (slot.archerAvatar != null)
-			{
-				slot.archerAvatar.SetActive(false);
-			}
+	private static void EnsureSlotTextObjectsActive(PlayerAvatarSlot slot)
+	{
+		if (slot == null)
+		{
+			return;
+		}
+
+		if (slot.playerNameTmpText != null)
+		{
+			slot.playerNameTmpText.gameObject.SetActive(true);
+		}
+
+		if (slot.classNameTmpText != null)
+		{
+			slot.classNameTmpText.gameObject.SetActive(true);
+		}
+	}
+
+	private void SetSlotDisplayText(PlayerAvatarSlot slot, string playerName, string className)
+	{
+		if (slot == null)
+		{
+			return;
+		}
+
+		string safePlayerName = string.IsNullOrWhiteSpace(playerName) ? emptyPlayerName : playerName.Trim();
+		string safeClassName = string.IsNullOrWhiteSpace(className) ? emptyClassName : className.Trim();
+
+		if (slot.playerNameTmpText != null)
+		{
+			slot.playerNameTmpText.text = safePlayerName;
+		}
+
+		if (slot.classNameTmpText != null)
+		{
+			slot.classNameTmpText.text = safeClassName;
+		}
+	}
+
+	private string ReadCurrentPlayerLabel(PlayerAvatarSlot slot)
+	{
+		if (slot == null)
+		{
+			return emptyPlayerName;
+		}
+
+		if (slot.playerNameTmpText != null)
+		{
+			return slot.playerNameTmpText.text;
+		}
+
+		return emptyPlayerName;
+	}
+
+	private static string GetClassLabel(AvatarKind avatarKind)
+	{
+		switch (avatarKind)
+		{
+			case AvatarKind.Knight:
+				return "Knight";
+			case AvatarKind.Archer:
+				return "Archer";
+			default:
+				return "Class Name";
 		}
 	}
 
@@ -538,16 +706,6 @@ public class LobbyUI : MonoBehaviour
 			string loweredName = child.name.ToLowerInvariant();
 			bool isReadyVisual = loweredName.Contains("tick") || loweredName.Contains("ready") || loweredName.Contains("xmark") || loweredName.Contains("check") || loweredName == "x";
 			if (!isReadyVisual)
-			{
-				continue;
-			}
-
-			if (slot.knightAvatar != null && child == slot.knightAvatar.transform)
-			{
-				continue;
-			}
-
-			if (slot.archerAvatar != null && child == slot.archerAvatar.transform)
 			{
 				continue;
 			}
