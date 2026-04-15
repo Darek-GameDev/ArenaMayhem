@@ -6,12 +6,17 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour, INetworkRunnerCallbacks
 {
+    [Header("Recovery")]
+    [SerializeField] private float forceShowRetryDelay = 0.2f;
+    [SerializeField] private int maxForceShowRetries = 20;
+
     public GameObject menuUI;
     public GameObject lobbyUI;
     public GameObject roomCreateUI;
     public ButtonClick buttonClick;
 
     private NetworkRunner _runner;
+    private int _forceShowRetryCount;
 
     private void Update()
     {
@@ -30,20 +35,29 @@ public class UIManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         Debug.LogError($"🔴 [UIManager] ĐÃ CHẠY VÀO ONSHUTDOWN! LÝ DO: {shutdownReason}");
         
-        CancelInvoke(nameof(ForceShowMenu));
+        CancelInvoke(nameof(TryForceShowMenu));
+        _forceShowRetryCount = 0;
 
         // Delay ngắn để đợi các script khác tắt UI hoặc Fusion dọn dẹp xong
-        Invoke(nameof(ForceShowMenu), 0.1f);
+        Invoke(nameof(TryForceShowMenu), 0.1f);
     }
 
     // --- ĐÂY CHÍNH LÀ ĐOẠN ĐÃ ĐƯỢC CẬP NHẬT ---
-    private void ForceShowMenu()
+    private void TryForceShowMenu()
     {
         SharedRoomSessionManager sessionManager = SharedRoomSessionManager.Instance;
         if (sessionManager != null && sessionManager.HasActiveSession)
         {
+            if (_forceShowRetryCount < Mathf.Max(1, maxForceShowRetries))
+            {
+                _forceShowRetryCount++;
+                Invoke(nameof(TryForceShowMenu), Mathf.Max(0.05f, forceShowRetryDelay));
+            }
+
             return;
         }
+
+        _forceShowRetryCount = 0;
 
         if (buttonClick == null)
         {
