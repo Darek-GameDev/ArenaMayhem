@@ -340,8 +340,26 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             return false;
         }
 
+        SetRoomJoinability(isOpen: false, isVisible: false);
         runner.LoadScene(mainGameSceneName, LoadSceneMode.Single, LocalPhysicsMode.None, true);
         return true;
+    }
+
+    private void SetRoomJoinability(bool isOpen, bool isVisible)
+    {
+        if (!HasActiveSession)
+        {
+            return;
+        }
+
+        SessionInfo sessionInfo = runner.SessionInfo;
+        if (!sessionInfo)
+        {
+            return;
+        }
+
+        sessionInfo.IsOpen = isOpen;
+        sessionInfo.IsVisible = isVisible;
     }
 
     public static bool TryGetPlayerClass(NetworkRunner sourceRunner, PlayerRef player, out SharedPlayerClassType classType)
