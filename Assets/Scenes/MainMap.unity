@@ -201920,10 +201920,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SharedModeHealthPotionSpawner
   runner: {fileID: 0}
-  potionPrefab: {fileID: 5289297044162918067, guid: efaf4aa39c7daa34abfaa510592d62cf, type: 3}
+  potionPrefab: {fileID: 0}
+  randomItemPrefabs:
+  - {fileID: 2641072366315861183, guid: 2a6fe5d01181d2945a2b96f667bb2907, type: 3}
+  - {fileID: 5289297044162918067, guid: efaf4aa39c7daa34abfaa510592d62cf, type: 3}
   spawnOnFirstPlayerJoin: 1
   allowSpawnWithF: 1
-  onlyOnePotionAtATime: 1
+  onlyOnePotionAtATime: 0
+  initialSpawnCount: 3
+  spawnCountPerFPress: 1
+  maxSpawnedItemsInMap: 10
+  mainMapSceneName: MainMap
+  periodicSpawnIntervalSeconds: 5
+  periodicSpawnCount: 1
   restrictSpawnToLowestPlayerId: 1
   randomSpawnPoints:
   - {fileID: 137212056}
@@ -205843,6 +205852,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 604276249976346929, guid: dc9380748d8b0ab42ba14662530c0421, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1807301896214919084, guid: dc9380748d8b0ab42ba14662530c0421, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1
+      objectReference: {fileID: 0}
     - target: {fileID: 2197765744395634543, guid: dc9380748d8b0ab42ba14662530c0421, type: 3}
       propertyPath: m_Name
       value: SP
@@ -205886,6 +205903,26 @@ PrefabInstance:
     - target: {fileID: 3298297596576343731, guid: dc9380748d8b0ab42ba14662530c0421, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4613571570991249781, guid: dc9380748d8b0ab42ba14662530c0421, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5075574580208405676, guid: dc9380748d8b0ab42ba14662530c0421, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6044949825183656298, guid: dc9380748d8b0ab42ba14662530c0421, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6321176955199664137, guid: dc9380748d8b0ab42ba14662530c0421, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7612725562026980831, guid: dc9380748d8b0ab42ba14662530c0421, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
