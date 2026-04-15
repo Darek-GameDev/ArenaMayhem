@@ -11,6 +11,7 @@ public enum PlayerInputButton
     Aim = 5,
     WeaponSlot1 = 6,
     WeaponSlot2 = 7,
+    Skill = 8,
 }
 
 public struct PlayerNetworkInput : INetworkInput
@@ -36,4 +37,6 @@ public struct PlayerNetworkInput : INetworkInput
     public NetworkBool BlockReleased;
     public NetworkBool AimPressed;
     public NetworkBool AimReleased;
+    public NetworkBool SkillPressed;
+    public NetworkBool SkillReleased;
 }

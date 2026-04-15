@@ -8,6 +8,7 @@ public class BowWeapon : MonoBehaviour
     {
         Primary = 0,
         Secondary = 1,
+        Freeze = 2,
     }
 
     [Header("Primary Projectile")]
@@ -22,6 +23,17 @@ public class BowWeapon : MonoBehaviour
     [SerializeField] private float secondaryProjectileLifetime = 5f;
     [SerializeField] private int secondaryDamage = 2;
 
+    [Header("Freeze Projectile")]
+    [SerializeField] private BowProjectile freezeProjectilePrefab;
+    [SerializeField] private float freezeProjectileSpeed = 26f;
+    [SerializeField] private float freezeProjectileLifetime = 4f;
+    [SerializeField] private int freezeDamage = 1;
+    [SerializeField] private float freezeDuration = 2f;
+
+    [Header("Skill Shot Effect")]
+    [SerializeField] private GameObject skillShotEffectPrefab;
+    [SerializeField] private float skillShotEffectLifetime = 2f;
+
     [SerializeField] private Transform projectileSpawnPoint;
 
     public bool Fire(Transform ownerRoot, PlayerRef attackerRef, Vector3 aimPoint)
@@ -34,6 +46,16 @@ public class BowWeapon : MonoBehaviour
         return SpawnProjectile(ownerRoot, attackerRef, aimPoint, true, ProjectileType.Secondary);
     }
 
+    public bool FireFreezeArrow(Transform ownerRoot, PlayerRef attackerRef, Vector3 aimPoint)
+    {
+        return SpawnProjectile(ownerRoot, attackerRef, aimPoint, true, ProjectileType.Freeze);
+    }
+
+    public bool FireSkillShot(Transform ownerRoot, PlayerRef attackerRef, Vector3 aimPoint)
+    {
+        return SpawnProjectile(ownerRoot, attackerRef, aimPoint, true, ProjectileType.Primary, true);
+    }
+
     public bool SpawnProjectile(Transform ownerRoot, PlayerRef attackerRef, Vector3 aimPoint, bool canDealDamage)
     {
         return SpawnProjectile(ownerRoot, attackerRef, aimPoint, canDealDamage, ProjectileType.Primary);
@@ -41,25 +63,61 @@ public class BowWeapon : MonoBehaviour
 
     public bool SpawnProjectile(Transform ownerRoot, PlayerRef attackerRef, Vector3 aimPoint, bool canDealDamage, ProjectileType projectileType)
     {
-        BowProjectile chosenPrefab = projectileType == ProjectileType.Secondary && secondaryProjectilePrefab != null
-            ? secondaryProjectilePrefab
-            : projectilePrefab;
+        return SpawnProjectile(ownerRoot, attackerRef, aimPoint, canDealDamage, projectileType, false);
+    }
+
+    public bool SpawnProjectile(Transform ownerRoot, PlayerRef attackerRef, Vector3 aimPoint, bool canDealDamage, ProjectileType projectileType, bool spawnSkillEffect)
+    {
+        BowProjectile chosenPrefab = projectilePrefab;
+
+        if (projectileType == ProjectileType.Secondary && secondaryProjectilePrefab != null)
+        {
+            chosenPrefab = secondaryProjectilePrefab;
+        }
+        else if (projectileType == ProjectileType.Freeze && freezeProjectilePrefab != null)
+        {
+            chosenPrefab = freezeProjectilePrefab;
+        }
 
         if (chosenPrefab == null)
         {
             return false;
         }
 
-        float speed = projectileType == ProjectileType.Secondary ? secondaryProjectileSpeed : projectileSpeed;
-        float lifetime = projectileType == ProjectileType.Secondary ? secondaryProjectileLifetime : projectileLifetime;
-        int projectileDamage = projectileType == ProjectileType.Secondary ? secondaryDamage : damage;
+        float speed = projectileSpeed;
+        float lifetime = projectileLifetime;
+        int projectileDamage = damage;
+        bool appliesFreeze = false;
+        float appliedFreezeDuration = 0f;
+
+        if (projectileType == ProjectileType.Secondary)
+        {
+            speed = secondaryProjectileSpeed;
+            lifetime = secondaryProjectileLifetime;
+            projectileDamage = secondaryDamage;
+        }
+        else if (projectileType == ProjectileType.Freeze)
+        {
+            speed = freezeProjectileSpeed;
+            lifetime = freezeProjectileLifetime;
+            projectileDamage = freezeDamage;
+            appliesFreeze = true;
+            appliedFreezeDuration = freezeDuration;
+        }
 
         Transform spawn = projectileSpawnPoint != null ? projectileSpawnPoint : transform;
         Vector3 toAimPoint = aimPoint - spawn.position;
         Vector3 direction = toAimPoint.sqrMagnitude > 0.0001f ? toAimPoint.normalized : spawn.forward;
         Quaternion rotation = Quaternion.LookRotation(direction, Vector3.up);
         BowProjectile projectile = Instantiate(chosenPrefab, spawn.position, rotation);
-        projectile.Initialize(ownerRoot, attackerRef, projectileDamage, speed, lifetime, canDealDamage);
+        projectile.Initialize(ownerRoot, attackerRef, projectileDamage, speed, lifetime, canDealDamage, appliesFreeze, appliedFreezeDuration);
+
+        if (spawnSkillEffect && skillShotEffectPrefab != null)
+        {
+            GameObject effectInstance = Instantiate(skillShotEffectPrefab, spawn.position, rotation);
+            Destroy(effectInstance, Mathf.Max(0.1f, skillShotEffectLifetime));
+        }
+
         return true;
     }
 

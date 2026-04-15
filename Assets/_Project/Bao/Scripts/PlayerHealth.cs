@@ -10,10 +10,12 @@ public class PlayerHealth : MonoBehaviour
     private int currentHealth;
     private SharedModePlayerController sharedModeController;
     private bool lastHitWasBlocked;
+    private float frozenUntil;
 
     public int CurrentHealth => sharedModeController != null ? sharedModeController.Health : currentHealth;
     public int MaxHealth => sharedModeController != null ? sharedModeController.MaxHealth : maxHealth;
     public bool IsDead => sharedModeController != null ? sharedModeController.IsDead : currentHealth <= 0;
+    public bool IsFrozen => sharedModeController != null ? sharedModeController.IsFrozen : Time.time < frozenUntil;
     private Animator animator;
     private HealthState currentState;
     enum HealthState
@@ -29,6 +31,7 @@ public class PlayerHealth : MonoBehaviour
         playerAttack = GetComponent<PlayerAttack>();
         sharedModeController = GetComponent<SharedModePlayerController>();
         currentHealth = maxHealth;
+        frozenUntil = 0f;
     }
 
     public void TakeDamage(int amount)
@@ -85,6 +88,22 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
+    public void ApplyFreeze(float duration)
+    {
+        if (duration <= 0f || IsDead)
+        {
+            return;
+        }
+
+        if (sharedModeController != null)
+        {
+            sharedModeController.RequestFreeze(duration);
+            return;
+        }
+
+        frozenUntil = Mathf.Max(frozenUntil, Time.time + duration);
+    }
+
     public void Heal(int amount)
     {
         if (sharedModeController != null)
@@ -108,6 +127,7 @@ public class PlayerHealth : MonoBehaviour
         }
 
         currentHealth = maxHealth;
+        frozenUntil = 0f;
     }
 
     private void Die()

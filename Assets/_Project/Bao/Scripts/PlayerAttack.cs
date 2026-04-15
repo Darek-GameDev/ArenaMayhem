@@ -21,6 +21,8 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private bool bowRequireAimToFire = true;
     [SerializeField] private float bowFireCooldown = 0.35f;
     [SerializeField] private bool autoExitAimOnShoot = true;
+    [SerializeField] private float skillCooldown = 6f;
+    [SerializeField] private float swordSkillDuration = 1.1f;
     [SerializeField] private float bowAimRayDistance = 200f;
     [SerializeField] private LayerMask bowAimLayerMask = ~0;
 
@@ -32,6 +34,8 @@ public class PlayerAttack : MonoBehaviour
     private SharedModePlayerController sharedModeController;
     private CursorLockController cursorLockController;
     private float nextBowShotTime;
+    private float nextSkillTime;
+    private float swordSkillUntil;
     private bool isAiming;
     private bool bowRequireAimRelease;
     private float blockUntilTime;
@@ -40,6 +44,15 @@ public class PlayerAttack : MonoBehaviour
     private const string AttackSwordTrigger = "AttackSword";
     private const string AttackBowTrigger = "AttackBow";
     private const string StartAimTrigger = "startAim";
+    private const string SkillSwordTrigger = "SkillSpin";
+    private const string UseSkillSwordBool = "useSkillSword";
+    private const string AttackLayerName = "Attack";
+
+    private int attackLayerIndex = -1;
+    private bool attackLayerResolved;
+    private float attackLayerDefaultWeight = 1f;
+    private bool attackLayerWeightCached;
+    private bool isAttackLayerSuppressed;
 
     enum AttackState
     {
@@ -52,6 +65,7 @@ public class PlayerAttack : MonoBehaviour
     void Start()
     {
         animator = GetComponent<Animator>();
+        CacheAttackLayer();
         if (weapon == null)
         {
             weapon = GetComponentInChildren<Weapon>();
@@ -86,6 +100,30 @@ public class PlayerAttack : MonoBehaviour
         if (sharedModeController != null)
         {
             return;
+        }
+
+        if (playerHealth != null && playerHealth.IsFrozen)
+        {
+            if (currentState != AttackState.Idle)
+            {
+                ChangeState(AttackState.Idle);
+            }
+
+            SetBoolIfExists(UseSkillSwordBool, false);
+            SetAttackLayerSuppressed(false);
+
+            return;
+        }
+
+        if (Time.time >= swordSkillUntil)
+        {
+            SetBoolIfExists(UseSkillSwordBool, false);
+            SetAttackLayerSuppressed(false);
+        }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            HandleSkillInput();
         }
 
         if (currentState == AttackState.Block && Time.time >= blockUntilTime)
@@ -159,6 +197,8 @@ public class PlayerAttack : MonoBehaviour
     {
         if (sharedModeController != null) return;
         if(playerHealth != null && playerHealth.IsDead) return;
+        if (playerHealth != null && playerHealth.IsFrozen) return;
+        if (Time.time < swordSkillUntil) return;
 
         if (useBow)
         {
@@ -178,6 +218,7 @@ public class PlayerAttack : MonoBehaviour
     {
         if (sharedModeController != null) return;
         if (playerHealth != null && playerHealth.IsDead) return;
+        if (playerHealth != null && playerHealth.IsFrozen) return;
         if (!useBow) return;
 
         if (context.performed)
@@ -212,6 +253,8 @@ public class PlayerAttack : MonoBehaviour
 
         ResetCombo();
         if(playerHealth != null && playerHealth.IsDead) return;
+        if (playerHealth != null && playerHealth.IsFrozen) return;
+        if (Time.time < swordSkillUntil) return;
         if (context.performed)
         {
             if (blockRequireRelease) return;
@@ -253,6 +296,52 @@ public class PlayerAttack : MonoBehaviour
             return;
         }
 
+        FireBowShot(false);
+    }
+
+    private void HandleSkillInput()
+    {
+        if (playerHealth != null && playerHealth.IsDead)
+        {
+            SetAttackLayerSuppressed(false);
+            return;
+        }
+
+        if (Time.time < nextSkillTime)
+        {
+            return;
+        }
+
+        nextSkillTime = Time.time + skillCooldown;
+
+        if (useBow)
+        {
+            FireBowShot(true);
+            return;
+        }
+
+        swordSkillUntil = Time.time + Mathf.Max(0.05f, swordSkillDuration);
+        SetBoolIfExists(UseSkillSwordBool, true);
+        SetAttackLayerSuppressed(true);
+        ResetCombo();
+        if (HasParameter(SkillSwordTrigger, AnimatorControllerParameterType.Trigger))
+        {
+            ResetTriggerIfExists(AttackSwordTrigger);
+            SetTriggerIfExists(SkillSwordTrigger);
+        }
+        else
+        {
+            ChangeState(AttackState.Attack);
+        }
+    }
+
+    private bool FireBowShot(bool spawnSkillEffect)
+    {
+        if (Time.time < nextBowShotTime)
+        {
+            return false;
+        }
+
         nextBowShotTime = Time.time + bowFireCooldown;
         ChangeState(AttackState.Attack);
 
@@ -263,7 +352,15 @@ public class PlayerAttack : MonoBehaviour
 
         if (bowWeapon != null)
         {
-            bowWeapon.Fire(transform, default, BowWeapon.GetAimPointFromCamera(transform, bowAimRayDistance, bowAimLayerMask));
+            Vector3 aimPoint = BowWeapon.GetAimPointFromCamera(transform, bowAimRayDistance, bowAimLayerMask);
+            if (spawnSkillEffect)
+            {
+                bowWeapon.FireSkillShot(transform, default, aimPoint);
+            }
+            else
+            {
+                bowWeapon.Fire(transform, default, aimPoint);
+            }
         }
 
         if (autoExitAimOnShoot)
@@ -271,8 +368,10 @@ public class PlayerAttack : MonoBehaviour
             isAiming = false;
             bowRequireAimRelease = true;
             SetBoolIfExists("isAiming", false);
-            ChangeState(AttackState.Idle);
         }
+
+        ChangeState(AttackState.Idle);
+        return true;
     }
 
     private void TriggerAttackByWeapon()
@@ -346,6 +445,55 @@ public class PlayerAttack : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void OnDisable()
+    {
+        SetAttackLayerSuppressed(false);
+    }
+
+    private void CacheAttackLayer()
+    {
+        if (animator == null || attackLayerResolved)
+        {
+            return;
+        }
+
+        attackLayerIndex = animator.GetLayerIndex(AttackLayerName);
+        attackLayerResolved = true;
+        if (attackLayerIndex >= 0)
+        {
+            attackLayerDefaultWeight = animator.GetLayerWeight(attackLayerIndex);
+            attackLayerWeightCached = true;
+        }
+    }
+
+    private void SetAttackLayerSuppressed(bool suppressed)
+    {
+        if (animator == null)
+        {
+            return;
+        }
+
+        CacheAttackLayer();
+        if (attackLayerIndex < 0)
+        {
+            return;
+        }
+
+        if (!attackLayerWeightCached)
+        {
+            attackLayerDefaultWeight = animator.GetLayerWeight(attackLayerIndex);
+            attackLayerWeightCached = true;
+        }
+
+        if (isAttackLayerSuppressed == suppressed)
+        {
+            return;
+        }
+
+        animator.SetLayerWeight(attackLayerIndex, suppressed ? 0f : attackLayerDefaultWeight);
+        isAttackLayerSuppressed = suppressed;
     }
 
 }

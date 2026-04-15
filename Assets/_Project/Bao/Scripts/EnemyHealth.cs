@@ -7,20 +7,29 @@ public class EnemyHealth : NetworkBehaviour
     [SerializeField] private int maxHealth = 10;
     [SerializeField] private bool logDamage = false;
     [SerializeField] private Animator animator;
+    [SerializeField] private GameObject freezeVfxPrefab;
+    [SerializeField] private Transform freezeVfxAnchor;
 
     [Networked] public int NetHealth { get; set; }
     [Networked] public NetworkBool NetIsDead { get; set; }
     [Networked] public int HitSequence { get; set; }
+    [Networked] public float FrozenUntil { get; set; }
+    [Networked] public int FreezeSequence { get; set; }
 
     private int localHealth;
     private bool localIsDead;
     private bool localInitialized;
     private bool deadTriggered;
     private int lastRenderedHitSequence = -1;
+    private int lastRenderedFreezeSequence = -1;
+    private bool lastRenderedFrozen;
+    private GameObject freezeVfxInstance;
+    private float localFrozenUntil;
 
     public int Health => HasNetworkState ? NetHealth : localHealth;
     public bool IsDead => HasNetworkState ? NetIsDead : localIsDead;
     public int MaxHealth => maxHealth;
+    public bool IsFrozen(float simTime) => HasNetworkState ? simTime < FrozenUntil : Time.time < localFrozenUntil;
 
     private bool HasNetworkState => Object != null && Object.IsValid;
 
@@ -43,10 +52,15 @@ public class EnemyHealth : NetworkBehaviour
             NetHealth = maxHealth;
             NetIsDead = false;
             HitSequence = 0;
+            FrozenUntil = 0f;
+            FreezeSequence = 0;
         }
 
         lastRenderedHitSequence = HitSequence;
+        lastRenderedFreezeSequence = FreezeSequence;
+        lastRenderedFrozen = IsFrozen(Runner != null ? (float)Runner.SimulationTime : Time.time);
         SyncAnimatorState();
+        RefreshFreezeVisuals(lastRenderedFrozen);
     }
 
     public override void Render()
@@ -66,6 +80,14 @@ public class EnemyHealth : NetworkBehaviour
             lastRenderedHitSequence = HitSequence;
         }
 
+        bool frozen = IsFrozen((float)Runner.SimulationTime);
+        if (frozen != lastRenderedFrozen || lastRenderedFreezeSequence != FreezeSequence)
+        {
+            lastRenderedFrozen = frozen;
+            lastRenderedFreezeSequence = FreezeSequence;
+            RefreshFreezeVisuals(frozen);
+        }
+
         SyncAnimatorState();
     }
 
@@ -74,6 +96,12 @@ public class EnemyHealth : NetworkBehaviour
         if (!HasNetworkState)
         {
             SyncAnimatorState();
+            bool frozen = Time.time < localFrozenUntil;
+            if (frozen != lastRenderedFrozen)
+            {
+                lastRenderedFrozen = frozen;
+                RefreshFreezeVisuals(frozen);
+            }
         }
     }
 
@@ -85,6 +113,30 @@ public class EnemyHealth : NetworkBehaviour
     public void RequestDamageFromPlayer(int amount, PlayerRef attackerRef)
     {
         RequestDamageInternal(amount, attackerRef);
+    }
+
+    public void RequestFreeze(float duration)
+    {
+        if (duration <= 0f || IsDead)
+        {
+            return;
+        }
+
+        if (HasNetworkState)
+        {
+            if (HasStateAuthority)
+            {
+                ApplyFreeze(duration);
+            }
+            else
+            {
+                RPC_RequestFreeze(duration);
+            }
+
+            return;
+        }
+
+        ApplyLocalFreeze(duration);
     }
 
     private void RequestDamageInternal(int amount, PlayerRef attackerRef)
@@ -169,6 +221,17 @@ public class EnemyHealth : NetworkBehaviour
         }
     }
 
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    private void RPC_RequestFreeze(float duration)
+    {
+        if (duration <= 0f || NetIsDead)
+        {
+            return;
+        }
+
+        ApplyFreeze(duration);
+    }
+
     private SharedModePlayerController ResolvePlayerController(PlayerRef playerRef)
     {
         if (Runner == null || !playerRef.IsRealPlayer)
@@ -212,6 +275,26 @@ public class EnemyHealth : NetworkBehaviour
         }
     }
 
+    private void ApplyFreeze(float duration)
+    {
+        float simTime = Runner != null ? (float)Runner.SimulationTime : Time.time;
+        FrozenUntil = Mathf.Max(FrozenUntil, simTime + Mathf.Max(0f, duration));
+        FreezeSequence++;
+    }
+
+    private void ApplyLocalFreeze(float duration)
+    {
+        EnsureLocalInitialized();
+
+        if (localIsDead)
+        {
+            return;
+        }
+
+        localFrozenUntil = Mathf.Max(localFrozenUntil, Time.time + Mathf.Max(0f, duration));
+        FreezeSequence++;
+    }
+
     private void EnsureLocalInitialized()
     {
         if (localInitialized)
@@ -221,6 +304,7 @@ public class EnemyHealth : NetworkBehaviour
 
         localHealth = maxHealth;
         localIsDead = false;
+        localFrozenUntil = 0f;
         localInitialized = true;
     }
 
@@ -257,5 +341,29 @@ public class EnemyHealth : NetworkBehaviour
         }
 
         healthBar.ConfigureForEnemy(this);
+    }
+
+    private void RefreshFreezeVisuals(bool frozen)
+    {
+        if (frozen)
+        {
+            if (freezeVfxPrefab == null)
+            {
+                return;
+            }
+
+            if (freezeVfxInstance != null)
+            {
+                Destroy(freezeVfxInstance);
+            }
+
+            Transform parent = freezeVfxAnchor != null ? freezeVfxAnchor : transform;
+            freezeVfxInstance = Instantiate(freezeVfxPrefab, parent.position, parent.rotation, parent);
+        }
+        else if (freezeVfxInstance != null)
+        {
+            Destroy(freezeVfxInstance);
+            freezeVfxInstance = null;
+        }
     }
 }

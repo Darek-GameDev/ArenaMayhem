@@ -15,6 +15,8 @@ public class BowProjectile : MonoBehaviour
     private bool initialized;
     private bool hasHit;
     private bool canDealDamage = true;
+    private bool appliesFreeze;
+    private float freezeDuration;
 
     private void Awake()
     {
@@ -24,13 +26,15 @@ public class BowProjectile : MonoBehaviour
         }
     }
 
-    public void Initialize(Transform owner, PlayerRef attacker, int damageAmount, float speed, float lifetime, bool canDealDamage)
+    public void Initialize(Transform owner, PlayerRef attacker, int damageAmount, float speed, float lifetime, bool canDealDamage, bool appliesFreeze, float freezeDuration)
     {
         ownerRoot = owner;
         attackerRef = attacker;
         damage = Mathf.Max(1, damageAmount);
         lifeTimer = Mathf.Max(0.1f, lifetime);
         this.canDealDamage = canDealDamage;
+        this.appliesFreeze = appliesFreeze;
+        this.freezeDuration = Mathf.Max(0f, freezeDuration);
         initialized = true;
 
         if (projectileBody != null)
@@ -120,6 +124,22 @@ public class BowProjectile : MonoBehaviour
                     else
                     {
                         targetHealth.TakeDamageFromOrigin(damage, transform.position);
+                    }
+
+                    if (appliesFreeze && freezeDuration > 0f)
+                    {
+                        if (networkTarget != null)
+                        {
+                            networkTarget.RequestFreeze(freezeDuration);
+                        }
+                        else if (enemyTarget != null)
+                        {
+                            enemyTarget.RequestFreeze(freezeDuration);
+                        }
+                        else if (targetHealth != null)
+                        {
+                            targetHealth.ApplyFreeze(freezeDuration);
+                        }
                     }
 
                     if (logHit)

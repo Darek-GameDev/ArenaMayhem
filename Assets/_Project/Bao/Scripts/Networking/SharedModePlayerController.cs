@@ -28,6 +28,7 @@ public class SharedModePlayerController : NetworkBehaviour
         Blocking = 2,
         BlockHit = 3,
         Aiming = 4,
+        Skill = 5,
     }
 
     [Header("Movement")]
@@ -47,6 +48,8 @@ public class SharedModePlayerController : NetworkBehaviour
     [SerializeField] private bool bowRequireAimToFire = true;
     [SerializeField] private bool bowAutoExitAimOnShoot = false;
     [SerializeField] private float bowFireCooldownSeconds = 0.35f;
+    [SerializeField] private float skillCooldownSeconds = 6f;
+    [SerializeField] private float swordSkillDurationSeconds = 1.1f;
     [SerializeField] private float bowMoveSpeedMultiplier = 1.2f;
     [SerializeField] private float bowAimMoveSpeedMultiplier = 0.65f;
     [SerializeField] private BowWeapon bowWeapon;
@@ -67,6 +70,7 @@ public class SharedModePlayerController : NetworkBehaviour
     [Networked] public NetworkBool IsBlocking { get; set; }
     [Networked] public NetworkBool AttackPressed { get; set; }
     [Networked] public int AttackSequence { get; set; }
+    [Networked] public int SkillSequence { get; set; }
     [Networked] public byte ComboStep { get; set; }
     [Networked] public int HitSequence { get; set; }
     [Networked] public int KillCount { get; set; }
@@ -76,9 +80,15 @@ public class SharedModePlayerController : NetworkBehaviour
     [Networked] public float NextBlockAllowedAt { get; set; }
     [Networked] public float BlockUntil { get; set; }
     [Networked] public float NextBowShotAllowedAt { get; set; }
+    [Networked] public float NextSkillAllowedAt { get; set; }
+    [Networked] public float SwordSkillUntil { get; set; }
+    [Networked] public float FrozenUntil { get; set; }
+    [Networked] public int FreezeSequence { get; set; }
     [Networked] public NetworkBool IsAiming { get; set; }
     [Networked] public NetworkBool BowRequireAimRelease { get; set; }
     [Networked] public NetworkBool BlockRequireRelease { get; set; }
+    [Networked] public NetworkBool IsFreezeShotPrimed { get; set; }
+    [Networked] public NetworkBool UseSkillSword { get; set; }
     [Networked] public BowWeapon.ProjectileType SelectedBowProjectileType { get; set; }
 
     private NetworkCharacterController cc;
@@ -91,6 +101,7 @@ public class SharedModePlayerController : NetworkBehaviour
 
     public PlayerWeaponType WeaponType => weaponType;
     public bool UsesBow => weaponType == PlayerWeaponType.Bow;
+    public bool IsFrozen => Runner != null && (float)Runner.SimulationTime < FrozenUntil;
 
     public void ApplySpawnClass(SharedPlayerClassType classType)
     {
@@ -170,6 +181,7 @@ public class SharedModePlayerController : NetworkBehaviour
             IsBlocking = false;
             AttackPressed = false;
             AttackSequence = 0;
+            SkillSequence = 0;
             ComboStep = 0;
             HitSequence = 0;
             KillCount = 0;
@@ -179,9 +191,15 @@ public class SharedModePlayerController : NetworkBehaviour
             NextBlockAllowedAt = 0f;
             BlockUntil = 0f;
             NextBowShotAllowedAt = 0f;
+            NextSkillAllowedAt = 0f;
+            SwordSkillUntil = 0f;
+            FrozenUntil = 0f;
+            FreezeSequence = 0;
             IsAiming = false;
             BowRequireAimRelease = false;
             BlockRequireRelease = false;
+            IsFreezeShotPrimed = false;
+            UseSkillSword = false;
             SelectedBowProjectileType = defaultBowProjectileType;
         }
 
@@ -361,6 +379,25 @@ public class SharedModePlayerController : NetworkBehaviour
             IsBlocking = false;
             IsAiming = false;
             AttackPressed = false;
+            UseSkillSword = false;
+            return;
+        }
+
+        float simTime = (float)Runner.SimulationTime;
+        if (IsFrozenAt(simTime))
+        {
+            NetLocomotionState = LocomotionState.Idle;
+            NetCombatState = CombatState.None;
+            IsBlocking = false;
+            IsAiming = false;
+            AttackPressed = false;
+            UseSkillSword = false;
+            cc.Move(Vector3.zero);
+
+            Vector3 frozenVelocity = cc.Velocity;
+            frozenVelocity.x = 0f;
+            frozenVelocity.z = 0f;
+            cc.Velocity = frozenVelocity;
             return;
         }
 
@@ -405,7 +442,6 @@ public class SharedModePlayerController : NetworkBehaviour
             cc.Jump();
         }
 
-        float simTime = (float)Runner.SimulationTime;
         if (IsBlocking && simTime >= BlockUntil)
         {
             IsBlocking = false;
@@ -466,6 +502,34 @@ public class SharedModePlayerController : NetworkBehaviour
         ApplyDamage(amount, attackerRef, hitOrigin, true);
     }
 
+    public void RequestFreeze(float duration)
+    {
+        if (duration <= 0f || IsDead)
+        {
+            return;
+        }
+
+        if (HasStateAuthority)
+        {
+            ApplyFreeze(duration);
+        }
+        else
+        {
+            RPC_RequestFreeze(duration);
+        }
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    private void RPC_RequestFreeze(float duration)
+    {
+        if (duration <= 0f || IsDead)
+        {
+            return;
+        }
+
+        ApplyFreeze(duration);
+    }
+
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_ResetAfterRespawn(Vector3 worldPosition)
     {
@@ -478,6 +542,7 @@ public class SharedModePlayerController : NetworkBehaviour
             IsAiming = false;
             AttackPressed = false;
             AttackSequence = 0;
+            SkillSequence = 0;
             ComboStep = 0;
             HitSequence = 0;
             NetLocomotionState = LocomotionState.Idle;
@@ -485,8 +550,14 @@ public class SharedModePlayerController : NetworkBehaviour
             NextBlockAllowedAt = 0f;
             BlockUntil = 0f;
             NextBowShotAllowedAt = 0f;
+            NextSkillAllowedAt = 0f;
+            SwordSkillUntil = 0f;
+            FrozenUntil = 0f;
+            FreezeSequence = 0;
             BowRequireAimRelease = false;
             BlockRequireRelease = false;
+            IsFreezeShotPrimed = false;
+            UseSkillSword = false;
             SelectedBowProjectileType = defaultBowProjectileType;
         }
     }
@@ -503,9 +574,16 @@ public class SharedModePlayerController : NetworkBehaviour
         IsBlocking = false;
         IsAiming = false;
         AttackPressed = false;
+        SkillSequence = 0;
         ComboStep = 0;
         BowRequireAimRelease = false;
         BlockRequireRelease = false;
+        NextSkillAllowedAt = 0f;
+        SwordSkillUntil = 0f;
+        FrozenUntil = 0f;
+        FreezeSequence = 0;
+        IsFreezeShotPrimed = false;
+        UseSkillSword = false;
         SelectedBowProjectileType = defaultBowProjectileType;
 
         if (NetCombatState == CombatState.Attacking || NetCombatState == CombatState.BlockHit)
@@ -594,6 +672,17 @@ public class SharedModePlayerController : NetworkBehaviour
     {
         IsAiming = false;
         BowRequireAimRelease = false;
+        IsFreezeShotPrimed = false;
+
+        if (UseSkillSword && simTime >= SwordSkillUntil)
+        {
+            UseSkillSword = false;
+            SwordSkillUntil = 0f;
+            if (NetCombatState == CombatState.Skill)
+            {
+                NetCombatState = CombatState.None;
+            }
+        }
 
         // Drive block from held state to avoid dropped pressed/released transitions.
         if (blockHeld)
@@ -620,6 +709,25 @@ public class SharedModePlayerController : NetworkBehaviour
             }
         }
 
+        if (input.SkillPressed && simTime >= NextSkillAllowedAt)
+        {
+            SkillSequence++;
+            NetCombatState = CombatState.Skill;
+            NextSkillAllowedAt = simTime + skillCooldownSeconds;
+            SwordSkillUntil = simTime + Mathf.Max(0.05f, swordSkillDurationSeconds);
+            UseSkillSword = true;
+        }
+        else if (NetCombatState == CombatState.Skill && !UseSkillSword)
+        {
+            NetCombatState = CombatState.None;
+        }
+
+        if (UseSkillSword)
+        {
+            AttackPressed = false;
+            return;
+        }
+
         if (input.AttackPressed && !IsBlocking)
         {
             AttackPressed = true;
@@ -641,6 +749,8 @@ public class SharedModePlayerController : NetworkBehaviour
     {
         IsBlocking = false;
         ComboStep = 0;
+        UseSkillSword = false;
+        SwordSkillUntil = 0f;
 
         if (BowRequireAimRelease)
         {
@@ -669,19 +779,41 @@ public class SharedModePlayerController : NetworkBehaviour
             SelectedBowProjectileType = BowWeapon.ProjectileType.Secondary;
         }
 
+        bool skillRequested = input.SkillPressed && simTime >= NextSkillAllowedAt && (!bowRequireAimToFire || IsAiming);
         bool canFireNow = simTime >= NextBowShotAllowedAt;
         bool primaryPressed = input.AttackPressed;
         bool fireRequested = primaryPressed && (!bowRequireAimToFire || IsAiming);
-        BowWeapon.ProjectileType projectileType = SelectedBowProjectileType;
 
-        if (fireRequested && canFireNow)
+        if (skillRequested)
+        {
+            SkillSequence++;
+            AttackSequence++;
+            AttackPressed = true;
+            NetCombatState = CombatState.Attacking;
+            NextSkillAllowedAt = simTime + skillCooldownSeconds;
+            NextBowShotAllowedAt = simTime + bowFireCooldownSeconds;
+
+            FireBowProjectile(SelectedBowProjectileType, true);
+
+            if (bowAutoExitAimOnShoot)
+            {
+                IsAiming = false;
+                BowRequireAimRelease = true;
+            }
+            else
+            {
+                IsAiming = aimHeld;
+                BowRequireAimRelease = false;
+            }
+        }
+        else if (fireRequested && canFireNow)
         {
             AttackPressed = true;
             AttackSequence++;
             NetCombatState = CombatState.Attacking;
             NextBowShotAllowedAt = simTime + bowFireCooldownSeconds;
 
-            FireBowProjectile(projectileType);
+            FireBowProjectile(SelectedBowProjectileType, false);
 
             if (bowAutoExitAimOnShoot)
             {
@@ -706,7 +838,7 @@ public class SharedModePlayerController : NetworkBehaviour
         }
     }
 
-    private void FireBowProjectile(BowWeapon.ProjectileType projectileType)
+    private void FireBowProjectile(BowWeapon.ProjectileType projectileType, bool spawnSkillEffect)
     {
         if (bowWeapon == null)
         {
@@ -725,11 +857,11 @@ public class SharedModePlayerController : NetworkBehaviour
         }
 
         Vector3 aimPoint = BowWeapon.GetAimPointFromCamera(transform, bowAimRayDistance, bowAimLayerMask);
-        RPC_SpawnBowProjectile(aimPoint, attackerRef, projectileType);
+        RPC_SpawnBowProjectile(aimPoint, attackerRef, projectileType, spawnSkillEffect);
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_SpawnBowProjectile(Vector3 aimPoint, PlayerRef attackerRef, BowWeapon.ProjectileType projectileType)
+    private void RPC_SpawnBowProjectile(Vector3 aimPoint, PlayerRef attackerRef, BowWeapon.ProjectileType projectileType, bool spawnSkillEffect)
     {
         if (bowWeapon == null)
         {
@@ -741,7 +873,25 @@ public class SharedModePlayerController : NetworkBehaviour
             return;
         }
 
-        bowWeapon.SpawnProjectile(transform, attackerRef, aimPoint, HasStateAuthority, projectileType);
+        bowWeapon.SpawnProjectile(transform, attackerRef, aimPoint, HasStateAuthority, projectileType, spawnSkillEffect);
+    }
+
+    private bool IsFrozenAt(float simTime)
+    {
+        return simTime < FrozenUntil;
+    }
+
+    private void ApplyFreeze(float duration)
+    {
+        float simTime = Runner != null ? (float)Runner.SimulationTime : Time.time;
+        FrozenUntil = Mathf.Max(FrozenUntil, simTime + Mathf.Max(0f, duration));
+        FreezeSequence++;
+        NetCombatState = CombatState.None;
+        IsBlocking = false;
+        IsAiming = false;
+        AttackPressed = false;
+        UseSkillSword = false;
+        SwordSkillUntil = 0f;
     }
 
     private Vector3 GetAimForward()

@@ -10,6 +10,7 @@ public class SharedModeAnimatorBridge : MonoBehaviour
 
     private int lastHitSequence = -1;
     private int lastAttackSequence = -1;
+    private int lastSkillSequence = -1;
     private bool deadTriggered;
     private bool wasBlocking;
     private bool wasJumping;
@@ -17,7 +18,16 @@ public class SharedModeAnimatorBridge : MonoBehaviour
 
     private const string AttackSwordTrigger = "AttackSword";
     private const string AttackBowTrigger = "AttackBow";
+    [SerializeField] private string skillSpinTrigger = "SkillSpin";
+    [SerializeField] private string attackLayerName = "Attack";
     private const string StartAimTrigger = "startAim";
+    private const string UseSkillSwordBool = "useSkillSword";
+
+    private int attackLayerIndex = -1;
+    private bool attackLayerResolved;
+    private float attackLayerDefaultWeight = 1f;
+    private bool attackLayerWeightCached;
+    private bool isAttackLayerSuppressed;
 
     private void Awake()
     {
@@ -70,6 +80,8 @@ public class SharedModeAnimatorBridge : MonoBehaviour
             SetBoolIfExists("isFalling", false);
             SetBoolIfExists("isBlocking", false);
             SetBoolIfExists("isAiming", false);
+            SetBoolIfExists(UseSkillSwordBool, false);
+            SetAttackLayerSuppressed(false);
             animator.SetFloat("Speed", 0f, 0.08f, Time.deltaTime);
             wasJumping = false;
             wasAiming = false;
@@ -109,6 +121,9 @@ public class SharedModeAnimatorBridge : MonoBehaviour
         SetBoolIfExists("isBlocking", isBlocking);
         bool isAiming = controller.IsAiming;
         SetBoolIfExists("isAiming", isAiming);
+        SetBoolIfExists(UseSkillSwordBool, controller.UseSkillSword);
+        bool swordSkillActive = !controller.UsesBow && controller.UseSkillSword;
+        SetAttackLayerSuppressed(swordSkillActive);
 
         if (isAiming && !wasAiming)
         {
@@ -121,6 +136,23 @@ public class SharedModeAnimatorBridge : MonoBehaviour
         }
         wasAiming = isAiming;
 
+        int skillSequence = controller.SkillSequence;
+        if (lastSkillSequence < 0)
+        {
+            lastSkillSequence = skillSequence;
+        }
+        else if (skillSequence != lastSkillSequence)
+        {
+            lastSkillSequence = skillSequence;
+            TriggerSkillByWeapon();
+        }
+
+        if (swordSkillActive)
+        {
+            wasBlocking = false;
+            return;
+        }
+
         if (isBlocking && !wasBlocking)
         {
             SetTriggerIfExists("startBlock");
@@ -130,7 +162,6 @@ public class SharedModeAnimatorBridge : MonoBehaviour
             
         }
         wasBlocking = isBlocking;
-        
 
         int attackSequence = controller.AttackSequence;
         if (lastAttackSequence < 0)
@@ -170,6 +201,24 @@ public class SharedModeAnimatorBridge : MonoBehaviour
             ResetTriggerIfExists(AttackSwordTrigger);
             ResetTriggerIfExists(AttackBowTrigger);
             SetTriggerIfExists(AttackBowTrigger);
+            return;
+        }
+
+        ResetTriggerIfExists(AttackSwordTrigger);
+        SetTriggerIfExists(AttackSwordTrigger);
+    }
+
+    private void TriggerSkillByWeapon()
+    {
+        if (controller.UsesBow)
+        {
+            return;
+        }
+
+        if (HasParameter(skillSpinTrigger, AnimatorControllerParameterType.Trigger))
+        {
+            ResetTriggerIfExists(skillSpinTrigger);
+            SetTriggerIfExists(skillSpinTrigger);
             return;
         }
 
@@ -227,5 +276,54 @@ public class SharedModeAnimatorBridge : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void OnDisable()
+    {
+        SetAttackLayerSuppressed(false);
+    }
+
+    private void CacheAttackLayer()
+    {
+        if (animator == null || attackLayerResolved)
+        {
+            return;
+        }
+
+        attackLayerIndex = animator.GetLayerIndex(attackLayerName);
+        attackLayerResolved = true;
+        if (attackLayerIndex >= 0)
+        {
+            attackLayerDefaultWeight = animator.GetLayerWeight(attackLayerIndex);
+            attackLayerWeightCached = true;
+        }
+    }
+
+    private void SetAttackLayerSuppressed(bool suppressed)
+    {
+        if (animator == null)
+        {
+            return;
+        }
+
+        CacheAttackLayer();
+        if (attackLayerIndex < 0)
+        {
+            return;
+        }
+
+        if (!attackLayerWeightCached)
+        {
+            attackLayerDefaultWeight = animator.GetLayerWeight(attackLayerIndex);
+            attackLayerWeightCached = true;
+        }
+
+        if (isAttackLayerSuppressed == suppressed)
+        {
+            return;
+        }
+
+        animator.SetLayerWeight(attackLayerIndex, suppressed ? 0f : attackLayerDefaultWeight);
+        isAttackLayerSuppressed = suppressed;
     }
 }

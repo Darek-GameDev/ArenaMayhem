@@ -1451,6 +1451,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 3a695f4d-4cc4-4bc2-a7a4-d50f4fc7de22
     m_ActionName: 'Player/Aim[/Mouse/rightButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e4dc3110-94f8-483b-bfd3-41dfec1e6c87
+    m_ActionName: 'Player/Skill[/Keyboard/e]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -1526,6 +1530,8 @@ MonoBehaviour:
   bowRequireAimToFire: 1
   bowFireCooldown: 0.35
   autoExitAimOnShoot: 1
+  skillCooldown: 6
+  swordSkillDuration: 5
   bowAimRayDistance: 200
   bowAimLayerMask:
     serializedVersion: 2
@@ -1601,6 +1607,8 @@ MonoBehaviour:
   animator: {fileID: 0}
   networkCharacterController: {fileID: 0}
   bowHandVisualEvents: {fileID: 0}
+  skillSpinTrigger: SkillSpin
+  attackLayerName: Attack
 --- !u!114 &2167511110069939194
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1627,9 +1635,12 @@ MonoBehaviour:
   bowRequireAimToFire: 1
   bowAutoExitAimOnShoot: 0
   bowFireCooldownSeconds: 0.35
+  skillCooldownSeconds: 6
+  swordSkillDurationSeconds: 4
   bowMoveSpeedMultiplier: 1.2
   bowAimMoveSpeedMultiplier: 0.65
   bowWeapon: {fileID: 0}
+  defaultBowProjectileType: 0
   bowAimRayDistance: 200
   bowAimLayerMask:
     serializedVersion: 2
@@ -1644,6 +1655,7 @@ MonoBehaviour:
   _AttackPressed:
     _value: 0
   _AttackSequence: 0
+  _SkillSequence: 0
   _ComboStep: 0
   _HitSequence: 0
   _KillCount: 0
@@ -1653,12 +1665,21 @@ MonoBehaviour:
   _NextBlockAllowedAt: 0
   _BlockUntil: 0
   _NextBowShotAllowedAt: 0
+  _NextSkillAllowedAt: 0
+  _SwordSkillUntil: 0
+  _FrozenUntil: 0
+  _FreezeSequence: 0
   _IsAiming:
     _value: 0
   _BowRequireAimRelease:
     _value: 0
   _BlockRequireRelease:
     _value: 0
+  _IsFreezeShotPrimed:
+    _value: 0
+  _UseSkillSword:
+    _value: 0
+  _SelectedBowProjectileType: 0
 --- !u!1 &2794010901955814116
 GameObject:
   m_ObjectHideFlags: 0

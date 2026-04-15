@@ -33,6 +33,7 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     private bool prevWeaponSlot2;
     private bool prevBlock;
     private bool prevAim;
+    private bool prevSkill;
     private bool warnedMissingInput;
 
     private void Awake()
@@ -122,6 +123,7 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         bool weaponSlot2Held = ReadButtonHeld("Next");
         bool blockHeld = ReadButtonHeld("Block");
         bool aimHeld = ReadButtonHeld("Aim");
+        bool skillHeld = ReadButtonHeld("Skill");
 
         Vector2 move = ReadVector2("Move");
         Vector2 look = ApplyLookSensitivity(ReadVector2("Look"), aimHeld);
@@ -135,6 +137,7 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         buttons.Set((int)PlayerInputButton.WeaponSlot2, weaponSlot2Held);
         buttons.Set((int)PlayerInputButton.Block, blockHeld);
         buttons.Set((int)PlayerInputButton.Aim, aimHeld);
+        buttons.Set((int)PlayerInputButton.Skill, skillHeld);
 
         ComputeTransitions(jumpHeld, ref prevJump, out NetworkBool jumpPressed, out NetworkBool jumpReleased);
         ComputeTransitions(sprintHeld, ref prevSprint, out NetworkBool sprintPressed, out NetworkBool sprintReleased);
@@ -144,6 +147,7 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         ComputeTransitions(weaponSlot2Held, ref prevWeaponSlot2, out NetworkBool weaponSlot2Pressed, out NetworkBool weaponSlot2Released);
         ComputeTransitions(blockHeld, ref prevBlock, out NetworkBool blockPressed, out NetworkBool blockReleased);
         ComputeTransitions(aimHeld, ref prevAim, out NetworkBool aimPressed, out NetworkBool aimReleased);
+        ComputeTransitions(skillHeld, ref prevSkill, out NetworkBool skillPressed, out NetworkBool skillReleased);
 
         PlayerNetworkInput data = new PlayerNetworkInput
         {
@@ -166,6 +170,8 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
             BlockReleased = blockReleased,
             AimPressed = aimPressed,
             AimReleased = aimReleased,
+            SkillPressed = skillPressed,
+            SkillReleased = skillReleased,
         };
 
         input.Set(data);
@@ -311,6 +317,8 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
                 return keyboard != null && keyboard.digit2Key.isPressed;
             case "Block":
                 return mouse != null && mouse.rightButton.isPressed;
+            case "Skill":
+                return keyboard != null && keyboard.eKey.isPressed;
             default:
                 return false;
         }

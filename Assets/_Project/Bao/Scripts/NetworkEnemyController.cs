@@ -174,6 +174,16 @@ public class NetworkEnemyController : NetworkBehaviour
 
         float simTime = (float)Runner.SimulationTime;
 
+        if (enemyHealth != null && enemyHealth.IsFrozen(simTime))
+        {
+            IsBlocking = false;
+            IsAiming = false;
+            NetCombatState = CombatState.None;
+            NetLocomotionState = LocomotionState.Idle;
+            cc.Move(Vector3.zero);
+            return;
+        }
+
         if (pendingRangedShot && simTime >= pendingRangedFallbackFireAt)
         {
             ReleaseQueuedRangedShotFromAnimationEvent();
