@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
@@ -10,27 +11,26 @@ public class MatchResultUIController : MonoBehaviour
     [SerializeField] private int maxPlayers = 6;
     [SerializeField] [Min(2)] private int minimumPlayersToStartResult = 2;
 
-    [Header("Result UI Names")]
-    [SerializeField] private string resultRootName = "Win_Lose_Die";
-    [SerializeField] private string resultRootFallbackName = "Win/Lose/Die";
-    [SerializeField] private string winObjectName = "VIctory";
-    [SerializeField] private string loseObjectName = "Lose";
+    [Header("Result UI References")]
+    [SerializeField] private GameObject resultRoot;
+    [SerializeField] private GameObject winObject;
+    [SerializeField] private GameObject loseObject;
+
+    [Header("Return To Menu")]
+    [SerializeField] private string menuSceneName = "Menu";
     [SerializeField] private string returnButtonName = "Return To Menu";
 
     [Header("Button Actions")]
     [SerializeField] private bool autoBindResultButtons = true;
 
     private SharedModePlayerController localController;
-    private GameObject resultRoot;
-    private GameObject winObject;
-    private GameObject loseObject;
     private bool resultShown;
     private bool matchArmed;
     private bool actionInProgress;
 
     private void Awake()
     {
-        ResolveResultObjects();
+        HideResultUI();
 
         if (autoBindResultButtons)
         {
@@ -60,7 +60,6 @@ public class MatchResultUIController : MonoBehaviour
 
     private void TryShowResult()
     {
-        ResolveResultObjects();
         if (resultRoot == null || winObject == null || loseObject == null)
         {
             return;
@@ -97,12 +96,6 @@ public class MatchResultUIController : MonoBehaviour
             }
         }
 
-        int localRank = GetRank(players, localController);
-        if (localRank <= 0)
-        {
-            return;
-        }
-
         int aliveCount = 0;
         for (int i = 0; i < players.Count; i++)
         {
@@ -112,18 +105,22 @@ public class MatchResultUIController : MonoBehaviour
             }
         }
 
-        bool matchFinished = aliveCount <= 1 || localController.IsDead;
-        if (!matchFinished)
+        if (localController.IsDead)
         {
+            ShowResult(false);
             return;
         }
 
-        ShowResult(localRank == 1);
+        if (aliveCount <= 1)
+        {
+            ShowResult(true);
+        }
     }
 
     private void ShowResult(bool isWin)
     {
         resultShown = true;
+        Time.timeScale = 0f;
 
         for (int i = 0; i < transform.childCount; i++)
         {
@@ -141,31 +138,26 @@ public class MatchResultUIController : MonoBehaviour
         loseObject.SetActive(!isWin);
     }
 
-    private void ResolveResultObjects()
+    private void HideResultUI()
     {
-        if (resultRoot != null && winObject != null && loseObject != null)
+        if (resultRoot != null)
         {
-            return;
+            resultRoot.SetActive(false);
         }
 
-        resultRoot = FindChildByName(transform, resultRootName);
-        if (resultRoot == null)
+        if (winObject != null)
         {
-            resultRoot = FindChildByName(transform, resultRootFallbackName);
+            winObject.SetActive(false);
         }
 
-        if (resultRoot == null)
+        if (loseObject != null)
         {
-            return;
+            loseObject.SetActive(false);
         }
-
-        winObject = FindChildByName(resultRoot.transform, winObjectName);
-        loseObject = FindChildByName(resultRoot.transform, loseObjectName);
     }
 
     private void BindResultButtons()
     {
-        ResolveResultObjects();
         if (resultRoot == null)
         {
             return;
@@ -203,10 +195,29 @@ public class MatchResultUIController : MonoBehaviour
         }
 
         actionInProgress = true;
-        await LeaveRoomIfNeeded();
-        RestoreCanvasAfterResult();
-        OpenMenuUI();
-        actionInProgress = false;
+        try
+        {
+            await LeaveRoomIfNeeded();
+            RestoreGameplayTime();
+
+            if (!string.IsNullOrWhiteSpace(menuSceneName) && Application.CanStreamedLevelBeLoaded(menuSceneName))
+            {
+                SceneManager.LoadScene(menuSceneName);
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(menuSceneName))
+            {
+                Debug.LogWarning($"MatchResultUIController: menu scene '{menuSceneName}' could not be loaded. Falling back to menu UI reset.");
+            }
+
+            RestoreCanvasAfterResult();
+            OpenMenuUI();
+        }
+        finally
+        {
+            actionInProgress = false;
+        }
     }
 
     private static async System.Threading.Tasks.Task LeaveRoomIfNeeded()
@@ -237,6 +248,21 @@ public class MatchResultUIController : MonoBehaviour
         {
             resultRoot.SetActive(false);
         }
+
+        if (winObject != null)
+        {
+            winObject.SetActive(false);
+        }
+
+        if (loseObject != null)
+        {
+            loseObject.SetActive(false);
+        }
+    }
+
+    private static void RestoreGameplayTime()
+    {
+        Time.timeScale = 1f;
     }
 
     private static void OpenMenuUI()
@@ -269,57 +295,13 @@ public class MatchResultUIController : MonoBehaviour
         return null;
     }
 
-    private static int GetRank(List<SharedModePlayerController> players, SharedModePlayerController local)
+    private void OnDisable()
     {
-        if (local == null)
-        {
-            return -1;
-        }
-
-        players.Sort((a, b) =>
-        {
-            int killCompare = b.KillCount.CompareTo(a.KillCount);
-            if (killCompare != 0)
-            {
-                return killCompare;
-            }
-
-            if (a.Object == null || b.Object == null)
-            {
-                return 0;
-            }
-
-            return a.Object.InputAuthority.RawEncoded.CompareTo(b.Object.InputAuthority.RawEncoded);
-        });
-
-        for (int i = 0; i < players.Count; i++)
-        {
-            if (players[i] == local)
-            {
-                return i + 1;
-            }
-        }
-
-        return -1;
+        RestoreGameplayTime();
     }
 
-    private static GameObject FindChildByName(Transform root, string objectName)
+    private void OnDestroy()
     {
-        if (root == null || string.IsNullOrWhiteSpace(objectName))
-        {
-            return null;
-        }
-
-        Transform[] allChildren = root.GetComponentsInChildren<Transform>(true);
-        for (int i = 0; i < allChildren.Length; i++)
-        {
-            Transform child = allChildren[i];
-            if (child != null && child.name == objectName)
-            {
-                return child.gameObject;
-            }
-        }
-
-        return null;
+        RestoreGameplayTime();
     }
 }
