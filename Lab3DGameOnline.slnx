@@ -1,8 +1,8 @@
 ﻿<Solution>
   <Project Path="PlayModeChangesSaver.Editor.csproj" />
   <Project Path="Fusion.Unity.Editor.csproj" />
-  <Project Path="Assembly-CSharp.csproj" />
   <Project Path="OpalStudio.CodePreview.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="Assembly-CSharp-firstpass.csproj" />
   <Project Path="Fusion.Unity.csproj" />

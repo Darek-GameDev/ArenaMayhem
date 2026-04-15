@@ -569,6 +569,7 @@ public class SharedModePlayerController : NetworkBehaviour
                 if (attacker != null)
                 {
                     attacker.RPC_RequestAddKill(1);
+                    KillFeedReporter.ReportPlayerKill(Runner, attackerRef, Object.InputAuthority);
                 }
             }
         }
@@ -865,4 +866,5 @@ public class SharedModePlayerController : NetworkBehaviour
         float dot = Vector3.Dot(defenderForward, toHitOrigin.normalized);
         return dot >= blockFrontDotThreshold;
     }
+
 }
