@@ -150,6 +150,6 @@ MonoBehaviour:
   healCollectorToFull: 1
   destroyOnCollect: 1
   logCollect: 0
-  speedBoostMultiplier: 2
-  speedBoostDuration: 5
+  speedBoostMultiplier: 1.5
+  speedBoostDuration: 4
   itemRenderers: []

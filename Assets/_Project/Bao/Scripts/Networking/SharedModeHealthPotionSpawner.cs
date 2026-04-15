@@ -32,6 +32,7 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
     private bool callbacksRegistered;
     private NetworkObject spawnedPotion;
     private readonly List<NetworkObject> visiblePotions = new List<NetworkObject>(4);
+    private readonly List<Vector3> reservedSpawnPositions = new List<Vector3>(8);
     private float nextPeriodicSpawnAt = -1f;
 
     private void Awake()
@@ -226,6 +227,7 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
         }
 
         int spawnedCount = 0;
+        reservedSpawnPositions.Clear();
 
         for (int i = 0; i < spawnCount; i++)
         {
@@ -235,7 +237,12 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
                 return spawnedCount;
             }
 
-            Vector3 spawnPosition = GetRandomSpawnPosition(out Quaternion spawnRotation);
+            if (!TryGetFreeSpawnPosition(reservedSpawnPositions, out Vector3 spawnPosition, out Quaternion spawnRotation))
+            {
+                return spawnedCount;
+            }
+
+            reservedSpawnPositions.Add(spawnPosition);
             spawnedPotion = currentRunner.Spawn(prefabToSpawn, spawnPosition, spawnRotation, currentRunner.LocalPlayer);
             if (spawnedPotion != null)
             {
@@ -249,6 +256,87 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
         }
 
         return spawnedCount;
+    }
+
+    private bool TryGetFreeSpawnPosition(List<Vector3> reservedPositions, out Vector3 position, out Quaternion rotation)
+    {
+        if (TryGetFreeRandomSpawnPoint(randomSpawnPoints, reservedPositions, out Transform point))
+        {
+            position = point.position;
+            rotation = point.rotation;
+            return true;
+        }
+
+        if (fallbackSpawnPoint != null && !IsSpawnPositionOccupied(fallbackSpawnPoint.position, reservedPositions))
+        {
+            position = fallbackSpawnPoint.position;
+            rotation = fallbackSpawnPoint.rotation;
+            return true;
+        }
+
+        position = Vector3.zero;
+        rotation = Quaternion.identity;
+        return false;
+    }
+
+    private bool TryGetFreeRandomSpawnPoint(Transform[] points, List<Vector3> reservedPositions, out Transform selectedPoint)
+    {
+        selectedPoint = null;
+        if (points == null || points.Length == 0)
+        {
+            return false;
+        }
+
+        int startIndex = UnityEngine.Random.Range(0, points.Length);
+        for (int i = 0; i < points.Length; i++)
+        {
+            int index = (startIndex + i) % points.Length;
+            Transform candidate = points[index];
+            if (candidate == null)
+            {
+                continue;
+            }
+
+            if (IsSpawnPositionOccupied(candidate.position, reservedPositions))
+            {
+                continue;
+            }
+
+            selectedPoint = candidate;
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool IsSpawnPositionOccupied(Vector3 position, List<Vector3> reservedPositions)
+    {
+        const float occupancyRadius = 0.25f;
+        float occupancyRadiusSqr = occupancyRadius * occupancyRadius;
+
+        for (int i = 0; i < reservedPositions.Count; i++)
+        {
+            if ((reservedPositions[i] - position).sqrMagnitude <= occupancyRadiusSqr)
+            {
+                return true;
+            }
+        }
+
+        for (int i = 0; i < visiblePotions.Count; i++)
+        {
+            NetworkObject existingPotion = visiblePotions[i];
+            if (existingPotion == null)
+            {
+                continue;
+            }
+
+            if ((existingPotion.transform.position - position).sqrMagnitude <= occupancyRadiusSqr)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void HandlePeriodicSpawn()
