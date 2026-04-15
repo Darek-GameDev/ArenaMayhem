@@ -84,6 +84,22 @@ public class LobbyUI : MonoBehaviour
 		currentPlayerCount = 0;
 		SyncLobbyFromSession();
 		RefreshLobbyUI();
+		
+		// Subscribe to session property changes to update UI immediately
+		SharedRoomSessionManager.OnSessionPropertiesChanged += OnSessionPropertiesChanged;
+	}
+
+	private void OnDisable()
+	{
+		// Unsubscribe from session property changes
+		SharedRoomSessionManager.OnSessionPropertiesChanged -= OnSessionPropertiesChanged;
+	}
+
+	private void OnSessionPropertiesChanged()
+	{
+		// When session properties change, sync and refresh lobby UI immediately
+		SyncLobbyFromSession();
+		RefreshLobbyUI();
 	}
 
 	private void EnsurePlayerSlotsConfigured()
@@ -683,7 +699,7 @@ public class LobbyUI : MonoBehaviour
 			case AvatarKind.Archer:
 				return "Archer";
 			default:
-				return "Class Name";
+				return "CLASS NAME";
 		}
 	}
 

@@ -15,6 +15,8 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     public static SharedRoomSessionManager Instance { get; private set; }
 
+    public static event System.Action OnSessionPropertiesChanged;
+
     [Header("Room Rules")]
     [SerializeField] private int minPlayersToStart = 1;
     [SerializeField] private int maxPlayersPerRoom = 6;
@@ -769,7 +771,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
                 continue;
             }
 
-            bool keyExists = sessionInfo.Properties.ContainsKey(item.Key);
+            bool keyExists = sessionInfo.Properties != null && sessionInfo.Properties.ContainsKey(item.Key);
             if (!keyExists)
             {
                 if (!IsPlayerStatePropertyKey(item.Key))
@@ -795,6 +797,10 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         }
 
         sessionInfo.UpdateCustomProperties(filteredUpdates);
+        
+        // Notify listeners that session properties have changed
+        OnSessionPropertiesChanged?.Invoke();
+        
         return true;
     }
 
@@ -806,12 +812,25 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
     private Dictionary<string, SessionProperty> BuildInitialSessionProperties()
     {
         // Fusion allows max 10 custom session properties.
-        // We use: owner (1) + force_close (1) + per-player states (lazy-populated).
-        var properties = new Dictionary<string, SessionProperty>(2)
+        // We use: owner (1) + force_close (1) + per-player states (6 for max 6 players).
+        var properties = new Dictionary<string, SessionProperty>(8)
         {
             [OwnerPropertyKey] = 0,
             [ForceCloseRoomPropertyKey] = 0,
         };
+
+        // Pre-initialize player state properties so they exist before players try to update them.
+        // This prevents "Invalid custom property key" errors from Fusion server.
+        // Fusion only allows UPDATE of existing properties, not creation of new ones.
+        // Player state keys are formatted as "state_1", "state_2", ..., "state_6"
+        for (int playerSlot = 1; playerSlot <= MaxPlayersPerRoom; playerSlot++)
+        {
+            string playerStateKey = $"state_{playerSlot}";
+            
+            // Initialize with empty state (Unknown class, not ready)
+            int defaultState = SharedPlayerClassTypeUtility.EncodePlayerState(SharedPlayerClassType.Unknown, false);
+            properties[playerStateKey] = defaultState;
+        }
 
         return properties;
     }
@@ -1047,6 +1066,9 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
         EnsureOwnerProperty();
         ApplyPendingLocalState();
+        
+        // Notify that session properties might have changed (new player could have class data)
+        OnSessionPropertiesChanged?.Invoke();
     }
 
     void INetworkRunnerCallbacks.OnPlayerLeft(NetworkRunner sourceRunner, PlayerRef player)
@@ -1100,6 +1122,20 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         isForceCloseHandling = false;
         connectedPlayers.Clear();
         currentRoomId = null;
+        
+        // Clear pending local state so it doesn't carry over to the next room
+        hasPendingLocalClass = false;
+        hasPendingLocalReady = false;
+        hasPendingLocalPlayerName = false;
+        pendingLocalClass = SharedPlayerClassType.Unknown;
+        pendingLocalReady = false;
+        pendingLocalPlayerName = null;
+        lastPublishedLocalState = int.MinValue;
+        lastPublishedLocalProfilePayload = string.Empty;
+        lastPublishedLocalStateKey = string.Empty;
+        
+        // Notify listeners that session has shutdown (so UI can reset)
+        OnSessionPropertiesChanged?.Invoke();
     }
 
     void INetworkRunnerCallbacks.OnConnectedToServer(NetworkRunner sourceRunner) { }

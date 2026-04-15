@@ -205749,7 +205749,6 @@ GameObject:
   - component: {fileID: 1662741701}
   - component: {fileID: 1662741700}
   - component: {fileID: 1662741699}
-  - component: {fileID: 1662741698}
   m_Layer: 0
   m_Name: MatchManager
   m_TagString: Untagged
@@ -205757,32 +205756,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1662741698
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1662741697}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e1a4ff81ac369f40a108669d78b6634, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SharedModeEnemySpawnCallbacks
-  runner: {fileID: 0}
-  enemyPrefab: {fileID: 4936854623005984870, guid: d52fe436d08a65245ac2ffdcfec44c17, type: 3}
-  archerEnemyPrefab: {fileID: 1664981286852435614, guid: 7f6d2f8b3e1a4c2db5f9017a6c8e4d11, type: 3}
-  enemySpawnVariant: 1
-  randomSpawnPoints:
-  - {fileID: 137212056}
-  - {fileID: 575120879}
-  - {fileID: 1417996115}
-  - {fileID: 1414517217}
-  - {fileID: 756774354}
-  - {fileID: 2051500206}
-  spawnPoint: {fileID: 575120879}
-  logSpawn: 1
-  spawnOnFirstPlayerJoin: 1
 --- !u!114 &1662741699
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -255629,11 +255602,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2018874732352609620, guid: f04764544a2a25f498ab3fafa19b20f0, type: 3}
---- !u!4 &2051500206 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 604276249976346929, guid: dc9380748d8b0ab42ba14662530c0421, type: 3}
-  m_PrefabInstance: {fileID: 1698035499}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2051857014
 PrefabInstance:
   m_ObjectHideFlags: 0

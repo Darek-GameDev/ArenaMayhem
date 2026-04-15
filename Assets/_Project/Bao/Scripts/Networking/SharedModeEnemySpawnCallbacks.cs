@@ -57,6 +57,11 @@ public class SharedModeEnemySpawnCallbacks : MonoBehaviour, INetworkRunnerCallba
             return;
         }
 
+        if (!pendingInitialSpawn && ShouldTriggerInitialSpawnFromCurrentState(runner))
+        {
+            pendingInitialSpawn = true;
+        }
+
         if (pendingInitialSpawn && runner != null)
         {
             TrySpawnEnemy(runner);
@@ -258,6 +263,16 @@ public class SharedModeEnemySpawnCallbacks : MonoBehaviour, INetworkRunnerCallba
         }
 
         return count;
+    }
+
+    private static bool ShouldTriggerInitialSpawnFromCurrentState(NetworkRunner currentRunner)
+    {
+        if (currentRunner == null || currentRunner.GameMode != GameMode.Shared)
+        {
+            return false;
+        }
+
+        return GetRealPlayerCount(currentRunner) > 0;
     }
 
     private static bool CanLocalPlayerSpawn(NetworkRunner currentRunner)
