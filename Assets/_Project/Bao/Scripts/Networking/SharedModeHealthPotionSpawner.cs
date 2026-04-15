@@ -4,6 +4,7 @@ using Fusion;
 using Fusion.Sockets;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 [DisallowMultipleComponent]
 public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallbacks
@@ -11,11 +12,18 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
     [Header("References")]
     [SerializeField] private NetworkRunner runner;
     [SerializeField] private NetworkObject potionPrefab;
+    [SerializeField] private NetworkObject[] randomItemPrefabs;
 
     [Header("Spawn Rules")]
     [SerializeField] private bool spawnOnFirstPlayerJoin = true;
     [SerializeField] private bool allowSpawnWithF = true;
-    [SerializeField] private bool onlyOnePotionAtATime = true;
+    [SerializeField] private bool onlyOnePotionAtATime = false;
+    [SerializeField, Min(1)] private int initialSpawnCount = 3;
+    [SerializeField, Min(1)] private int spawnCountPerFPress = 1;
+    [SerializeField, Min(1)] private int maxSpawnedItemsInMap = 10;
+    [SerializeField] private string mainMapSceneName = "MainMap";
+    [SerializeField, Min(1f)] private float periodicSpawnIntervalSeconds = 15f;
+    [SerializeField, Min(1)] private int periodicSpawnCount = 1;
     [SerializeField] private bool restrictSpawnToLowestPlayerId = true;
     [SerializeField] private Transform[] randomSpawnPoints;
     [SerializeField] private Transform fallbackSpawnPoint;
@@ -24,6 +32,7 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
     private bool callbacksRegistered;
     private NetworkObject spawnedPotion;
     private readonly List<NetworkObject> visiblePotions = new List<NetworkObject>(4);
+    private float nextPeriodicSpawnAt = -1f;
 
     private void Awake()
     {
@@ -46,6 +55,7 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
         }
 
         RefreshSpawnedPotionReference();
+        HandlePeriodicSpawn();
 
         if (!allowSpawnWithF || runner == null)
         {
@@ -62,13 +72,18 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
             return;
         }
 
+        if (!IsMainMapActive())
+        {
+            return;
+        }
+
         Keyboard keyboard = Keyboard.current;
         if (keyboard == null || !keyboard.fKey.wasPressedThisFrame)
         {
             return;
         }
 
-        TrySpawnPotion(runner, requireFirstRealPlayer: false);
+        TrySpawnItems(runner, requireFirstRealPlayer: false, requestedCount: spawnCountPerFPress);
     }
 
     private void OnDisable()
@@ -129,66 +144,205 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
             return;
         }
 
-        TrySpawnPotion(runner, requireFirstRealPlayer: true);
+        if (!IsMainMapActive())
+        {
+            return;
+        }
+
+        int spawnedCount = TrySpawnItems(runner, requireFirstRealPlayer: true, requestedCount: initialSpawnCount);
+        if (spawnedCount > 0)
+        {
+            ScheduleNextPeriodicSpawn();
+        }
     }
 
     void INetworkRunnerCallbacks.OnPlayerLeft(NetworkRunner runner, PlayerRef player)
     {
-        if (spawnedPotion == null)
-        {
-            return;
-        }
-
-        if (!spawnedPotion.HasStateAuthority)
-        {
-            return;
-        }
-
         if (GetRealPlayerCount(runner) > 0)
         {
             return;
         }
 
-        runner.Despawn(spawnedPotion);
+        CollectExistingPotions(visiblePotions);
+        for (int i = 0; i < visiblePotions.Count; i++)
+        {
+            NetworkObject candidate = visiblePotions[i];
+            if (candidate == null || !candidate.HasStateAuthority)
+            {
+                continue;
+            }
+
+            runner.Despawn(candidate);
+        }
+
         spawnedPotion = null;
+        nextPeriodicSpawnAt = -1f;
     }
 
-    private void TrySpawnPotion(NetworkRunner currentRunner, bool requireFirstRealPlayer)
+    private int TrySpawnItems(NetworkRunner currentRunner, bool requireFirstRealPlayer, int requestedCount)
     {
-        if (potionPrefab == null || currentRunner == null)
+        if (currentRunner == null)
         {
-            return;
+            return 0;
         }
 
         if (currentRunner.GameMode != GameMode.Shared)
         {
-            return;
+            return 0;
         }
 
         if (!CanLocalPlayerSpawn(currentRunner))
         {
-            return;
+            return 0;
         }
 
         if (requireFirstRealPlayer && GetRealPlayerCount(currentRunner) != 1)
         {
-            return;
+            return 0;
         }
 
         RefreshSpawnedPotionReference();
+        int currentSpawnedCount = visiblePotions.Count;
 
-        if (onlyOnePotionAtATime && spawnedPotion != null)
+        if (onlyOnePotionAtATime && currentSpawnedCount > 0)
+        {
+            return 0;
+        }
+
+        int spawnCount = Mathf.Max(1, requestedCount);
+        if (onlyOnePotionAtATime)
+        {
+            spawnCount = 1;
+        }
+        else if (maxSpawnedItemsInMap > 0)
+        {
+            int availableSlots = Mathf.Max(0, maxSpawnedItemsInMap - currentSpawnedCount);
+            spawnCount = Mathf.Min(spawnCount, availableSlots);
+        }
+
+        if (spawnCount <= 0)
+        {
+            return 0;
+        }
+
+        int spawnedCount = 0;
+
+        for (int i = 0; i < spawnCount; i++)
+        {
+            NetworkObject prefabToSpawn = GetRandomSpawnPrefab();
+            if (prefabToSpawn == null)
+            {
+                return spawnedCount;
+            }
+
+            Vector3 spawnPosition = GetRandomSpawnPosition(out Quaternion spawnRotation);
+            spawnedPotion = currentRunner.Spawn(prefabToSpawn, spawnPosition, spawnRotation, currentRunner.LocalPlayer);
+            if (spawnedPotion != null)
+            {
+                spawnedCount++;
+            }
+
+            if (logSpawn && spawnedPotion != null)
+            {
+                Debug.Log($"SharedModeHealthPotionSpawner: spawned item '{spawnedPotion.name}' at {spawnPosition}.");
+            }
+        }
+
+        return spawnedCount;
+    }
+
+    private void HandlePeriodicSpawn()
+    {
+        if (!CanRunPeriodicSpawn())
+        {
+            nextPeriodicSpawnAt = -1f;
+            return;
+        }
+
+        if (nextPeriodicSpawnAt < 0f)
+        {
+            ScheduleNextPeriodicSpawn();
+        }
+
+        if (Time.time < nextPeriodicSpawnAt)
         {
             return;
         }
 
-        Vector3 spawnPosition = GetRandomSpawnPosition(out Quaternion spawnRotation);
-        spawnedPotion = currentRunner.Spawn(potionPrefab, spawnPosition, spawnRotation, currentRunner.LocalPlayer);
+        TrySpawnItems(runner, requireFirstRealPlayer: false, requestedCount: periodicSpawnCount);
+        ScheduleNextPeriodicSpawn();
+    }
 
-        if (logSpawn && spawnedPotion != null)
+    private bool CanRunPeriodicSpawn()
+    {
+        if (runner == null)
         {
-            Debug.Log($"SharedModeHealthPotionSpawner: spawned potion '{spawnedPotion.name}' at {spawnPosition}.");
+            return false;
         }
+
+        if (runner.GameMode != GameMode.Shared || !runner.LocalPlayer.IsRealPlayer)
+        {
+            return false;
+        }
+
+        if (!CanLocalPlayerSpawn(runner))
+        {
+            return false;
+        }
+
+        if (!IsMainMapActive())
+        {
+            return false;
+        }
+
+        return GetRealPlayerCount(runner) > 0;
+    }
+
+    private void ScheduleNextPeriodicSpawn()
+    {
+        nextPeriodicSpawnAt = Time.time + Mathf.Max(1f, periodicSpawnIntervalSeconds);
+    }
+
+    private bool IsMainMapActive()
+    {
+        if (string.IsNullOrWhiteSpace(mainMapSceneName))
+        {
+            return true;
+        }
+
+        return string.Equals(SceneManager.GetActiveScene().name, mainMapSceneName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private NetworkObject GetRandomSpawnPrefab()
+    {
+        if (TryGetRandomPrefab(randomItemPrefabs, out NetworkObject selectedPrefab))
+        {
+            return selectedPrefab;
+        }
+
+        return potionPrefab;
+    }
+
+    private static bool TryGetRandomPrefab(NetworkObject[] prefabs, out NetworkObject selectedPrefab)
+    {
+        selectedPrefab = null;
+        if (prefabs == null || prefabs.Length == 0)
+        {
+            return false;
+        }
+
+        int startIndex = UnityEngine.Random.Range(0, prefabs.Length);
+        for (int i = 0; i < prefabs.Length; i++)
+        {
+            int index = (startIndex + i) % prefabs.Length;
+            if (prefabs[index] != null)
+            {
+                selectedPrefab = prefabs[index];
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private Vector3 GetRandomSpawnPosition(out Quaternion rotation)

@@ -1,3 +1,6 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 using Fusion;
 using UnityEngine;
 
@@ -5,18 +8,36 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class SharedModeHealthPotionItem : NetworkBehaviour
 {
+    public enum ItemEffectType
+    {
+        Heal = 0,
+        Speed = 1,
+    }
+
+    [SerializeField] private ItemEffectType itemEffect = ItemEffectType.Heal;
     [SerializeField] private bool healCollectorToFull = true;
     [SerializeField] private bool destroyOnCollect = true;
     [SerializeField] private bool logCollect = false;
+    [SerializeField] private float speedBoostMultiplier = 1.5f;
+    [SerializeField] private float speedBoostDuration = 5f;
     [SerializeField] private Renderer[] itemRenderers;
 
     [Networked] private NetworkBool IsCollected { get; set; }
+
+    private static readonly FieldInfo RunSpeedField = typeof(SharedModePlayerController).GetField("runSpeed", BindingFlags.Instance | BindingFlags.NonPublic);
+    private static readonly Dictionary<SharedModePlayerController, SpeedBoostState> SpeedBoostStates = new Dictionary<SharedModePlayerController, SpeedBoostState>();
 
     private bool hasSpawned;
     private bool collectInProgress;
     private bool visualStateInitialized;
     private bool lastVisualCollected;
     private Collider itemCollider;
+
+    private sealed class SpeedBoostState
+    {
+        public float OriginalRunSpeed;
+        public int Token;
+    }
 
     private void Awake()
     {
@@ -156,9 +177,16 @@ public class SharedModeHealthPotionItem : NetworkBehaviour
         IsCollected = true;
         ApplyCollectedVisualState(true);
 
-        if (healCollectorToFull)
+        if (itemEffect == ItemEffectType.Heal)
         {
-            collector.RPC_RequestFullHeal();
+            if (healCollectorToFull)
+            {
+                collector.RPC_RequestFullHeal();
+            }
+        }
+        else if (itemEffect == ItemEffectType.Speed)
+        {
+            ApplySpeedBoost(collector);
         }
 
         collector.RPC_RequestAddCollectedItem(1);
@@ -172,6 +200,89 @@ public class SharedModeHealthPotionItem : NetworkBehaviour
         {
             Runner.Despawn(Object);
         }
+    }
+
+    private void ApplySpeedBoost(SharedModePlayerController collector)
+    {
+        if (collector == null || collector.Object == null || !collector.Object.IsValid)
+        {
+            return;
+        }
+
+        if (RunSpeedField == null)
+        {
+            Debug.LogWarning($"{name}: cannot apply speed boost because runSpeed field was not found.");
+            return;
+        }
+
+        SpeedBoostState state = GetOrCreateSpeedBoostState(collector);
+        state.Token++;
+
+        float baseRunSpeed = state.OriginalRunSpeed;
+        float boostedRunSpeed = Mathf.Max(0f, baseRunSpeed) * Mathf.Max(1f, speedBoostMultiplier);
+
+        SetRunSpeed(collector, boostedRunSpeed);
+
+        if (speedBoostDuration > 0f)
+        {
+            collector.StartCoroutine(RestoreSpeedAfterDelay(collector, state.Token, speedBoostDuration));
+        }
+    }
+
+    private SpeedBoostState GetOrCreateSpeedBoostState(SharedModePlayerController collector)
+    {
+        if (!SpeedBoostStates.TryGetValue(collector, out SpeedBoostState state) || state == null)
+        {
+            state = new SpeedBoostState
+            {
+                OriginalRunSpeed = GetRunSpeed(collector),
+                Token = 0,
+            };
+
+            SpeedBoostStates[collector] = state;
+        }
+
+        return state;
+    }
+
+    private IEnumerator RestoreSpeedAfterDelay(SharedModePlayerController collector, int token, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (collector == null || collector.Object == null || !collector.Object.IsValid)
+        {
+            SpeedBoostStates.Remove(collector);
+            yield break;
+        }
+
+        if (!SpeedBoostStates.TryGetValue(collector, out SpeedBoostState state) || state == null || state.Token != token)
+        {
+            yield break;
+        }
+
+        SetRunSpeed(collector, state.OriginalRunSpeed);
+        SpeedBoostStates.Remove(collector);
+    }
+
+    private float GetRunSpeed(SharedModePlayerController collector)
+    {
+        if (RunSpeedField == null || collector == null)
+        {
+            return 0f;
+        }
+
+        object value = RunSpeedField.GetValue(collector);
+        return value is float speed ? speed : 0f;
+    }
+
+    private void SetRunSpeed(SharedModePlayerController collector, float speed)
+    {
+        if (RunSpeedField == null || collector == null)
+        {
+            return;
+        }
+
+        RunSpeedField.SetValue(collector, speed);
     }
 
     private void ApplyCollectedVisualState(bool collected)
