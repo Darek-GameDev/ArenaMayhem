@@ -347,6 +347,32 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         return HasActiveSession && IsRoomOwner(runner.LocalPlayer);
     }
 
+    public bool TryGetPlayerProfileBySlot(int slotOneBased, out SharedPlayerClassType classType, out string playerName)
+    {
+        classType = SharedPlayerClassType.Unknown;
+        playerName = string.Empty;
+
+        if (slotOneBased <= 0)
+        {
+            return false;
+        }
+
+        string key = $"state_{slotOneBased}";
+        if (!TryGetSessionProperty(key, out SessionProperty property))
+        {
+            return false;
+        }
+
+        if (!TryDecodePlayerProfile(property, out int encodedState, out string synchronizedName))
+        {
+            return false;
+        }
+
+        classType = SharedPlayerClassTypeUtility.DecodePlayerClass(encodedState, SharedPlayerClassType.Unknown);
+        playerName = synchronizedName;
+        return classType != SharedPlayerClassType.Unknown || !string.IsNullOrWhiteSpace(playerName);
+    }
+
     public IReadOnlyList<PlayerRef> GetPlayersOrderedById()
     {
         orderedPlayersCache.Clear();
@@ -461,10 +487,14 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         }
 
         SessionProperty property;
-        string playerKey = ResolvePlayerStatePropertyKey(sourceRunner, player);
-        if (!properties.TryGetValue(playerKey, out property))
+        string primaryKey = ResolvePlayerStatePropertyKey(sourceRunner, player);
+        if (!properties.TryGetValue(primaryKey, out property))
         {
-            return false;
+            string rawKey = GetRawPlayerStatePropertyKey(player);
+            if (string.Equals(rawKey, primaryKey, StringComparison.OrdinalIgnoreCase) || !properties.TryGetValue(rawKey, out property))
+            {
+                return false;
+            }
         }
 
         if (!TryDecodePlayerState(property, out int encodedState))
@@ -481,11 +511,6 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         if (sourceRunner == null || !sourceRunner.IsRunning || !player.IsRealPlayer)
         {
             return "state_1";
-        }
-
-        if (TryGetStablePlayerNumber(sourceRunner, player, out int stablePlayerNumber))
-        {
-            return $"state_{stablePlayerNumber}";
         }
 
         List<PlayerRef> orderedPlayers = new List<PlayerRef>();
@@ -507,7 +532,17 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             }
         }
 
-        return "state_1";
+        return GetRawPlayerStatePropertyKey(player);
+    }
+
+    private static string GetRawPlayerStatePropertyKey(PlayerRef player)
+    {
+        if (!player.IsRealPlayer)
+        {
+            return "state_1";
+        }
+
+        return $"state_{player.RawEncoded}";
     }
 
     private bool TryGetPlayerSlotIndex(PlayerRef player, out int slotIndex)
@@ -529,37 +564,6 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         }
 
         return false;
-    }
-
-    private static bool TryGetStablePlayerNumber(NetworkRunner sourceRunner, PlayerRef player, out int playerNumber)
-    {
-        playerNumber = -1;
-        if (sourceRunner == null || !sourceRunner.IsRunning || !player.IsRealPlayer)
-        {
-            return false;
-        }
-
-        string playerLabel = player.ToString();
-        int separatorIndex = playerLabel.LastIndexOf(':');
-        if (separatorIndex < 0 || separatorIndex + 1 >= playerLabel.Length)
-        {
-            return false;
-        }
-
-        string numberPart = playerLabel.Substring(separatorIndex + 1);
-        if (!int.TryParse(numberPart, out int parsedNumber))
-        {
-            return false;
-        }
-
-        int maxPlayers = sourceRunner.SessionInfo ? sourceRunner.SessionInfo.MaxPlayers : 6;
-        if (parsedNumber <= 0 || parsedNumber > Mathf.Max(1, maxPlayers))
-        {
-            return false;
-        }
-
-        playerNumber = parsedNumber;
-        return true;
     }
 
     private async Task<bool> StartOrJoinRoomAsync(string roomId, bool allowCreateRoom)
@@ -977,7 +981,6 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     private Dictionary<string, SessionProperty> BuildInitialSessionProperties()
     {
-        // Pre-seed fixed player slot keys expected by Fusion lobby property validation.
         var properties = new Dictionary<string, SessionProperty>(2 + MaxPlayersPerRoom)
         {
             [OwnerPropertyKey] = 0,
@@ -996,18 +999,29 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     private bool TryGetPlayerStateProperty(PlayerRef player, out SessionProperty property)
     {
-        if (TryGetSessionProperty(ResolvePlayerStatePropertyKey(player), out property))
+        string primaryKey = ResolvePlayerStatePropertyKey(player);
+        if (TryGetSessionProperty(primaryKey, out property))
         {
             if (verboseLogs)
             {
-                Debug.Log($"SharedRoomSessionManager: TryGetPlayerStateProperty({player.RawEncoded}) = success");
+                Debug.Log($"SharedRoomSessionManager: TryGetPlayerStateProperty({player.RawEncoded}) PRIMARY {primaryKey} = success");
+            }
+            return true;
+        }
+
+        string rawKey = GetRawPlayerStatePropertyKey(player);
+        if (!string.Equals(rawKey, primaryKey, StringComparison.OrdinalIgnoreCase) && TryGetSessionProperty(rawKey, out property))
+        {
+            if (verboseLogs)
+            {
+                Debug.Log($"SharedRoomSessionManager: TryGetPlayerStateProperty({player.RawEncoded}) RAW {rawKey} = success");
             }
             return true;
         }
 
         if (verboseLogs)
         {
-            Debug.LogWarning($"SharedRoomSessionManager: TryGetPlayerStateProperty({player.RawEncoded}) = NOT FOUND");
+            Debug.LogWarning($"SharedRoomSessionManager: TryGetPlayerStateProperty({player.RawEncoded}) = NOT FOUND (primary:{primaryKey}, raw:{rawKey})");
         }
 
         property = default;
@@ -1016,16 +1030,6 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
 
     private string ResolvePlayerStatePropertyKey(PlayerRef player)
     {
-        if (TryGetStablePlayerNumber(player, out int stablePlayerNumber))
-        {
-            string key = $"state_{stablePlayerNumber}";
-            if (verboseLogs)
-            {
-                Debug.Log($"SharedRoomSessionManager: ResolvePlayerStatePropertyKey({player.RawEncoded}) STABLE -> {key}");
-            }
-            return key;
-        }
-
         if (TryGetPlayerSlotIndex(player, out int slotIndex))
         {
             string key = $"state_{slotIndex + 1}";
@@ -1036,43 +1040,13 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             return key;
         }
 
-        // Fallback to slot 1 when player identity cannot be resolved.
+        string rawKey = GetRawPlayerStatePropertyKey(player);
         if (verboseLogs)
         {
-            Debug.LogWarning($"SharedRoomSessionManager: ResolvePlayerStatePropertyKey({player.RawEncoded}) FALLBACK -> state_1");
-        }
-        return "state_1";
-    }
-
-    private bool TryGetStablePlayerNumber(PlayerRef player, out int playerNumber)
-    {
-        playerNumber = -1;
-        if (!player.IsRealPlayer)
-        {
-            return false;
+            Debug.LogWarning($"SharedRoomSessionManager: ResolvePlayerStatePropertyKey({player.RawEncoded}) RAW_FALLBACK -> {rawKey}");
         }
 
-        // Fusion prints PlayerRef as "Player:<n>". This index is stable across peers.
-        string playerLabel = player.ToString();
-        int separatorIndex = playerLabel.LastIndexOf(':');
-        if (separatorIndex < 0 || separatorIndex + 1 >= playerLabel.Length)
-        {
-            return false;
-        }
-
-        string numberPart = playerLabel.Substring(separatorIndex + 1);
-        if (!int.TryParse(numberPart, out int parsedNumber))
-        {
-            return false;
-        }
-
-        if (parsedNumber <= 0 || parsedNumber > MaxPlayersPerRoom)
-        {
-            return false;
-        }
-
-        playerNumber = parsedNumber;
-        return true;
+        return rawKey;
     }
 
 

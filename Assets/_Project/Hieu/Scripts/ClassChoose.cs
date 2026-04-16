@@ -47,6 +47,12 @@ public class ClassChoose : MonoBehaviour
         SetPendingClass("Archer");
     }
 
+    public void OnKnightClicked()
+    {
+        SetPendingClass("Knight");
+    }
+    
+
     public void OnAcceptClicked()
     {
         if (string.IsNullOrWhiteSpace(pendingClassName))

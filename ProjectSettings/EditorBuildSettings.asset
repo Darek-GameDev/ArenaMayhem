@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/MainMap.unity
     guid: 80da94d7c5caf8c4d81a4c4c7d2c8e49
   - enabled: 0
+    path: Assets/Scenes/CloneMap.unity
+    guid: faabb4aff8b2b6f43b0f4e0a7748f5c1
+  - enabled: 0
     path: Assets/Scenes/MainGame.unity
     guid: 01a13d8b25255dc4c9c878c7c63ecee2
   - enabled: 0
@@ -20,9 +23,6 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/UI.unity
     guid: e2365cf74bf474649b39f63b3f447c6c
-  - enabled: 0
-    path: Assets/Scenes/MainMap Clone.unity
-    guid: faabb4aff8b2b6f43b0f4e0a7748f5c1
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

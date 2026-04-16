@@ -218,7 +218,7 @@ public class SkillCooldown : MonoBehaviour
 		}
 
 		lastDisplayedSeconds = displaySeconds;
-		string display = displaySeconds.ToString();
+		string display = isOnCooldown && displaySeconds > 0 ? displaySeconds.ToString() : string.Empty;
 
 		if (cooldownText != null)
 		{

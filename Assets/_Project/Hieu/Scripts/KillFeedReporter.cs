@@ -39,6 +39,27 @@ public static class KillFeedReporter
                 cachedLobbyNames[playerKey] = normalizedName;
                 return normalizedName;
             }
+
+            if (sessionManager.IsLocalPlayerOwner())
+            {
+                var players = sessionManager.GetPlayersOrderedById();
+                for (int i = 0; i < players.Count; i++)
+                {
+                    if (players[i] != playerRef)
+                    {
+                        continue;
+                    }
+
+                    if (sessionManager.TryGetPlayerProfileBySlot(i + 1, out _, out string slotPlayerName) && !string.IsNullOrWhiteSpace(slotPlayerName))
+                    {
+                        string normalizedName = slotPlayerName.Trim();
+                        cachedLobbyNames[playerKey] = normalizedName;
+                        return normalizedName;
+                    }
+
+                    break;
+                }
+            }
         }
 
         if (cachedLobbyNames.TryGetValue(playerKey, out string cachedName) && !string.IsNullOrWhiteSpace(cachedName))

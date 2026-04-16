@@ -519,9 +519,47 @@ public class LobbyUI : MonoBehaviour
 			PlayerRef player = players[i];
 			SharedPlayerClassType classType = sessionManager.GetPlayerClass(player, SharedPlayerClassType.Unknown);
 			AvatarKind resolvedAvatar = ToAvatarKind(classType);
+			if (resolvedAvatar == AvatarKind.None && sessionManager.Runner != null && sessionManager.Runner.LocalPlayer == player)
+			{
+				resolvedAvatar = GetAvatarKind(ClassChoose.LastConfirmedClassName);
+				if (resolvedAvatar == AvatarKind.None)
+				{
+					resolvedAvatar = GetAvatarKind(PlayerPrefs.GetString("PLAYER_CLASS_NAME", string.Empty));
+				}
+			}
 			string className = GetClassLabel(resolvedAvatar);
 
 			string playerName = sessionManager.GetPlayerName(player, $"Player {i + 1}");
+			bool isLocalPlayer = sessionManager.Runner != null && sessionManager.Runner.LocalPlayer == player;
+			if (sessionManager.IsLocalPlayerOwner() && !isLocalPlayer)
+			{
+				bool missingRemoteClass = resolvedAvatar == AvatarKind.None;
+				bool missingRemoteName = string.IsNullOrWhiteSpace(playerName) || playerName.StartsWith("Player ");
+				if ((missingRemoteClass || missingRemoteName) && sessionManager.TryGetPlayerProfileBySlot(i + 1, out SharedPlayerClassType slotClassType, out string slotPlayerName))
+				{
+					if (missingRemoteClass)
+					{
+						AvatarKind slotAvatar = ToAvatarKind(slotClassType);
+						if (slotAvatar != AvatarKind.None)
+						{
+							resolvedAvatar = slotAvatar;
+						}
+					}
+
+					if (missingRemoteName && !string.IsNullOrWhiteSpace(slotPlayerName))
+					{
+						playerName = slotPlayerName;
+					}
+				}
+			}
+			if ((string.IsNullOrWhiteSpace(playerName) || playerName.StartsWith("Player ")) && sessionManager.Runner != null && sessionManager.Runner.LocalPlayer == player)
+			{
+				string localName = PlayerPrefs.GetString("PLAYER_DISPLAY_NAME", string.Empty);
+				if (!string.IsNullOrWhiteSpace(localName))
+				{
+					playerName = localName.Trim();
+				}
+			}
 
 			SetSlotDisplayText(slot, playerName, className);
 			if (resolvedAvatar != AvatarKind.None)

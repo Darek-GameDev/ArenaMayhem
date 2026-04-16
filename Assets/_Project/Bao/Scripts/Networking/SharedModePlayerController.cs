@@ -536,6 +536,12 @@ public class SharedModePlayerController : NetworkBehaviour
         KillCount += amount;
     }
 
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_NotifyKillFeed(PlayerRef attackerRef, PlayerRef victimRef)
+    {
+        KillFeedReporter.ReportPlayerKill(Runner, attackerRef, victimRef);
+    }
+
     private void ApplyDamage(int amount, PlayerRef attackerRef, Vector3 hitOrigin, bool hasHitOrigin)
     {
         if (amount <= 0 || IsDead)
@@ -569,7 +575,7 @@ public class SharedModePlayerController : NetworkBehaviour
                 if (attacker != null)
                 {
                     attacker.RPC_RequestAddKill(1);
-                    KillFeedReporter.ReportPlayerKill(Runner, attackerRef, Object.InputAuthority);
+                    RPC_NotifyKillFeed(attackerRef, Object.InputAuthority);
                 }
             }
         }

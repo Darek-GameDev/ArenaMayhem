@@ -695,7 +695,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 579aa400fa7a1ff4fb0b0b93ca0096c6, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 0.3
   m_Pitch: 1
   Loop: 0
@@ -1009,6 +1009,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 9001877834255714727, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
   m_PrefabInstance: {fileID: 2214425884377706932}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1365011733 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8528159548230392690, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+  m_PrefabInstance: {fileID: 2214425884377706932}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 730314921ae3e6146944d34803a0bf55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ClassChoose
 --- !u!1 &1842916187 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3136218163665481228, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
@@ -1062,6 +1073,14 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 524097043}
+    - target: {fileID: 880454740219826390, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 1365011733}
+    - target: {fileID: 880454740219826390, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: OnKnightClicked
+      objectReference: {fileID: 0}
     - target: {fileID: 891601156857258189, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
       propertyPath: m_Name
       value: Canvas
@@ -1219,8 +1238,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 524097043}
     - target: {fileID: 2782018471566099557, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: gameSceneName
+      value: MainMap Clone
+      objectReference: {fileID: 0}
+    - target: {fileID: 2782018471566099557, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
       propertyPath: playerAvatarSlots.Array.size
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2782018471566099557, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: autoApplyFirstSlotFromClassChoose
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2782018471566099557, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
       propertyPath: playerAvatarSlots.Array.data[0].slotRoot
