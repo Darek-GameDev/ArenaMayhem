@@ -124,6 +124,39 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7612725562026980831, guid: dc9380748d8b0ab42ba14662530c0421, type: 3}
   m_PrefabInstance: {fileID: 7102778747686717858}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &423010872 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8397102345822451580, guid: 719b04988dddc174aa36caf2c94df826, type: 3}
+  m_PrefabInstance: {fileID: 8530552622228264212}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f38bda98361e1de48a4ca2bd86ea3c17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineRotationComposer
+--- !u!114 &423010873 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6026739533084639007, guid: 719b04988dddc174aa36caf2c94df826, type: 3}
+  m_PrefabInstance: {fileID: 8530552622228264212}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b617507da6d07e749b7efdb34e1173e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineFollow
+--- !u!114 &423010874 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3118759725379277929, guid: 719b04988dddc174aa36caf2c94df826, type: 3}
+  m_PrefabInstance: {fileID: 8530552622228264212}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9dfa5b682dcd46bda6128250e975f58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCamera
 --- !u!114 &457787271 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3783440442067806738, guid: 64d35ea1835025d40b0b810e4879aa82, type: 3}
@@ -149,11 +182,6 @@ MonoBehaviour:
 --- !u!4 &569923347 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6321176955199664137, guid: dc9380748d8b0ab42ba14662530c0421, type: 3}
-  m_PrefabInstance: {fileID: 7102778747686717858}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &580578600 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 3550918465626959691, guid: dc9380748d8b0ab42ba14662530c0421, type: 3}
   m_PrefabInstance: {fileID: 7102778747686717858}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &582291578 stripped
@@ -485,6 +513,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1225213631913871821, guid: de825942cf56dca43979f2e05470717d, type: 3}
+      propertyPath: knightBlockFOV
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 1225213631913871821, guid: de825942cf56dca43979f2e05470717d, type: 3}
+      propertyPath: cinemachineCamera
+      value: 
+      objectReference: {fileID: 423010874}
+    - target: {fileID: 1225213631913871821, guid: de825942cf56dca43979f2e05470717d, type: 3}
+      propertyPath: knightRunFOVBoost
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 1963659892650790256, guid: de825942cf56dca43979f2e05470717d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.26374
@@ -525,6 +565,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2962589319882649839, guid: de825942cf56dca43979f2e05470717d, type: 3}
+      propertyPath: blockDuration
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5268458966758720587, guid: de825942cf56dca43979f2e05470717d, type: 3}
+      propertyPath: followComponent
+      value: 
+      objectReference: {fileID: 423010873}
+    - target: {fileID: 5268458966758720587, guid: de825942cf56dca43979f2e05470717d, type: 3}
+      propertyPath: rotationComposer
+      value: 
+      objectReference: {fileID: 423010872}
+    - target: {fileID: 5268458966758720587, guid: de825942cf56dca43979f2e05470717d, type: 3}
+      propertyPath: cinemachineCamera
+      value: 
+      objectReference: {fileID: 423010874}
     - target: {fileID: 7344012692931915955, guid: de825942cf56dca43979f2e05470717d, type: 3}
       propertyPath: m_Name
       value: Knight
@@ -577,7 +633,7 @@ PrefabInstance:
     - target: {fileID: 142015265702247670, guid: 64d35ea1835025d40b0b810e4879aa82, type: 3}
       propertyPath: 'spawnPoints.Array.data[7]'
       value: 
-      objectReference: {fileID: 580578600}
+      objectReference: {fileID: 0}
     - target: {fileID: 1373618151085434422, guid: 64d35ea1835025d40b0b810e4879aa82, type: 3}
       propertyPath: 'randomSpawnPoints.Array.data[0]'
       value: 
@@ -605,7 +661,7 @@ PrefabInstance:
     - target: {fileID: 1373618151085434422, guid: 64d35ea1835025d40b0b810e4879aa82, type: 3}
       propertyPath: 'randomSpawnPoints.Array.data[6]'
       value: 
-      objectReference: {fileID: 580578600}
+      objectReference: {fileID: 0}
     - target: {fileID: 2239739336524051218, guid: 64d35ea1835025d40b0b810e4879aa82, type: 3}
       propertyPath: spawnPoint
       value: 
@@ -637,7 +693,7 @@ PrefabInstance:
     - target: {fileID: 2239739336524051218, guid: 64d35ea1835025d40b0b810e4879aa82, type: 3}
       propertyPath: 'randomSpawnPoints.Array.data[6]'
       value: 
-      objectReference: {fileID: 580578600}
+      objectReference: {fileID: 0}
     - target: {fileID: 4317914047246130351, guid: 64d35ea1835025d40b0b810e4879aa82, type: 3}
       propertyPath: m_Name
       value: Prototype Runner
@@ -1316,6 +1372,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3118759725379277929, guid: 719b04988dddc174aa36caf2c94df826, type: 3}
+      propertyPath: Target.TrackingTarget
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 4577335127504784666, guid: 719b04988dddc174aa36caf2c94df826, type: 3}
       propertyPath: m_LocalPosition.x
       value: -4.29

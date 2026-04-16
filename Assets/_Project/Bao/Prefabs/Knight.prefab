@@ -1226,6 +1226,9 @@ GameObject:
   - component: {fileID: 332275863031541011}
   - component: {fileID: 8715086339708990136}
   - component: {fileID: 2167511110069939194}
+  - component: {fileID: 7279672335583789338}
+  - component: {fileID: 7323626342727461819}
+  - component: {fileID: 1196498591857930041}
   m_Layer: 3
   m_Name: Knight
   m_TagString: Untagged
@@ -1630,6 +1633,7 @@ MonoBehaviour:
   bowMoveSpeedMultiplier: 1.2
   bowAimMoveSpeedMultiplier: 0.65
   bowWeapon: {fileID: 0}
+  defaultBowProjectileType: 0
   bowAimRayDistance: 200
   bowAimLayerMask:
     serializedVersion: 2
@@ -1659,6 +1663,100 @@ MonoBehaviour:
     _value: 0
   _BlockRequireRelease:
     _value: 0
+  _SelectedBowProjectileType: 0
+--- !u!114 &7279672335583789338
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2312380246191621993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eee799acf0f195d4e9778fa408fcec48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ThirdPersonCameraManager
+  cinemachineCamera: {fileID: 5502201295269191475}
+  orbitalFollow: {fileID: 4694632884822479727}
+  followComponent: {fileID: 0}
+  rotationComposer: {fileID: 6596471642982314759}
+  playerTransform: {fileID: 2510753202262350095}
+  normalRadius: 4
+  normalTargetOffset: {x: 0, y: 1.13, z: 0}
+  aimRadius: 2.4
+  aimTargetOffset: {x: 0.2, y: 1.45, z: 0}
+  knightBlockRadius: 1.95
+  knightBlockTargetOffset: {x: 0, y: 1.55, z: 0.08}
+  blendSpeed: 8
+  collisionLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  collisionCheckDistance: 0.5
+  minDistanceWhenColliding: 1
+  enablePositionSmoothing: 0
+  positionSmoothingDamping: 0.1
+  normalLookSensitivity: 1
+  aimLookSensitivity: 0.55
+--- !u!114 &7323626342727461819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2312380246191621993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e81dbd32aecfeec4495a69c4c3351599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealthCameraConnector
+  playerHealth: {fileID: 8601317461004361692}
+  sharedModeController: {fileID: 2167511110069939194}
+  enableDebugLogs: 0
+--- !u!114 &1196498591857930041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2312380246191621993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11c3c6ee12dc15b41ad66c043d0d6e9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraEffectsController
+  cinemachineCamera: {fileID: 5502201295269191475}
+  sharedModeController: {fileID: 2167511110069939194}
+  playerHealth: {fileID: 8601317461004361692}
+  defaultShakeDuration: 0.35
+  defaultShakeAmplitude: 3.2
+  shakePositionStrength: 0.22
+  shakeRotationStrength: 4.5
+  damageMinShakeScale: 0.4
+  damageShakeMultiplier: 0.7
+  landingMinShakeScale: 0.45
+  enableDebugLogs: 0
+  defaultFOV: 60
+  aimingFOV: 42
+  runningSensationFOV: 72
+  fovTransitionSpeed: 5.5
+  useCharacterSpecificTuning: 1
+  knightRunFOVBoost: 4
+  knightBlockFOV: 46
+  knightShakeMultiplier: 1.2
+  archerAimFOV: 38
+  archerShakeMultiplier: 0.85
+  heavyDamageThreshold: 30
+  heavyDamageVignetteDuration: 0.5
+  nearDeathHealthPercent: 0.2
+  nearDeathFOV: 40
+  enableLowHealthHeartbeat: 1
+  lowHealthHeartbeatMinInterval: 0.85
+  lowHealthHeartbeatMaxInterval: 0.45
+  lowHealthHeartbeatShakeDuration: 0.08
+  lowHealthHeartbeatShakeAmplitude: 0.25
+  deathFOV: 30
+  deathShakeDuration: 0.65
+  deathShakeAmplitudeMultiplier: 3
 --- !u!1 &2794010901955814116
 GameObject:
   m_ObjectHideFlags: 0

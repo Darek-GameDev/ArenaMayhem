@@ -9,7 +9,6 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private PlayerAttack playerAttack;
     private int currentHealth;
     private SharedModePlayerController sharedModeController;
-    private bool lastHitWasBlocked;
 
     public int CurrentHealth => sharedModeController != null ? sharedModeController.Health : currentHealth;
     public int MaxHealth => sharedModeController != null ? sharedModeController.MaxHealth : maxHealth;
@@ -41,6 +40,16 @@ public class PlayerHealth : MonoBehaviour
         TakeDamageInternal(amount, hitOrigin, true);
     }
 
+    public void TakeEnvironmentalDamage(int amount)
+    {
+        TakeEnvironmentalDamageInternal(amount, default, false);
+    }
+
+    public void TakeEnvironmentalDamageFromOrigin(int amount, Vector3 hitOrigin)
+    {
+        TakeEnvironmentalDamageInternal(amount, hitOrigin, true);
+    }
+
     private void TakeDamageInternal(int amount, Vector3 hitOrigin, bool hasHitOrigin)
     {
         if (sharedModeController != null)
@@ -65,13 +74,40 @@ public class PlayerHealth : MonoBehaviour
         bool blockedHit = playerAttack != null && playerAttack.IsBlocking && CanBlockIncomingHit(hitOrigin, hasHitOrigin);
         if (blockedHit)
         {
-            lastHitWasBlocked = true;
-            ChangeState(HealthState.Hit);
+            ChangeState(HealthState.Hit, true);
             return;
         }
 
-        lastHitWasBlocked = false;
-        ChangeState(HealthState.Hit);
+        ApplyDamage(amount, false);
+    }
+
+    private void TakeEnvironmentalDamageInternal(int amount, Vector3 hitOrigin, bool hasHitOrigin)
+    {
+        if (sharedModeController != null)
+        {
+            if (hasHitOrigin)
+            {
+                sharedModeController.RPC_RequestDamageWithOrigin(amount, hitOrigin);
+            }
+            else
+            {
+                sharedModeController.RPC_RequestDamage(amount);
+            }
+
+            return;
+        }
+
+        if (IsDead || amount <= 0)
+        {
+            return;
+        }
+
+        ApplyDamage(amount, false);
+    }
+
+    private void ApplyDamage(int amount, bool blockedHit)
+    {
+        ChangeState(HealthState.Hit, blockedHit);
         currentHealth = Mathf.Max(0, currentHealth - amount);
 
         if (logDamage)
@@ -117,7 +153,7 @@ public class PlayerHealth : MonoBehaviour
             Debug.Log($"{name} is dead.");
         }
     }
-    private void ChangeState(HealthState newState)
+    private void ChangeState(HealthState newState, bool blockedHit = false)
     {
         switch (currentState)
         {
@@ -131,7 +167,6 @@ public class PlayerHealth : MonoBehaviour
         switch (newState)
         {
             case HealthState.Hit:
-                bool isBlocking = lastHitWasBlocked || (playerAttack != null && playerAttack.IsBlocking);
                 if (playerAttack != null)
                 {
                     playerAttack.ResetCombo();
@@ -140,7 +175,7 @@ public class PlayerHealth : MonoBehaviour
                 animator.ResetTrigger("AttackSword");
                 animator.SetInteger("ComboStep", 0);
 
-                if(isBlocking)
+                if(blockedHit)
                 {
                     animator.SetTrigger("BlockHit");
                 }
@@ -149,7 +184,6 @@ public class PlayerHealth : MonoBehaviour
                     animator.SetTrigger("GetHit");
                 }
 
-                lastHitWasBlocked = false;
                 break;
             case HealthState.Dead:
                 animator.SetTrigger("DeadTrigger");
