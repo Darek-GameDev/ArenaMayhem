@@ -68,7 +68,7 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
             return;
         }
 
-        if (!CanLocalPlayerSpawn(runner))
+        if (!CanSpawnNetworkItems(runner))
         {
             return;
         }
@@ -140,7 +140,13 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
             return;
         }
 
-        if (!CanLocalPlayerSpawn(runner))
+        // Initial map items must be spawned once by the shared-mode master only.
+        if (!runner.IsSharedModeMasterClient || player != runner.LocalPlayer)
+        {
+            return;
+        }
+
+        if (!CanSpawnNetworkItems(runner))
         {
             return;
         }
@@ -192,7 +198,7 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
             return 0;
         }
 
-        if (!CanLocalPlayerSpawn(currentRunner))
+        if (!CanSpawnNetworkItems(currentRunner))
         {
             return 0;
         }
@@ -373,7 +379,7 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
             return false;
         }
 
-        if (!CanLocalPlayerSpawn(runner))
+        if (!CanSpawnNetworkItems(runner))
         {
             return false;
         }
@@ -571,9 +577,19 @@ public class SharedModeHealthPotionSpawner : MonoBehaviour, INetworkRunnerCallba
         return count;
     }
 
-    private bool CanLocalPlayerSpawn(NetworkRunner currentRunner)
+    private bool CanSpawnNetworkItems(NetworkRunner currentRunner)
     {
         if (currentRunner == null || !currentRunner.LocalPlayer.IsRealPlayer)
+        {
+            return false;
+        }
+
+        if (currentRunner.GameMode != GameMode.Shared)
+        {
+            return false;
+        }
+
+        if (!currentRunner.IsSharedModeMasterClient)
         {
             return false;
         }

@@ -205805,8 +205805,10 @@ MonoBehaviour:
   randomItemPrefabs:
   - {fileID: 2641072366315861183, guid: 2a6fe5d01181d2945a2b96f667bb2907, type: 3}
   - {fileID: 5289297044162918067, guid: efaf4aa39c7daa34abfaa510592d62cf, type: 3}
+  - {fileID: 8621497160433363161, guid: 06d3281956068ce449034acbeaa4e010, type: 3}
+  - {fileID: 1169931212705350065, guid: b2487a118c090c84db6e455919bb0e1c, type: 3}
   spawnOnFirstPlayerJoin: 1
-  allowSpawnWithF: 0
+  allowSpawnWithF: 1
   onlyOnePotionAtATime: 0
   initialSpawnCount: 3
   spawnCountPerFPress: 1
