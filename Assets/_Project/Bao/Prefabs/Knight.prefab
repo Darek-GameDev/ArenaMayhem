@@ -1229,6 +1229,8 @@ GameObject:
   - component: {fileID: 7279672335583789338}
   - component: {fileID: 7323626342727461819}
   - component: {fileID: 1196498591857930041}
+  - component: {fileID: -6278995324389898760}
+  - component: {fileID: 4348823505848448799}
   m_Layer: 3
   m_Name: Knight
   m_TagString: Untagged
@@ -1454,6 +1456,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 3a695f4d-4cc4-4bc2-a7a4-d50f4fc7de22
     m_ActionName: 'Player/Aim[/Mouse/rightButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e4dc3110-94f8-483b-bfd3-41dfec1e6c87
+    m_ActionName: 'Player/Skill[/Keyboard/e]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -1529,6 +1535,8 @@ MonoBehaviour:
   bowRequireAimToFire: 1
   bowFireCooldown: 0.35
   autoExitAimOnShoot: 1
+  skillCooldown: 6
+  swordSkillDuration: 1.1
   bowAimRayDistance: 200
   bowAimLayerMask:
     serializedVersion: 2
@@ -1604,6 +1612,8 @@ MonoBehaviour:
   animator: {fileID: 0}
   networkCharacterController: {fileID: 0}
   bowHandVisualEvents: {fileID: 0}
+  skillSpinTrigger: SkillSpin
+  attackLayerName: Attack
 --- !u!114 &2167511110069939194
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1624,12 +1634,14 @@ MonoBehaviour:
   cameraTransform: {fileID: 0}
   playerCameraRoot: {fileID: 0}
   blockCooldownSeconds: 0.25
-  blockDurationSeconds: 0.5
+  blockDurationSeconds: 10
   blockFrontDotThreshold: 0.5
   weaponType: 0
   bowRequireAimToFire: 1
   bowAutoExitAimOnShoot: 0
   bowFireCooldownSeconds: 0.35
+  skillCooldownSeconds: 6
+  swordSkillDurationSeconds: 1.1
   bowMoveSpeedMultiplier: 1.2
   bowAimMoveSpeedMultiplier: 0.65
   bowWeapon: {fileID: 0}
@@ -1648,6 +1660,7 @@ MonoBehaviour:
   _AttackPressed:
     _value: 0
   _AttackSequence: 0
+  _SkillSequence: 0
   _ComboStep: 0
   _HitSequence: 0
   _KillCount: 0
@@ -1657,11 +1670,19 @@ MonoBehaviour:
   _NextBlockAllowedAt: 0
   _BlockUntil: 0
   _NextBowShotAllowedAt: 0
+  _NextSkillAllowedAt: 0
+  _SwordSkillUntil: 0
+  _FrozenUntil: 0
+  _FreezeSequence: 0
   _IsAiming:
     _value: 0
   _BowRequireAimRelease:
     _value: 0
   _BlockRequireRelease:
+    _value: 0
+  _IsFreezeShotPrimed:
+    _value: 0
+  _UseSkillSword:
     _value: 0
   _SelectedBowProjectileType: 0
 --- !u!114 &7279672335583789338
@@ -1757,6 +1778,124 @@ MonoBehaviour:
   deathFOV: 30
   deathShakeDuration: 0.65
   deathShakeAmplitudeMultiplier: 3
+--- !u!82 &-6278995324389898760
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2312380246191621993}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &4348823505848448799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2312380246191621993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d2d3f94541013044858a1510a9bdd7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoundEffect
+  meleeAttackSound1: {fileID: 8300000, guid: 64736c79f9a44724494be8eeaa323825, type: 3}
+  meleeAttackSound2: {fileID: 8300000, guid: d18e27e63694aa140b19cf7ea80a2115, type: 3}
+  meleeAttackSound3: {fileID: 8300000, guid: 6f5ac62b983679e4ea2b3161aea328ea, type: 3}
+  meleeBlockSound: {fileID: 8300000, guid: a9c0bec00b2a08541a4a0df65ded1721, type: 3}
+  bowDrawSound: {fileID: 0}
+  bowShootSound: {fileID: 0}
+  jumpSound: {fileID: 8300000, guid: 1f8b18d878d9aaa41b06f045f653bfe5, type: 3}
+  landSound: {fileID: 8300000, guid: 07e9fdf24f06a2141a0e9196411cae3a, type: 3}
+  soundVolume: 1
 --- !u!1 &2794010901955814116
 GameObject:
   m_ObjectHideFlags: 0
