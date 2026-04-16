@@ -4,8 +4,6 @@ using TMPro;
 
 public class ClassChoose : MonoBehaviour
 {
-    private const string PlayerClassPrefsKey = "PLAYER_CLASS_NAME";
-
     [Header("Class Name Label")]
     [SerializeField] private TMP_Text classNameTmpText;
     [SerializeField] private Text classNameText;
@@ -27,19 +25,10 @@ public class ClassChoose : MonoBehaviour
 
     void Start()
     {
-        if (string.IsNullOrWhiteSpace(LastConfirmedClassName))
-        {
-            string savedClass = PlayerPrefs.GetString(PlayerClassPrefsKey, string.Empty);
-            if (!string.IsNullOrWhiteSpace(savedClass))
-            {
-                LastConfirmedClassName = savedClass;
-            }
-        }
-
         UpdateClassLabel(defaultClassName);
         RefreshAcceptState();
 
-        SetPendingClass(string.IsNullOrWhiteSpace(LastConfirmedClassName) ? "Knight" : LastConfirmedClassName);
+        SetPendingClass("Knight");
     }
 
     public void OnArcherClicked()
@@ -56,8 +45,6 @@ public class ClassChoose : MonoBehaviour
 
         confirmedClassName = pendingClassName;
         LastConfirmedClassName = confirmedClassName;
-        PlayerPrefs.SetString(PlayerClassPrefsKey, confirmedClassName);
-        PlayerPrefs.Save();
 
         SharedRoomSessionManager sessionManager = SharedRoomSessionManager.EnsureInstance();
         if (sessionManager != null)

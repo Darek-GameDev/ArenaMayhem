@@ -23,9 +23,6 @@ public class MatchResultUIController : MonoBehaviour
     [Header("Button Actions")]
     [SerializeField] private bool autoBindResultButtons = true;
 
-    [Header("Visibility")]
-    [SerializeField] private bool keepKillFeedVisible = true;
-
     private SharedModePlayerController localController;
     private bool resultShown;
     private bool matchArmed;
@@ -133,9 +130,7 @@ public class MatchResultUIController : MonoBehaviour
                 continue;
             }
 
-            bool isResultRoot = child.gameObject == resultRoot;
-            bool hasKillFeed = keepKillFeedVisible && child.GetComponentInChildren<KillFeed>(true) != null;
-            child.gameObject.SetActive(isResultRoot || hasKillFeed);
+            child.gameObject.SetActive(child.gameObject == resultRoot);
         }
 
         resultRoot.SetActive(true);

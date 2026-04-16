@@ -69843,7 +69843,6 @@ MonoBehaviour:
   menuSceneName: Menu
   returnButtonName: Return To Menu
   autoBindResultButtons: 1
-  keepKillFeedVisible: 1
 --- !u!1 &573573388 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: cce0ad853be618b4dbbd2f90ec512ba4, type: 3}

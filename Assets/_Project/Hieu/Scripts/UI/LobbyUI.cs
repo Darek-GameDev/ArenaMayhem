@@ -48,7 +48,7 @@ public class LobbyUI : MonoBehaviour
 	[SerializeField] private string defaultClassName = "Knight";
 	[SerializeField] private int requiredPlayersToStart = 1;
 	[SerializeField] private bool hideLobbyOnSceneStart = true;
-	[SerializeField] private bool enableLegacyAvatarSync = false;
+	[SerializeField] private bool enableLegacyAvatarSync = true;  // Changed to true for consistent syncing
 	[SerializeField] private bool hideLegacyReadyIconsInSlots = false;
 	[SerializeField] private string emptyPlayerName = "PLAYER NAME";
 	[SerializeField] private string emptyClassName = "CLASS NAME";
@@ -323,9 +323,7 @@ public class LobbyUI : MonoBehaviour
 				bool occupied = i < displayedPlayerCount;
 				SetSlotVisible(slot, occupied);
 
-				// Legacy avatar sync should only drive offline/default visuals.
-				// When session is active, class/name text already comes from SyncLobbyFromSession.
-				if (occupied && enableLegacyAvatarSync && !hasActiveSession)
+				if (occupied && enableLegacyAvatarSync)
 				{
 					ApplyAvatarKindToSlot(slot, slot.avatarKind);
 				}

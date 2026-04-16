@@ -621,8 +621,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d761d84f03add8845a9cea3b984fb5f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
-  forceShowRetryDelay: 0.2
-  maxForceShowRetries: 20
   menuUI: {fileID: 1054284515}
   lobbyUI: {fileID: 7286812649901721268}
   roomCreateUI: {fileID: 1842916187}

@@ -160,7 +160,6 @@ public class EnemyHealth : NetworkBehaviour
             if (attacker != null)
             {
                 attacker.RPC_RequestAddKill(1);
-                KillFeedReporter.ReportEnemyKill(Runner, attackerRef, name);
             }
 
             if (logDamage)
@@ -259,5 +258,4 @@ public class EnemyHealth : NetworkBehaviour
 
         healthBar.ConfigureForEnemy(this);
     }
-
 }
