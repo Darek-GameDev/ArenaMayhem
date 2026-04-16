@@ -1926,6 +1926,10 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 3a695f4d-4cc4-4bc2-a7a4-d50f4fc7de22
     m_ActionName: 'Player/Aim[/Mouse/rightButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e4dc3110-94f8-483b-bfd3-41dfec1e6c87
+    m_ActionName: 'Player/Skill[/Keyboard/e]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -2001,6 +2005,8 @@ MonoBehaviour:
   bowRequireAimToFire: 1
   bowFireCooldown: 0.5
   autoExitAimOnShoot: 0
+  skillCooldown: 6
+  swordSkillDuration: 1.1
   bowAimRayDistance: 200
   bowAimLayerMask:
     serializedVersion: 2
@@ -2050,6 +2056,8 @@ MonoBehaviour:
   bowRequireAimToFire: 1
   bowAutoExitAimOnShoot: 0
   bowFireCooldownSeconds: 0.5
+  skillCooldownSeconds: 6
+  swordSkillDurationSeconds: 1.1
   bowMoveSpeedMultiplier: 1.2
   bowAimMoveSpeedMultiplier: 0.65
   bowWeapon: {fileID: 0}
@@ -2068,6 +2076,7 @@ MonoBehaviour:
   _AttackPressed:
     _value: 0
   _AttackSequence: 0
+  _SkillSequence: 0
   _ComboStep: 0
   _HitSequence: 0
   _KillCount: 0
@@ -2077,11 +2086,19 @@ MonoBehaviour:
   _NextBlockAllowedAt: 0
   _BlockUntil: 0
   _NextBowShotAllowedAt: 0
+  _NextSkillAllowedAt: 0
+  _SwordSkillUntil: 0
+  _FrozenUntil: 0
+  _FreezeSequence: 0
   _IsAiming:
     _value: 0
   _BowRequireAimRelease:
     _value: 0
   _BlockRequireRelease:
+    _value: 0
+  _IsFreezeShotPrimed:
+    _value: 0
+  _UseSkillSword:
     _value: 0
   _SelectedBowProjectileType: 0
 --- !u!114 &6969320276120120523
@@ -2124,6 +2141,13 @@ MonoBehaviour:
   secondaryProjectileSpeed: 22
   secondaryProjectileLifetime: 5
   secondaryDamage: 2
+  freezeProjectilePrefab: {fileID: 0}
+  freezeProjectileSpeed: 26
+  freezeProjectileLifetime: 4
+  freezeDamage: 1
+  freezeDuration: 2
+  skillShotEffectPrefab: {fileID: 0}
+  skillShotEffectLifetime: 2
   projectileSpawnPoint: {fileID: 1346985541919212429}
 --- !u!114 &1996908816946458932
 MonoBehaviour:
@@ -2143,7 +2167,7 @@ MonoBehaviour:
   inputAxisController: {fileID: 439040984557659279}
   orbitalFollow: {fileID: 199555430836313910}
   rotationComposer: {fileID: 3934683523483113249}
-  blendSpeed: 8
+  blendSpeed: 100
   normalLookSensitivity: 1
   aimLookSensitivity: 0.4
   normalRadius: 4
@@ -2182,6 +2206,8 @@ MonoBehaviour:
   animator: {fileID: 425858959708846246}
   networkCharacterController: {fileID: 5181516410223311153}
   bowHandVisualEvents: {fileID: 896624991062604839}
+  skillSpinTrigger: SkillSpin
+  attackLayerName: Attack
 --- !u!114 &896624991062604839
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2288,7 +2314,7 @@ MonoBehaviour:
   landingMinShakeScale: 0.45
   enableDebugLogs: 0
   defaultFOV: 60
-  aimingFOV: 42
+  aimingFOV: 100
   runningSensationFOV: 72
   fovTransitionSpeed: 5.5
   useCharacterSpecificTuning: 1
@@ -2300,7 +2326,7 @@ MonoBehaviour:
   heavyDamageThreshold: 30
   heavyDamageVignetteDuration: 0.5
   nearDeathHealthPercent: 0.2
-  nearDeathFOV: 40
+  nearDeathFOV: 55
   enableLowHealthHeartbeat: 1
   lowHealthHeartbeatMinInterval: 0.85
   lowHealthHeartbeatMaxInterval: 0.45
@@ -3005,4 +3031,11 @@ MonoBehaviour:
   secondaryProjectileSpeed: 22
   secondaryProjectileLifetime: 5
   secondaryDamage: 2
+  freezeProjectilePrefab: {fileID: 0}
+  freezeProjectileSpeed: 26
+  freezeProjectileLifetime: 4
+  freezeDamage: 1
+  freezeDuration: 2
+  skillShotEffectPrefab: {fileID: 0}
+  skillShotEffectLifetime: 2
   projectileSpawnPoint: {fileID: 1346985541919212429}
