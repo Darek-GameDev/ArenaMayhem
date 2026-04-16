@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 255c58e12f3e05245afde891bf9647ea
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 297318
+  packageName: Elemental Spells Full Pack VFX
+  packageVersion: 1.0.1
+  assetPath: Assets/PixPlays/Components/Scripts/VfxAddons/ParticleSystemStartStopLifetime.cs
+  uploadId: 840846

@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: aada8f4b3f6fed04ba4acf1ab50fedd7
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 625f186215c104763be7675aa2d941aa, type: 3}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 297318
+  packageName: Elemental Spells Full Pack VFX
+  packageVersion: 1.0.1
+  assetPath: Assets/PixPlays/Components/Shaders/ParticleEmmisionUnlitShader.shadergraph
+  uploadId: 840846

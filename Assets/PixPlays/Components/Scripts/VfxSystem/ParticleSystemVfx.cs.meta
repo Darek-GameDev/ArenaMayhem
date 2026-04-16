@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 86361429be8c3a8429bb99c19a4d6b70
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 297318
+  packageName: Elemental Spells Full Pack VFX
+  packageVersion: 1.0.1
+  assetPath: Assets/PixPlays/Components/Scripts/VfxSystem/ParticleSystemVfx.cs
+  uploadId: 840846

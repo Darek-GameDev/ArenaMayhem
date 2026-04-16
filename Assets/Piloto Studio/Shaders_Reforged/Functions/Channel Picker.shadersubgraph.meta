@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 763409a3f98108848a0e1befe8dc39d0
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 60072b568d64c40a485e0fc55012dc9f, type: 3}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 268951
+  packageName: Stylized Tornado and Whirlwind Magic VFX
+  packageVersion: 1.2
+  assetPath: Assets/Piloto Studio/Shaders_Reforged/Functions/Channel Picker.shadersubgraph
+  uploadId: 777802

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f98ef2f13386b0549a14a4a9b22e56cb
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 297318
+  packageName: Elemental Spells Full Pack VFX
+  packageVersion: 1.0.1
+  assetPath: Assets/PixPlays/ElementalBlastVFX/WaterBlast/Anims/WaterWaveAnimController.controller
+  uploadId: 840846

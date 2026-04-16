@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: bdedaabfea8c5cd459ed4db57cfad292
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 60072b568d64c40a485e0fc55012dc9f, type: 3}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 297318
+  packageName: Elemental Spells Full Pack VFX
+  packageVersion: 1.0.1
+  assetPath: Assets/PixPlays/Components/Shaders/ScrollTexture.shadersubgraph
+  uploadId: 840846

@@ -10,6 +10,7 @@
     "com.unity.multiplayer.center": "1.0.1",
     "com.unity.nuget.mono-cecil": "1.10.2",
     "com.unity.render-pipelines.universal": "17.3.0",
+    "com.unity.shadergraph": "17.3.0",
     "com.unity.test-framework": "1.6.0",
     "com.unity.timeline": "1.8.10",
     "com.unity.ugui": "2.0.0",

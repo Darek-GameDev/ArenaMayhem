@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: dcc0b5030ddf4124da4c7b09c7b00b2a
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 297318
+  packageName: Elemental Spells Full Pack VFX
+  packageVersion: 1.0.1
+  assetPath: Assets/PixPlays/Components/Scripts/VfxSystem/ProjectileVfx.cs
+  uploadId: 840846
