@@ -1721,7 +1721,6 @@ Transform:
   - {fileID: 1690698404365470783}
   - {fileID: 3420941178070116290}
   - {fileID: 3005160652551798667}
-  - {fileID: 8170094045962212500}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &425858959708846246
@@ -2147,10 +2146,8 @@ MonoBehaviour:
   freezeProjectileLifetime: 4
   freezeDamage: 1
   freezeDuration: 2
-  skillShotProjectilePrefab: {fileID: 0}
-  skillShotProjectileSpeed: 28
-  skillShotProjectileLifetime: 4
-  skillShotDamage: 1
+  skillShotEffectPrefab: {fileID: 0}
+  skillShotEffectLifetime: 2
   projectileSpawnPoint: {fileID: 1346985541919212429}
 --- !u!114 &1996908816946458932
 MonoBehaviour:
@@ -2170,7 +2167,7 @@ MonoBehaviour:
   inputAxisController: {fileID: 439040984557659279}
   orbitalFollow: {fileID: 199555430836313910}
   rotationComposer: {fileID: 3934683523483113249}
-  blendSpeed: 8
+  blendSpeed: 100
   normalLookSensitivity: 1
   aimLookSensitivity: 0.4
   normalRadius: 4
@@ -2317,7 +2314,7 @@ MonoBehaviour:
   landingMinShakeScale: 0.45
   enableDebugLogs: 0
   defaultFOV: 60
-  aimingFOV: 42
+  aimingFOV: 100
   runningSensationFOV: 72
   fovTransitionSpeed: 5.5
   useCharacterSpecificTuning: 1
@@ -2329,7 +2326,7 @@ MonoBehaviour:
   heavyDamageThreshold: 30
   heavyDamageVignetteDuration: 0.5
   nearDeathHealthPercent: 0.2
-  nearDeathFOV: 40
+  nearDeathFOV: 55
   enableLowHealthHeartbeat: 1
   lowHealthHeartbeatMinInterval: 0.85
   lowHealthHeartbeatMaxInterval: 0.45
@@ -2940,68 +2937,6 @@ Transform:
   - {fileID: 5156800762047061922}
   m_Father: {fileID: 8707332123201808784}
   m_LocalEulerAnglesHint: {x: 0.00000027235353, y: 0.0000029361975, z: -0.0000050043905}
---- !u!1001 &3494403002638689452
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 2353180543090716247}
-    m_Modifications:
-    - target: {fileID: 4691796689655885880, guid: c241bae968be85442a0d48dd7152ceb1, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -5.295978
-      objectReference: {fileID: 0}
-    - target: {fileID: 4691796689655885880, guid: c241bae968be85442a0d48dd7152ceb1, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.79424006
-      objectReference: {fileID: 0}
-    - target: {fileID: 4691796689655885880, guid: c241bae968be85442a0d48dd7152ceb1, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 1.3543326
-      objectReference: {fileID: 0}
-    - target: {fileID: 4691796689655885880, guid: c241bae968be85442a0d48dd7152ceb1, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4691796689655885880, guid: c241bae968be85442a0d48dd7152ceb1, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4691796689655885880, guid: c241bae968be85442a0d48dd7152ceb1, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4691796689655885880, guid: c241bae968be85442a0d48dd7152ceb1, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4691796689655885880, guid: c241bae968be85442a0d48dd7152ceb1, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4691796689655885880, guid: c241bae968be85442a0d48dd7152ceb1, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4691796689655885880, guid: c241bae968be85442a0d48dd7152ceb1, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5615403103531108993, guid: c241bae968be85442a0d48dd7152ceb1, type: 3}
-      propertyPath: m_Name
-      value: WaterballProjectile
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: c241bae968be85442a0d48dd7152ceb1, type: 3}
---- !u!4 &8170094045962212500 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4691796689655885880, guid: c241bae968be85442a0d48dd7152ceb1, type: 3}
-  m_PrefabInstance: {fileID: 3494403002638689452}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &8094391342122948372
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3096,13 +3031,11 @@ MonoBehaviour:
   secondaryProjectileSpeed: 22
   secondaryProjectileLifetime: 5
   secondaryDamage: 2
-  freezeProjectilePrefab: {fileID: 9035201406488112594, guid: c241bae968be85442a0d48dd7152ceb1, type: 3}
+  freezeProjectilePrefab: {fileID: 0}
   freezeProjectileSpeed: 26
   freezeProjectileLifetime: 4
   freezeDamage: 1
   freezeDuration: 2
-  skillShotProjectilePrefab: {fileID: 5615403103531108993, guid: c241bae968be85442a0d48dd7152ceb1, type: 3}
-  skillShotProjectileSpeed: 28
-  skillShotProjectileLifetime: 4
-  skillShotDamage: 1
+  skillShotEffectPrefab: {fileID: 0}
+  skillShotEffectLifetime: 2
   projectileSpawnPoint: {fileID: 1346985541919212429}
