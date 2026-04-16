@@ -44,6 +44,16 @@ public class PlayerHealth : MonoBehaviour
         TakeDamageInternal(amount, hitOrigin, true);
     }
 
+    public void TakeEnvironmentalDamage(int amount)
+    {
+        TakeEnvironmentalDamageInternal(amount, default, false);
+    }
+
+    public void TakeEnvironmentalDamageFromOrigin(int amount, Vector3 hitOrigin)
+    {
+        TakeEnvironmentalDamageInternal(amount, hitOrigin, true);
+    }
+
     private void TakeDamageInternal(int amount, Vector3 hitOrigin, bool hasHitOrigin)
     {
         if (sharedModeController != null)
@@ -70,6 +80,42 @@ public class PlayerHealth : MonoBehaviour
         {
             lastHitWasBlocked = true;
             ChangeState(HealthState.Hit);
+            return;
+        }
+
+        lastHitWasBlocked = false;
+        ChangeState(HealthState.Hit);
+        currentHealth = Mathf.Max(0, currentHealth - amount);
+
+        if (logDamage)
+        {
+            Debug.Log($"{name} took {amount} damage. HP: {currentHealth}/{maxHealth}");
+        }
+
+        if (currentHealth == 0)
+        {
+            Die();
+        }
+    }
+
+    private void TakeEnvironmentalDamageInternal(int amount, Vector3 hitOrigin, bool hasHitOrigin)
+    {
+        if (sharedModeController != null)
+        {
+            if (hasHitOrigin)
+            {
+                sharedModeController.RPC_RequestDamageWithOrigin(amount, hitOrigin);
+            }
+            else
+            {
+                sharedModeController.RPC_RequestDamage(amount);
+            }
+
+            return;
+        }
+
+        if (IsDead || amount <= 0)
+        {
             return;
         }
 
