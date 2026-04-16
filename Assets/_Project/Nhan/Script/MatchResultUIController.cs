@@ -10,6 +10,7 @@ public class MatchResultUIController : MonoBehaviour
     [SerializeField] private bool enableSystem = true;
     [SerializeField] private int maxPlayers = 6;
     [SerializeField] [Min(2)] private int minimumPlayersToStartResult = 2;
+    [SerializeField] [Min(0f)] private float loseResultDelaySeconds = 1.2f;
 
     [Header("Result UI References")]
     [SerializeField] private GameObject resultRoot;
@@ -27,6 +28,8 @@ public class MatchResultUIController : MonoBehaviour
     private bool resultShown;
     private bool matchArmed;
     private bool actionInProgress;
+    private bool pendingLoseResult;
+    private float loseDelayRemaining;
 
     private void Awake()
     {
@@ -43,6 +46,16 @@ public class MatchResultUIController : MonoBehaviour
         if (!enableSystem || resultShown)
         {
             return;
+        }
+
+        if (pendingLoseResult)
+        {
+            loseDelayRemaining -= Time.unscaledDeltaTime;
+            if (loseDelayRemaining <= 0f)
+            {
+                ShowResult(false);
+                return;
+            }
         }
 
         if (localController == null || localController.Object == null || !localController.Object.HasInputAuthority)
@@ -62,6 +75,7 @@ public class MatchResultUIController : MonoBehaviour
     {
         if (resultRoot == null || winObject == null || loseObject == null)
         {
+            Debug.LogError($"[MatchResultUIController] UI references missing! resultRoot={resultRoot}, winObject={winObject}, loseObject={loseObject}");
             return;
         }
 
@@ -81,6 +95,7 @@ public class MatchResultUIController : MonoBehaviour
 
         if (players.Count == 0)
         {
+            Debug.LogWarning($"[MatchResultUIController] No valid players found");
             return;
         }
 
@@ -89,9 +104,11 @@ public class MatchResultUIController : MonoBehaviour
             if (players.Count >= minimumPlayersToStartResult)
             {
                 matchArmed = true;
+                Debug.Log($"[MatchResultUIController] Match armed! Players: {players.Count}");
             }
             else
             {
+                Debug.LogWarning($"[MatchResultUIController] Not enough players: {players.Count}/{minimumPlayersToStartResult}");
                 return;
             }
         }
@@ -105,14 +122,31 @@ public class MatchResultUIController : MonoBehaviour
             }
         }
 
+        Debug.Log($"[MatchResultUIController] Local dead: {localController.IsDead}, Alive count: {aliveCount}");
+
         if (localController.IsDead)
         {
-            ShowResult(false);
+            if (!pendingLoseResult)
+            {
+                pendingLoseResult = true;
+                loseDelayRemaining = loseResultDelaySeconds;
+                Debug.Log($"[MatchResultUIController] Local dead. Showing LOSE screen after {loseResultDelaySeconds:F2}s delay.");
+            }
+
+            if (loseResultDelaySeconds <= 0f)
+            {
+                Debug.Log("[MatchResultUIController] Showing LOSE screen immediately.");
+                ShowResult(false);
+            }
             return;
         }
 
+        pendingLoseResult = false;
+        loseDelayRemaining = 0f;
+
         if (aliveCount <= 1)
         {
+            Debug.Log($"[MatchResultUIController] Showing WIN screen!");
             ShowResult(true);
         }
     }
@@ -121,6 +155,9 @@ public class MatchResultUIController : MonoBehaviour
     {
         resultShown = true;
         Time.timeScale = 0f;
+
+    // Stop all camera shakes when match ends
+    CameraEffectsController.StopAllShakes();
 
         for (int i = 0; i < transform.childCount; i++)
         {

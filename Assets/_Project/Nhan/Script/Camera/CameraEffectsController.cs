@@ -51,8 +51,6 @@ public class CameraEffectsController : MonoBehaviour
 
     [Header("Cinematic - Death")]
     [SerializeField] private float deathFOV = 30f;
-    [SerializeField] private float deathShakeDuration = 0.65f;
-    [SerializeField] private float deathShakeAmplitudeMultiplier = 3f;
 
     // Shake
     private float shakeTimer;
@@ -112,6 +110,7 @@ public class CameraEffectsController : MonoBehaviour
 
         deathEffectPlayed = false;
         lowHealthHeartbeatTimer = 0f;
+        shakeTimer = 0f;
     }
 
     private void Update()
@@ -320,10 +319,17 @@ public class CameraEffectsController : MonoBehaviour
                 OnNearDeath(shouldBeNearDeath);
             }
 
-            UpdateLowHealthHeartbeat(shouldBeNearDeath, healthPercent);
+            // ✅ FIX: Chỉ trigger heartbeat khi gần chết, KHÔNG khi đã chết
+            if (!isDead)
+            {
+                UpdateLowHealthHeartbeat(shouldBeNearDeath, healthPercent);
+            }
 
             if (isDead && !deathEffectPlayed)
             {
+                // Ensure no residual shake when entering death state.
+                lowHealthHeartbeatTimer = 0f;
+                isNearDeath = false;
                 OnDeath();
             }
             else if (!isDead)
@@ -340,6 +346,11 @@ public class CameraEffectsController : MonoBehaviour
 
     public void OnHeavyDamage(int damageAmount)
     {
+        if (TryReadHealth(out _, out _, out bool isDead) && isDead)
+        {
+            return;
+        }
+
         ShakeOnDamage(damageAmount);
         elapsedVignetteTime = heavyDamageVignetteDuration;
     }
@@ -348,6 +359,7 @@ public class CameraEffectsController : MonoBehaviour
     {
         isNearDeath = nearDeath;
 
+        // ✅ FIX: Reset heartbeat timer luôn luôn khi thoát khỏi trạng thái gần chết
         if (!isNearDeath)
         {
             lowHealthHeartbeatTimer = 0f;
@@ -393,8 +405,9 @@ public class CameraEffectsController : MonoBehaviour
     {
         deathEffectPlayed = true;
 
-        float deathAmplitude = Mathf.Max(defaultShakeAmplitude * deathShakeAmplitudeMultiplier, defaultShakeAmplitude);
-        Shake(deathShakeDuration, deathAmplitude);
+        // Hard stop any active shake so death only shows Lose UI.
+        StopAllShakes();
+        lowHealthHeartbeatTimer = 0f;
 
         if (enableDebugLogs)
         {
@@ -452,6 +465,16 @@ public class CameraEffectsController : MonoBehaviour
         if (instance != null)
         {
             instance.OnKillEnemy();
+        }
+    }
+
+    public static void StopAllShakes()
+    {
+        if (instance != null)
+        {
+            instance.shakeTimer = 0f;
+            instance.currentShakeDuration = 0f;
+            instance.currentShakeAmplitude = 0f;
         }
     }
     #endregion

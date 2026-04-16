@@ -155,6 +155,7 @@ Material:
     - _Distort_Rotate: 0
     - _Distort_Strength: 0.2
     - _DstBlend: 10
+    - _DstBlendAlpha: 10
     - _EnvironmentReflections: 1
     - _Fresnel_AddOrMultiply: 1
     - _GlossMapScale: 0
@@ -182,6 +183,7 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 5
+    - _SrcBlendAlpha: 1
     - _Surface: 1
     - _SwitchColors: 0
     - _UseFresnel: 0
