@@ -165,7 +165,7 @@ Material:
     - _Distort_Rotate: 0
     - _Distort_Strength: 0
     - _DstBlend: 10
-    - _DstBlendAlpha: 0
+    - _DstBlendAlpha: 10
     - _EnvironmentReflections: 1
     - _Fresnel_AddOrMultiply: 0
     - _GlossMapScale: 0
