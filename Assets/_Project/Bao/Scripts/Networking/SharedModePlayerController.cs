@@ -873,7 +873,13 @@ public class SharedModePlayerController : NetworkBehaviour
             return;
         }
 
-        bowWeapon.SpawnProjectile(transform, attackerRef, aimPoint, HasStateAuthority, projectileType, spawnSkillEffect);
+        if (spawnSkillEffect)
+        {
+            bowWeapon.FireSkillShot(transform, attackerRef, aimPoint, HasStateAuthority);
+            return;
+        }
+
+        bowWeapon.SpawnProjectile(transform, attackerRef, aimPoint, HasStateAuthority, projectileType, false);
     }
 
     private bool IsFrozenAt(float simTime)
