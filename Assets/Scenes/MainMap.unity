@@ -269458,13 +269458,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2167511110069939194, guid: 235c81ce7c30ad341983d2583452bac5, type: 3}
+      propertyPath: swordSkillDurationSeconds
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 2312380246191621993, guid: 235c81ce7c30ad341983d2583452bac5, type: 3}
       propertyPath: m_Name
       value: Knight
       objectReference: {fileID: 0}
     - target: {fileID: 2312380246191621993, guid: 235c81ce7c30ad341983d2583452bac5, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2510753202262350095, guid: 235c81ce7c30ad341983d2583452bac5, type: 3}
       propertyPath: m_LocalPosition.x
