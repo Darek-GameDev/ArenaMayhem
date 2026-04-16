@@ -2689,6 +2689,9 @@ GameObject:
   - component: {fileID: 558648838179267379}
   - component: {fileID: 8854434936340704547}
   - component: {fileID: 7594926730219088443}
+  - component: {fileID: 1225213631913871821}
+  - component: {fileID: 2571142339655387051}
+  - component: {fileID: 5268458966758720587}
   m_Layer: 0
   m_Name: Knight
   m_TagString: Untagged
@@ -2957,6 +2960,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   walkSpeed: 2.5
   runSpeed: 4
+  bowMoveSpeedMultiplier: 1.2
+  bowAimMoveSpeedMultiplier: 0.65
   rotationSpeed: 10
   jumpHeight: 2
   jumpCooldown: 1.25
@@ -2979,6 +2984,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   comboStep: 0
   blockCooldown: 0.25
+  blockDuration: 0.5
   useBow: 0
   weapon: {fileID: 0}
   bowWeapon: {fileID: 0}
@@ -3003,6 +3009,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   maxHealth: 100
   logDamage: 1
+  blockFrontDotThreshold: 0.5
   playerAttack: {fileID: 0}
 --- !u!114 &8827682556146254580
 MonoBehaviour:
@@ -3079,16 +3086,25 @@ MonoBehaviour:
   cameraTransform: {fileID: 0}
   playerCameraRoot: {fileID: 0}
   blockCooldownSeconds: 0.25
+  blockDurationSeconds: 0.5
+  blockFrontDotThreshold: 0.5
   weaponType: 0
   bowRequireAimToFire: 1
   bowAutoExitAimOnShoot: 0
   bowFireCooldownSeconds: 0.35
+  bowMoveSpeedMultiplier: 1.2
+  bowAimMoveSpeedMultiplier: 0.65
   bowWeapon: {fileID: 0}
+  defaultBowProjectileType: 0
   bowAimRayDistance: 200
   bowAimLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
   maxHealth: 10
+  localPlayerMinimapSprite: {fileID: 0}
+  enemyMinimapSprite: {fileID: 0}
+  minimapCanvasName: CanvasIconPlayer
+  minimapIconName: Icon
   _IsBlocking:
     _value: 0
   _AttackPressed:
@@ -3101,11 +3117,94 @@ MonoBehaviour:
   _NetLocomotionState: 0
   _NetCombatState: 0
   _NextBlockAllowedAt: 0
+  _BlockUntil: 0
   _NextBowShotAllowedAt: 0
   _IsAiming:
     _value: 0
   _BowRequireAimRelease:
     _value: 0
+  _BlockRequireRelease:
+    _value: 0
+  _SelectedBowProjectileType: 0
+--- !u!114 &1225213631913871821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7344012692931915955}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11c3c6ee12dc15b41ad66c043d0d6e9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraEffectsController
+  cinemachineCamera: {fileID: 0}
+  sharedModeController: {fileID: 7594926730219088443}
+  playerHealth: {fileID: 329002563951493618}
+  defaultShakeDuration: 0.15
+  defaultShakeAmplitude: 3
+  shakePositionStrength: 0.22
+  shakeRotationStrength: 4.5
+  damageMinShakeScale: 0.6
+  landingMinShakeScale: 0.45
+  enableDebugLogs: 0
+  defaultFOV: 60
+  aimingFOV: 45
+  runningSensationFOV: 70
+  fovTransitionSpeed: 5
+  heavyDamageThreshold: 30
+  heavyDamageVignetteDuration: 0.5
+  nearDeathHealthPercent: 0.2
+  nearDeathFOV: 45
+  deathFOV: 30
+  deathShakeDuration: 0.65
+  deathShakeAmplitudeMultiplier: 3
+--- !u!114 &2571142339655387051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7344012692931915955}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e81dbd32aecfeec4495a69c4c3351599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealthCameraConnector
+  playerHealth: {fileID: 329002563951493618}
+  sharedModeController: {fileID: 7594926730219088443}
+  enableDebugLogs: 0
+--- !u!114 &5268458966758720587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7344012692931915955}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eee799acf0f195d4e9778fa408fcec48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ThirdPersonCameraManager
+  cinemachineCamera: {fileID: 0}
+  orbitalFollow: {fileID: 0}
+  followComponent: {fileID: 0}
+  rotationComposer: {fileID: 0}
+  playerTransform: {fileID: 1963659892650790256}
+  normalRadius: 4
+  normalTargetOffset: {x: 0, y: 1.13, z: 0}
+  aimRadius: 2.4
+  aimTargetOffset: {x: 0.2, y: 1.45, z: 0}
+  blendSpeed: 8
+  collisionLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  collisionCheckDistance: 0.5
+  minDistanceWhenColliding: 1
+  enablePositionSmoothing: 1
+  positionSmoothingDamping: 0.1
+  normalLookSensitivity: 1
+  aimLookSensitivity: 0.55
 --- !u!1 &7579215525176469024
 GameObject:
   m_ObjectHideFlags: 0

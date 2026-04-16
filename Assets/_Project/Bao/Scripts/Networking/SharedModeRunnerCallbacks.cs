@@ -355,9 +355,14 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
             playerInput = FindFirstObjectByType<PlayerInput>();
         }
 
-        if (playerInput != null && (playerInput.currentActionMap == null || playerInput.currentActionMap.name != "Player"))
+        if (playerInput != null)
         {
-            playerInput.SwitchCurrentActionMap("Player");
+            if (!playerInput.enabled)
+            {
+                playerInput.enabled = true;
+            }
+
+            TrySwitchToPlayerActionMap();
         }
     }
 
@@ -510,6 +515,21 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
 
         playerInput = localInput;
         warnedMissingInput = false;
+        if (!playerInput.enabled)
+        {
+            playerInput.enabled = true;
+        }
+
+        TrySwitchToPlayerActionMap();
+    }
+
+    private void TrySwitchToPlayerActionMap()
+    {
+        if (playerInput == null || !playerInput.isActiveAndEnabled)
+        {
+            return;
+        }
+
         if (playerInput.currentActionMap == null || playerInput.currentActionMap.name != "Player")
         {
             playerInput.SwitchCurrentActionMap("Player");

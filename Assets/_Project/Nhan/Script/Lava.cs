@@ -30,7 +30,7 @@ public class Lava : MonoBehaviour
             return;
         }
 
-        playerHealth.TakeDamage(instantKillDamage);
+        playerHealth.TakeEnvironmentalDamage(instantKillDamage);
 
         if (letDeadPlayerFallThroughLava)
         {
