@@ -1690,8 +1690,6 @@ GameObject:
   - component: {fileID: 1011418327145828855}
   - component: {fileID: 1159165518404804113}
   - component: {fileID: 294937561877117498}
-  - component: {fileID: 521949739030390207}
-  - component: {fileID: 4857685662148502576}
   m_Layer: 3
   m_Name: Rogue_Hooded
   m_TagString: Untagged
@@ -2148,10 +2146,8 @@ MonoBehaviour:
   freezeProjectileLifetime: 4
   freezeDamage: 1
   freezeDuration: 2
-  skillShotProjectilePrefab: {fileID: 0}
-  skillShotProjectileSpeed: 28
-  skillShotProjectileLifetime: 4
-  skillShotDamage: 1
+  skillShotEffectPrefab: {fileID: 0}
+  skillShotEffectLifetime: 2
   projectileSpawnPoint: {fileID: 1346985541919212429}
 --- !u!114 &1996908816946458932
 MonoBehaviour:
@@ -2339,122 +2335,6 @@ MonoBehaviour:
   deathFOV: 30
   deathShakeDuration: 0.65
   deathShakeAmplitudeMultiplier: 3
---- !u!82 &521949739030390207
-AudioSource:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7530822878995127408}
-  m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
-  m_Volume: 1
-  m_Pitch: 1
-  Loop: 0
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
---- !u!114 &4857685662148502576
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7530822878995127408}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d2d3f94541013044858a1510a9bdd7a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SoundEffect
-  meleeAttackSound1: {fileID: 0}
-  meleeAttackSound2: {fileID: 0}
-  meleeAttackSound3: {fileID: 0}
-  meleeBlockSound: {fileID: 0}
-  bowDrawSound: {fileID: 8300000, guid: 7372779da200bdf4688ca7f25e187a7d, type: 3}
-  bowShootSound: {fileID: 8300000, guid: 41cb283388bea9e489e0bd8742a2577f, type: 3}
-  soundVolume: 1
 --- !u!1 &7940896968262706577
 GameObject:
   m_ObjectHideFlags: 0
@@ -3156,8 +3036,6 @@ MonoBehaviour:
   freezeProjectileLifetime: 4
   freezeDamage: 1
   freezeDuration: 2
-  skillShotProjectilePrefab: {fileID: 0}
-  skillShotProjectileSpeed: 28
-  skillShotProjectileLifetime: 4
-  skillShotDamage: 1
+  skillShotEffectPrefab: {fileID: 0}
+  skillShotEffectLifetime: 2
   projectileSpawnPoint: {fileID: 1346985541919212429}
