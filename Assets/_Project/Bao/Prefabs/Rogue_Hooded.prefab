@@ -2337,8 +2337,6 @@ MonoBehaviour:
   lowHealthHeartbeatShakeDuration: 0.08
   lowHealthHeartbeatShakeAmplitude: 0.25
   deathFOV: 30
-  deathShakeDuration: 0.65
-  deathShakeAmplitudeMultiplier: 3
 --- !u!82 &521949739030390207
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2454,6 +2452,8 @@ MonoBehaviour:
   meleeBlockSound: {fileID: 0}
   bowDrawSound: {fileID: 8300000, guid: 7372779da200bdf4688ca7f25e187a7d, type: 3}
   bowShootSound: {fileID: 8300000, guid: 41cb283388bea9e489e0bd8742a2577f, type: 3}
+  jumpSound: {fileID: 8300000, guid: 1f8b18d878d9aaa41b06f045f653bfe5, type: 3}
+  landSound: {fileID: 8300000, guid: 07e9fdf24f06a2141a0e9196411cae3a, type: 3}
   soundVolume: 1
 --- !u!1 &7940896968262706577
 GameObject:
