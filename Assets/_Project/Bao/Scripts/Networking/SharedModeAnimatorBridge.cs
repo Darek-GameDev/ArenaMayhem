@@ -7,6 +7,7 @@ public class SharedModeAnimatorBridge : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private Fusion.NetworkCharacterController networkCharacterController;
     [SerializeField] private BowHandVisualAnimationEvents bowHandVisualEvents;
+    [SerializeField] private ParticleSystem swordSkillWhirlwindFx;
 
     private int lastHitSequence = -1;
     private int lastAttackSequence = -1;
@@ -82,6 +83,7 @@ public class SharedModeAnimatorBridge : MonoBehaviour
             SetBoolIfExists("isAiming", false);
             SetBoolIfExists(UseSkillSwordBool, false);
             SetAttackLayerSuppressed(false);
+            SetSwordSkillWhirlwindActive(false);
             animator.SetFloat("Speed", 0f, 0.08f, Time.deltaTime);
             wasJumping = false;
             wasAiming = false;
@@ -124,6 +126,7 @@ public class SharedModeAnimatorBridge : MonoBehaviour
         SetBoolIfExists(UseSkillSwordBool, controller.UseSkillSword);
         bool swordSkillActive = !controller.UsesBow && controller.UseSkillSword;
         SetAttackLayerSuppressed(swordSkillActive);
+        SetSwordSkillWhirlwindActive(swordSkillActive);
 
         if (isAiming && !wasAiming)
         {
@@ -278,9 +281,30 @@ public class SharedModeAnimatorBridge : MonoBehaviour
         return false;
     }
 
+    private void SetSwordSkillWhirlwindActive(bool active)
+    {
+        if (swordSkillWhirlwindFx == null)
+        {
+            return;
+        }
+
+        if (active)
+        {
+            if (!swordSkillWhirlwindFx.isPlaying)
+            {
+                swordSkillWhirlwindFx.Play();
+            }
+        }
+        else if (swordSkillWhirlwindFx.isPlaying)
+        {
+            swordSkillWhirlwindFx.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+    }
+
     private void OnDisable()
     {
         SetAttackLayerSuppressed(false);
+        SetSwordSkillWhirlwindActive(false);
     }
 
     private void CacheAttackLayer()

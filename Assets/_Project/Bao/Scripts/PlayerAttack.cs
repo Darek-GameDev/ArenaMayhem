@@ -15,6 +15,7 @@ public class PlayerAttack : MonoBehaviour
 
     [Header("Melee")]
     [SerializeField] private Weapon weapon;
+    [SerializeField] private ParticleSystem swordSkillWhirlwindFx;
 
     [Header("Bow")]
     [SerializeField] private BowWeapon bowWeapon;
@@ -111,6 +112,7 @@ public class PlayerAttack : MonoBehaviour
 
             SetBoolIfExists(UseSkillSwordBool, false);
             SetAttackLayerSuppressed(false);
+            SetSwordSkillWhirlwindActive(false);
 
             return;
         }
@@ -119,6 +121,7 @@ public class PlayerAttack : MonoBehaviour
         {
             SetBoolIfExists(UseSkillSwordBool, false);
             SetAttackLayerSuppressed(false);
+            SetSwordSkillWhirlwindActive(false);
         }
 
         if (Input.GetKeyDown(KeyCode.E))
@@ -304,7 +307,21 @@ public class PlayerAttack : MonoBehaviour
         if (playerHealth != null && playerHealth.IsDead)
         {
             SetAttackLayerSuppressed(false);
+            SetSwordSkillWhirlwindActive(false);
             return;
+        }
+
+        // Check if player is invisible - prevent skill usage during stealth
+        if (sharedModeController != null)
+        {
+            Fusion.NetworkRunner runner = FindObjectOfType<Fusion.NetworkRunner>();
+            if (runner != null && sharedModeController.Object != null && sharedModeController.Object.IsValid)
+            {
+                if (SharedModeHealthPotionItem.IsPlayerInvisible(sharedModeController.Object.InputAuthority))
+                {
+                    return;
+                }
+            }
         }
 
         if (Time.time < nextSkillTime)
@@ -316,6 +333,11 @@ public class PlayerAttack : MonoBehaviour
 
         if (useBow)
         {
+            if (bowRequireAimRelease || !isAiming)
+            {
+                return;
+            }
+
             FireBowShot(true);
             return;
         }
@@ -323,6 +345,7 @@ public class PlayerAttack : MonoBehaviour
         swordSkillUntil = Time.time + Mathf.Max(0.05f, swordSkillDuration);
         SetBoolIfExists(UseSkillSwordBool, true);
         SetAttackLayerSuppressed(true);
+        SetSwordSkillWhirlwindActive(true);
         ResetCombo();
         if (HasParameter(SkillSwordTrigger, AnimatorControllerParameterType.Trigger))
         {
@@ -447,9 +470,30 @@ public class PlayerAttack : MonoBehaviour
         return false;
     }
 
+    private void SetSwordSkillWhirlwindActive(bool active)
+    {
+        if (swordSkillWhirlwindFx == null || useBow)
+        {
+            return;
+        }
+
+        if (active)
+        {
+            if (!swordSkillWhirlwindFx.isPlaying)
+            {
+                swordSkillWhirlwindFx.Play();
+            }
+        }
+        else if (swordSkillWhirlwindFx.isPlaying)
+        {
+            swordSkillWhirlwindFx.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+    }
+
     private void OnDisable()
     {
         SetAttackLayerSuppressed(false);
+        SetSwordSkillWhirlwindActive(false);
     }
 
     private void CacheAttackLayer()

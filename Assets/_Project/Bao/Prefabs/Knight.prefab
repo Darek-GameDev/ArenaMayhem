@@ -1263,6 +1263,7 @@ Transform:
   - {fileID: 3133936757872311639}
   - {fileID: 8116854721037594584}
   - {fileID: 3931605545745853842}
+  - {fileID: 8764024029723660893}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!95 &4199562101423113685
@@ -1531,6 +1532,7 @@ MonoBehaviour:
   blockDuration: 0.5
   useBow: 0
   weapon: {fileID: 0}
+  swordSkillWhirlwindFx: {fileID: 0}
   bowWeapon: {fileID: 0}
   bowRequireAimToFire: 1
   bowFireCooldown: 0.35
@@ -1612,6 +1614,7 @@ MonoBehaviour:
   animator: {fileID: 0}
   networkCharacterController: {fileID: 0}
   bowHandVisualEvents: {fileID: 0}
+  swordSkillWhirlwindFx: {fileID: 8804470411780768284}
   skillSpinTrigger: SkillSpin
   attackLayerName: Attack
 --- !u!114 &2167511110069939194
@@ -1641,7 +1644,7 @@ MonoBehaviour:
   bowAutoExitAimOnShoot: 0
   bowFireCooldownSeconds: 0.35
   skillCooldownSeconds: 6
-  swordSkillDurationSeconds: 1.1
+  swordSkillDurationSeconds: 3
   bowMoveSpeedMultiplier: 1.2
   bowAimMoveSpeedMultiplier: 0.65
   bowWeapon: {fileID: 0}
@@ -1651,6 +1654,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   maxHealth: 10
+  freezeVfxPrefab: {fileID: 1803610217696830887, guid: 5d91fc3eb52b1f447aefa53f418e538a, type: 3}
+  freezeVfxAnchor: {fileID: 7059762944750813934}
   localPlayerMinimapSprite: {fileID: 0}
   enemyMinimapSprite: {fileID: 21300000, guid: 235aabd143e14aa40a9c9cc4ac5b2561, type: 3}
   minimapCanvasName: CanvasIconPlayer
@@ -1776,8 +1781,6 @@ MonoBehaviour:
   lowHealthHeartbeatShakeDuration: 0.08
   lowHealthHeartbeatShakeAmplitude: 0.25
   deathFOV: 30
-  deathShakeDuration: 0.65
-  deathShakeAmplitudeMultiplier: 3
 --- !u!82 &-6278995324389898760
 AudioSource:
   m_ObjectHideFlags: 0
@@ -4050,3 +4053,74 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1001 &7693106332604001197
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2510753202262350095}
+    m_Modifications:
+    - target: {fileID: 1397090158230239728, guid: 28ffe5293c94b824ebcfd8f4d389c021, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1397090158230239728, guid: 28ffe5293c94b824ebcfd8f4d389c021, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1397090158230239728, guid: 28ffe5293c94b824ebcfd8f4d389c021, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1397090158230239728, guid: 28ffe5293c94b824ebcfd8f4d389c021, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1397090158230239728, guid: 28ffe5293c94b824ebcfd8f4d389c021, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1397090158230239728, guid: 28ffe5293c94b824ebcfd8f4d389c021, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1397090158230239728, guid: 28ffe5293c94b824ebcfd8f4d389c021, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1397090158230239728, guid: 28ffe5293c94b824ebcfd8f4d389c021, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1397090158230239728, guid: 28ffe5293c94b824ebcfd8f4d389c021, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1397090158230239728, guid: 28ffe5293c94b824ebcfd8f4d389c021, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2593907718852552200, guid: 28ffe5293c94b824ebcfd8f4d389c021, type: 3}
+      propertyPath: m_Name
+      value: TornadosTornado_Holy_Loop
+      objectReference: {fileID: 0}
+    - target: {fileID: 2593907718852552200, guid: 28ffe5293c94b824ebcfd8f4d389c021, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 28ffe5293c94b824ebcfd8f4d389c021, type: 3}
+--- !u!4 &8764024029723660893 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1397090158230239728, guid: 28ffe5293c94b824ebcfd8f4d389c021, type: 3}
+  m_PrefabInstance: {fileID: 7693106332604001197}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &8804470411780768284 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 1219530203014506929, guid: 28ffe5293c94b824ebcfd8f4d389c021, type: 3}
+  m_PrefabInstance: {fileID: 7693106332604001197}
+  m_PrefabAsset: {fileID: 0}

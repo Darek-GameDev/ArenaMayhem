@@ -1050,4 +1050,19 @@ public class SharedModeHealthPotionItem : NetworkBehaviour
         lastVisualCollected = collected;
         visualStateInitialized = true;
     }
+
+    /// <summary>
+    /// Checks if a player is currently invisible.
+    /// </summary>
+    /// <param name="playerRef">The player reference to check.</param>
+    /// <returns>True if the player is invisible, false otherwise.</returns>
+    public static bool IsPlayerInvisible(PlayerRef playerRef)
+    {
+        if (!InvisibilityStates.TryGetValue(playerRef, out InvisibilityState state) || state == null)
+        {
+            return false;
+        }
+
+        return state.RendererStates.Count > 0;
+    }
 }

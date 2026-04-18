@@ -59,6 +59,8 @@ public class SharedModePlayerController : NetworkBehaviour
 
     [Header("Health")]
     [SerializeField] private int maxHealth = 10;
+    [SerializeField] private GameObject freezeVfxPrefab;
+    [SerializeField] private Transform freezeVfxAnchor;
 
     [Header("Minimap Icon")]
     [SerializeField] private Sprite localPlayerMinimapSprite;
@@ -98,6 +100,9 @@ public class SharedModePlayerController : NetworkBehaviour
     private bool minimapIconResolved;
     private bool minimapIconApplied;
     private bool lastMinimapWasLocal;
+    private int lastRenderedFreezeSequence = -1;
+    private bool lastRenderedFrozen;
+    private GameObject freezeVfxInstance;
 
     public PlayerWeaponType WeaponType => weaponType;
     public bool UsesBow => weaponType == PlayerWeaponType.Bow;
@@ -203,6 +208,10 @@ public class SharedModePlayerController : NetworkBehaviour
             SelectedBowProjectileType = defaultBowProjectileType;
         }
 
+        lastRenderedFreezeSequence = FreezeSequence;
+        lastRenderedFrozen = IsFrozen;
+        RefreshFreezeVisuals(lastRenderedFrozen);
+
         if (bowWeapon == null)
         {
             bowWeapon = GetComponentInChildren<BowWeapon>();
@@ -219,6 +228,17 @@ public class SharedModePlayerController : NetworkBehaviour
     private void Update()
     {
         RefreshMinimapIcon(forceRefresh: false);
+    }
+
+    public override void Render()
+    {
+        bool frozen = IsFrozen;
+        if (frozen != lastRenderedFrozen || lastRenderedFreezeSequence != FreezeSequence)
+        {
+            lastRenderedFrozen = frozen;
+            lastRenderedFreezeSequence = FreezeSequence;
+            RefreshFreezeVisuals(frozen);
+        }
     }
 
     private void ConfigureCameraOwnership()
@@ -709,7 +729,7 @@ public class SharedModePlayerController : NetworkBehaviour
             }
         }
 
-        if (input.SkillPressed && simTime >= NextSkillAllowedAt)
+        if (input.SkillPressed && simTime >= NextSkillAllowedAt && !SharedModeHealthPotionItem.IsPlayerInvisible(Object.InputAuthority))
         {
             SkillSequence++;
             NetCombatState = CombatState.Skill;
@@ -779,7 +799,7 @@ public class SharedModePlayerController : NetworkBehaviour
             SelectedBowProjectileType = BowWeapon.ProjectileType.Secondary;
         }
 
-        bool skillRequested = input.SkillPressed && simTime >= NextSkillAllowedAt && (!bowRequireAimToFire || IsAiming);
+        bool skillRequested = input.SkillPressed && simTime >= NextSkillAllowedAt && IsAiming && !SharedModeHealthPotionItem.IsPlayerInvisible(Object.InputAuthority);
         bool canFireNow = simTime >= NextBowShotAllowedAt;
         bool primaryPressed = input.AttackPressed;
         bool fireRequested = primaryPressed && (!bowRequireAimToFire || IsAiming);
@@ -1020,5 +1040,38 @@ public class SharedModePlayerController : NetworkBehaviour
 
         float dot = Vector3.Dot(defenderForward, toHitOrigin.normalized);
         return dot >= blockFrontDotThreshold;
+    }
+
+    private void RefreshFreezeVisuals(bool frozen)
+    {
+        if (frozen)
+        {
+            if (freezeVfxPrefab == null)
+            {
+                return;
+            }
+
+            if (freezeVfxInstance != null)
+            {
+                Destroy(freezeVfxInstance);
+            }
+
+            Transform parent = freezeVfxAnchor != null ? freezeVfxAnchor : transform;
+            freezeVfxInstance = Instantiate(freezeVfxPrefab, parent.position, parent.rotation, parent);
+        }
+        else if (freezeVfxInstance != null)
+        {
+            Destroy(freezeVfxInstance);
+            freezeVfxInstance = null;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (freezeVfxInstance != null)
+        {
+            Destroy(freezeVfxInstance);
+            freezeVfxInstance = null;
+        }
     }
 }
