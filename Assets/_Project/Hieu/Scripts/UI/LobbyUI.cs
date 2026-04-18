@@ -71,6 +71,12 @@ public class LobbyUI : MonoBehaviour
 			return;
 		}
 
+		SharedRoomSessionManager sessionManager = SharedRoomSessionManager.Instance;
+		if (sessionManager != null && sessionManager.HasActiveSession)
+		{
+			return;
+		}
+
 		if (gameObject != null)
 		{
 			gameObject.SetActive(false);

@@ -6,10 +6,10 @@ public static class FusionLobbyNameResolver
     {
         if (sessionManager != null)
         {
-            string managerName = sessionManager.GetPlayerName(player, string.Empty);
-            if (!string.IsNullOrWhiteSpace(managerName))
+            string resolved = sessionManager.GetPlayerName(player, string.Empty);
+            if (!string.IsNullOrWhiteSpace(resolved))
             {
-                return managerName;
+                return resolved;
             }
         }
 

@@ -134,11 +134,16 @@ public class ButtonClick : MonoBehaviour
 		await HandleRoomActionAsync(isCreateAction: false);
 	}
 
-	private void OpenClassChooseUI()
+	private void OpenPostRoomSuccessUI()
 	{
 		if (roomSelectionUI != null)
 		{
 			roomSelectionUI.SetActive(false);
+		}
+
+		if (lobbyUI != null)
+		{
+			lobbyUI.SetActive(true);
 		}
 
 		if (classChooseUI != null)
@@ -215,7 +220,7 @@ public class ButtonClick : MonoBehaviour
 			PlayerPrefs.Save();
 		}
 
-		OpenClassChooseUI();
+		OpenPostRoomSuccessUI();
 	}
 
 	private string GetRoomIdInput()
