@@ -51,7 +51,7 @@ public class LobbyUI : MonoBehaviour
 	[SerializeField] private bool enableLegacyAvatarSync = true;  // Changed to true for consistent syncing
 	[SerializeField] private bool hideLegacyReadyIconsInSlots = false;
 	[SerializeField] private string emptyPlayerName = "PLAYER NAME";
-	[SerializeField] private string emptyClassName = "CLASS NAME";
+	[SerializeField] private string emptyClassName = "";
 
 	private void Awake()
 	{
@@ -241,10 +241,9 @@ public class LobbyUI : MonoBehaviour
 			ResolveSlotAvatarReferences();
 		}
 
-		string classLabel = GetClassLabel(GetAvatarKind(className));
 		string playerName = PlayerPrefs.GetString("PLAYER_DISPLAY_NAME", "Player 1");
-		
-		SetSlotDisplayText(firstSlot, playerName, classLabel);
+
+		SetSlotDisplayText(firstSlot, playerName, string.Empty);
 
 		if (enableLegacyAvatarSync)
 		{
@@ -515,24 +514,16 @@ public class LobbyUI : MonoBehaviour
 			}
 
 			PlayerRef player = players[i];
-			SharedPlayerClassType classType = sessionManager.GetPlayerClass(player, SharedPlayerClassType.Unknown);
-			AvatarKind resolvedAvatar = ToAvatarKind(classType);
-			string className = GetClassLabel(resolvedAvatar);
-
-			string playerName = sessionManager.GetPlayerName(player, $"Player {i + 1}");
-
-			string className = GetClassLabel(resolvedAvatar);
-
-			string playerName = sessionManager.GetPlayerName(player, $"Player {i + 1}");
-
-			SetSlotDisplayText(slot, playerName, className);
-			if (resolvedAvatar != AvatarKind.None)
-			{
-				slot.avatarKind = resolvedAvatar;
-			}
+			string playerName = ResolveLobbyPlayerName(sessionManager, player, i);
+			SetSlotDisplayText(slot, playerName, string.Empty);
 		}
 
 		RefreshLobbyUI();
+	}
+
+	private static string ResolveLobbyPlayerName(SharedRoomSessionManager sessionManager, PlayerRef player, int slotIndex)
+	{
+		return FusionLobbyNameResolver.ResolvePlayerName(sessionManager, player, slotIndex, $"Player {slotIndex + 1}");
 	}
 
 	private static AvatarKind ToAvatarKind(SharedPlayerClassType classType)
@@ -592,7 +583,7 @@ public class LobbyUI : MonoBehaviour
 		// Load local player name from PlayerPrefs.
 		string localPlayerName = PlayerPrefs.GetString("PLAYER_DISPLAY_NAME", "Player 1");
 
-		SetSlotDisplayText(firstSlot, localPlayerName, GetClassLabel(firstSlot.avatarKind));
+		SetSlotDisplayText(firstSlot, localPlayerName, string.Empty);
 	}
 
 	private void ApplyAvatarKindToSlot(PlayerAvatarSlot slot, AvatarKind avatarKind)
@@ -602,7 +593,7 @@ public class LobbyUI : MonoBehaviour
 			return;
 		}
 
-		SetSlotDisplayText(slot, ReadCurrentPlayerLabel(slot), GetClassLabel(avatarKind));
+		SetSlotDisplayText(slot, ReadCurrentPlayerLabel(slot), string.Empty);
 	}
 
 	private void SetSlotVisible(PlayerAvatarSlot slot, bool visible)
@@ -654,7 +645,7 @@ public class LobbyUI : MonoBehaviour
 
 		if (slot.classNameTmpText != null)
 		{
-			slot.classNameTmpText.gameObject.SetActive(true);
+			slot.classNameTmpText.gameObject.SetActive(false);
 		}
 	}
 
@@ -666,7 +657,7 @@ public class LobbyUI : MonoBehaviour
 		}
 
 		string safePlayerName = string.IsNullOrWhiteSpace(playerName) ? emptyPlayerName : playerName.Trim();
-		string safeClassName = string.IsNullOrWhiteSpace(className) ? emptyClassName : className.Trim();
+		string safeClassName = string.Empty;
 
 		if (slot.playerNameTmpText != null)
 		{
@@ -675,6 +666,7 @@ public class LobbyUI : MonoBehaviour
 
 		if (slot.classNameTmpText != null)
 		{
+			slot.classNameTmpText.gameObject.SetActive(false);
 			slot.classNameTmpText.text = safeClassName;
 		}
 	}

@@ -539,6 +539,54 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             return false;
         }
 
+        if (!TryParsePlayerLabelNumber(player, out int parsedNumber))
+        {
+            return false;
+        }
+
+        bool useZeroBasedLabels = UsesZeroBasedPlayerLabels(sourceRunner);
+        int normalizedPlayerNumber = useZeroBasedLabels ? parsedNumber + 1 : parsedNumber;
+        int maxPlayers = sourceRunner.SessionInfo ? sourceRunner.SessionInfo.MaxPlayers : 6;
+        if (normalizedPlayerNumber <= 0 || normalizedPlayerNumber > Mathf.Max(1, maxPlayers))
+        {
+            return false;
+        }
+
+        playerNumber = normalizedPlayerNumber;
+        return true;
+    }
+
+    private static bool UsesZeroBasedPlayerLabels(NetworkRunner sourceRunner)
+    {
+        if (sourceRunner == null || !sourceRunner.IsRunning)
+        {
+            return false;
+        }
+
+        foreach (PlayerRef activePlayer in sourceRunner.ActivePlayers)
+        {
+            if (!activePlayer.IsRealPlayer)
+            {
+                continue;
+            }
+
+            if (TryParsePlayerLabelNumber(activePlayer, out int parsedNumber) && parsedNumber == 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool TryParsePlayerLabelNumber(PlayerRef player, out int parsedNumber)
+    {
+        parsedNumber = -1;
+        if (!player.IsRealPlayer)
+        {
+            return false;
+        }
+
         string playerLabel = player.ToString();
         int separatorIndex = playerLabel.LastIndexOf(':');
         if (separatorIndex < 0 || separatorIndex + 1 >= playerLabel.Length)
@@ -547,19 +595,7 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
         }
 
         string numberPart = playerLabel.Substring(separatorIndex + 1);
-        if (!int.TryParse(numberPart, out int parsedNumber))
-        {
-            return false;
-        }
-
-        int maxPlayers = sourceRunner.SessionInfo ? sourceRunner.SessionInfo.MaxPlayers : 6;
-        if (parsedNumber <= 0 || parsedNumber > Mathf.Max(1, maxPlayers))
-        {
-            return false;
-        }
-
-        playerNumber = parsedNumber;
-        return true;
+        return int.TryParse(numberPart, out parsedNumber);
     }
 
     private async Task<bool> StartOrJoinRoomAsync(string roomId, bool allowCreateRoom)
@@ -1052,26 +1088,19 @@ public class SharedRoomSessionManager : MonoBehaviour, INetworkRunnerCallbacks
             return false;
         }
 
-        // Fusion prints PlayerRef as "Player:<n>". This index is stable across peers.
-        string playerLabel = player.ToString();
-        int separatorIndex = playerLabel.LastIndexOf(':');
-        if (separatorIndex < 0 || separatorIndex + 1 >= playerLabel.Length)
+        if (!TryParsePlayerLabelNumber(player, out int parsedNumber))
         {
             return false;
         }
 
-        string numberPart = playerLabel.Substring(separatorIndex + 1);
-        if (!int.TryParse(numberPart, out int parsedNumber))
+        bool useZeroBasedLabels = UsesZeroBasedPlayerLabels(runner);
+        int normalizedPlayerNumber = useZeroBasedLabels ? parsedNumber + 1 : parsedNumber;
+        if (normalizedPlayerNumber <= 0 || normalizedPlayerNumber > MaxPlayersPerRoom)
         {
             return false;
         }
 
-        if (parsedNumber <= 0 || parsedNumber > MaxPlayersPerRoom)
-        {
-            return false;
-        }
-
-        playerNumber = parsedNumber;
+        playerNumber = normalizedPlayerNumber;
         return true;
     }
 
