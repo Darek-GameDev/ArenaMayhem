@@ -569,7 +569,6 @@ public class SharedModePlayerController : NetworkBehaviour
                 if (attacker != null)
                 {
                     attacker.RPC_RequestAddKill(1);
-                    KillFeedReporter.ReportPlayerKill(Runner, attackerRef, Object.InputAuthority);
                 }
             }
         }
