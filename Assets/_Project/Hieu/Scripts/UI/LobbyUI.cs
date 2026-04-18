@@ -521,6 +521,10 @@ public class LobbyUI : MonoBehaviour
 
 			string playerName = sessionManager.GetPlayerName(player, $"Player {i + 1}");
 
+			string className = GetClassLabel(resolvedAvatar);
+
+			string playerName = sessionManager.GetPlayerName(player, $"Player {i + 1}");
+
 			SetSlotDisplayText(slot, playerName, className);
 			if (resolvedAvatar != AvatarKind.None)
 			{
