@@ -7,6 +7,8 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private bool logDamage = true;
     [SerializeField] [Range(-1f, 1f)] private float blockFrontDotThreshold = 0.5f;
     [SerializeField] private PlayerAttack playerAttack;
+    [SerializeField] private GameObject burnVfxPrefab;
+    [SerializeField] private Transform burnVfxAnchor;
     private int currentHealth;
     private SharedModePlayerController sharedModeController;
     private bool lastHitWasBlocked;
@@ -16,6 +18,8 @@ public class PlayerHealth : MonoBehaviour
     private float burnTickInterval;
     private float burnTickDamage;
     private float burnDecayFactor = 1f;
+    private bool lastRenderedBurned;
+    private GameObject burnVfxInstance;
 
     public int CurrentHealth => sharedModeController != null ? sharedModeController.Health : currentHealth;
     public int MaxHealth => sharedModeController != null ? sharedModeController.MaxHealth : maxHealth;
@@ -42,10 +46,12 @@ public class PlayerHealth : MonoBehaviour
         burnTickInterval = 0f;
         burnTickDamage = 0f;
         burnDecayFactor = 1f;
+        lastRenderedBurned = false;
     }
 
     private void Update()
     {
+        RefreshBurnVisuals(!IsDead && sharedModeController == null && Time.time < burnedUntil);
         ProcessLocalBurn();
     }
 
@@ -307,5 +313,45 @@ public class PlayerHealth : MonoBehaviour
         TakeEnvironmentalDamage(tickDamage);
         burnTickDamage = Mathf.Max(0f, burnTickDamage * burnDecayFactor);
         burnNextTickAt = Time.time + burnTickInterval;
+    }
+
+    private void RefreshBurnVisuals(bool burned)
+    {
+        if (burned == lastRenderedBurned)
+        {
+            return;
+        }
+
+        lastRenderedBurned = burned;
+
+        if (burned)
+        {
+            if (burnVfxPrefab == null)
+            {
+                return;
+            }
+
+            if (burnVfxInstance != null)
+            {
+                Destroy(burnVfxInstance);
+            }
+
+            Transform parent = burnVfxAnchor != null ? burnVfxAnchor : transform;
+            burnVfxInstance = Instantiate(burnVfxPrefab, parent.position, parent.rotation, parent);
+        }
+        else if (burnVfxInstance != null)
+        {
+            Destroy(burnVfxInstance);
+            burnVfxInstance = null;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (burnVfxInstance != null)
+        {
+            Destroy(burnVfxInstance);
+            burnVfxInstance = null;
+        }
     }
 }

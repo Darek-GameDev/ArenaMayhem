@@ -68,6 +68,8 @@ public class SharedModePlayerController : NetworkBehaviour
     [SerializeField] private int maxHealth = 10;
     [SerializeField] private GameObject freezeVfxPrefab;
     [SerializeField] private Transform freezeVfxAnchor;
+    [SerializeField] private GameObject burnVfxPrefab;
+    [SerializeField] private Transform burnVfxAnchor;
 
     [Header("Minimap Icon")]
     [SerializeField] private Sprite localPlayerMinimapSprite;
@@ -117,6 +119,8 @@ public class SharedModePlayerController : NetworkBehaviour
     private int lastRenderedFreezeSequence = -1;
     private bool lastRenderedFrozen;
     private GameObject freezeVfxInstance;
+    private bool lastRenderedBurned;
+    private GameObject burnVfxInstance;
 
     public PlayerWeaponType WeaponType => weaponType;
     public bool UsesBow => weaponType == PlayerWeaponType.Bow;
@@ -236,6 +240,8 @@ public class SharedModePlayerController : NetworkBehaviour
         lastRenderedFreezeSequence = FreezeSequence;
         lastRenderedFrozen = IsFrozen;
         RefreshFreezeVisuals(lastRenderedFrozen);
+        lastRenderedBurned = IsBurnActive();
+        RefreshBurnVisuals(lastRenderedBurned);
 
         if (bowWeapon == null)
         {
@@ -268,6 +274,13 @@ public class SharedModePlayerController : NetworkBehaviour
             lastRenderedFrozen = frozen;
             lastRenderedFreezeSequence = FreezeSequence;
             RefreshFreezeVisuals(frozen);
+        }
+
+        bool burned = IsBurnActive();
+        if (burned != lastRenderedBurned)
+        {
+            lastRenderedBurned = burned;
+            RefreshBurnVisuals(burned);
         }
     }
 
@@ -1354,12 +1367,47 @@ public class SharedModePlayerController : NetworkBehaviour
         }
     }
 
+    private bool IsBurnActive()
+    {
+        return Runner != null && !IsDead && (float)Runner.SimulationTime < BurnUntil;
+    }
+
+    private void RefreshBurnVisuals(bool burned)
+    {
+        if (burned)
+        {
+            if (burnVfxPrefab == null)
+            {
+                return;
+            }
+
+            if (burnVfxInstance != null)
+            {
+                Destroy(burnVfxInstance);
+            }
+
+            Transform parent = burnVfxAnchor != null ? burnVfxAnchor : transform;
+            burnVfxInstance = Instantiate(burnVfxPrefab, parent.position, parent.rotation, parent);
+        }
+        else if (burnVfxInstance != null)
+        {
+            Destroy(burnVfxInstance);
+            burnVfxInstance = null;
+        }
+    }
+
     private void OnDisable()
     {
         if (freezeVfxInstance != null)
         {
             Destroy(freezeVfxInstance);
             freezeVfxInstance = null;
+        }
+
+        if (burnVfxInstance != null)
+        {
+            Destroy(burnVfxInstance);
+            burnVfxInstance = null;
         }
     }
 }

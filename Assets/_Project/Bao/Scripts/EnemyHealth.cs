@@ -9,6 +9,8 @@ public class EnemyHealth : NetworkBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private GameObject freezeVfxPrefab;
     [SerializeField] private Transform freezeVfxAnchor;
+    [SerializeField] private GameObject burnVfxPrefab;
+    [SerializeField] private Transform burnVfxAnchor;
 
     [Networked] public int NetHealth { get; set; }
     [Networked] public NetworkBool NetIsDead { get; set; }
@@ -29,7 +31,9 @@ public class EnemyHealth : NetworkBehaviour
     private int lastRenderedHitSequence = -1;
     private int lastRenderedFreezeSequence = -1;
     private bool lastRenderedFrozen;
+    private bool lastRenderedBurned;
     private GameObject freezeVfxInstance;
+    private GameObject burnVfxInstance;
     private float localFrozenUntil;
     private float localBurnedUntil;
     private float localBurnNextTickAt;
@@ -76,8 +80,10 @@ public class EnemyHealth : NetworkBehaviour
         lastRenderedHitSequence = HitSequence;
         lastRenderedFreezeSequence = FreezeSequence;
         lastRenderedFrozen = IsFrozen(Runner != null ? (float)Runner.SimulationTime : Time.time);
+        lastRenderedBurned = IsBurnActive(Runner != null ? (float)Runner.SimulationTime : Time.time);
         SyncAnimatorState();
         RefreshFreezeVisuals(lastRenderedFrozen);
+        RefreshBurnVisuals(lastRenderedBurned);
     }
 
     public override void Render()
@@ -105,6 +111,13 @@ public class EnemyHealth : NetworkBehaviour
             RefreshFreezeVisuals(frozen);
         }
 
+        bool burned = IsBurnActive((float)Runner.SimulationTime);
+        if (burned != lastRenderedBurned)
+        {
+            lastRenderedBurned = burned;
+            RefreshBurnVisuals(burned);
+        }
+
         SyncAnimatorState();
     }
 
@@ -128,6 +141,13 @@ public class EnemyHealth : NetworkBehaviour
             {
                 lastRenderedFrozen = frozen;
                 RefreshFreezeVisuals(frozen);
+            }
+
+            bool burned = IsBurnActive(Time.time);
+            if (burned != lastRenderedBurned)
+            {
+                lastRenderedBurned = burned;
+                RefreshBurnVisuals(burned);
             }
 
             ProcessLocalBurn();
@@ -517,6 +537,44 @@ public class EnemyHealth : NetworkBehaviour
         {
             Destroy(freezeVfxInstance);
             freezeVfxInstance = null;
+        }
+    }
+
+    private bool IsBurnActive(float simTime)
+    {
+        return !IsDead && ((HasNetworkState && simTime < BurnUntil) || (!HasNetworkState && Time.time < localBurnedUntil));
+    }
+
+    private void RefreshBurnVisuals(bool burned)
+    {
+        if (burned)
+        {
+            if (burnVfxPrefab == null)
+            {
+                return;
+            }
+
+            if (burnVfxInstance != null)
+            {
+                Destroy(burnVfxInstance);
+            }
+
+            Transform parent = burnVfxAnchor != null ? burnVfxAnchor : transform;
+            burnVfxInstance = Instantiate(burnVfxPrefab, parent.position, parent.rotation, parent);
+        }
+        else if (burnVfxInstance != null)
+        {
+            Destroy(burnVfxInstance);
+            burnVfxInstance = null;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (burnVfxInstance != null)
+        {
+            Destroy(burnVfxInstance);
+            burnVfxInstance = null;
         }
     }
 }
