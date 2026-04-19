@@ -2068,9 +2068,17 @@ MonoBehaviour:
   bowAimLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  mageWeapon: {fileID: 0}
+  mageFireCooldownSeconds: 0.45
+  mageBurnDuration: 4
+  mageBurnTickInterval: 0.75
+  mageBurnTickDamage: 1
+  mageBurnDecayFactor: 0.85
   maxHealth: 10
   freezeVfxPrefab: {fileID: 1803610217696830887, guid: 5d91fc3eb52b1f447aefa53f418e538a, type: 3}
   freezeVfxAnchor: {fileID: 8595990080876693352}
+  burnVfxPrefab: {fileID: 8759216115877169100, guid: ea87a3cfb290cb844aacdd16c0245a56, type: 3}
+  burnVfxAnchor: {fileID: 8595990080876693352}
   localPlayerMinimapSprite: {fileID: 0}
   enemyMinimapSprite: {fileID: 21300000, guid: 235aabd143e14aa40a9c9cc4ac5b2561, type: 3}
   minimapCanvasName: CanvasIconPlayer
@@ -2094,6 +2102,11 @@ MonoBehaviour:
   _SwordSkillUntil: 0
   _FrozenUntil: 0
   _FreezeSequence: 0
+  _BurnUntil: 0
+  _BurnNextTickAt: 0
+  _BurnTickInterval: 0
+  _BurnTickDamage: 0
+  _BurnDecayFactor: 0
   _IsAiming:
     _value: 0
   _BowRequireAimRelease:
@@ -2105,6 +2118,7 @@ MonoBehaviour:
   _UseSkillSword:
     _value: 0
   _SelectedBowProjectileType: 0
+  _NextMageShotAllowedAt: 0
 --- !u!114 &6969320276120120523
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2150,6 +2164,8 @@ MonoBehaviour:
   normalTargetOffset: {x: 0, y: 1.13, z: 0}
   aimRadius: 2.4
   aimTargetOffset: {x: 0.8, y: 2, z: 0}
+  mageRadius: 2.25
+  mageTargetOffset: {x: 0.7, y: 1.5, z: 0}
 --- !u!114 &3715344209588209806
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2166,6 +2182,8 @@ MonoBehaviour:
   logDamage: 1
   blockFrontDotThreshold: 0.5
   playerAttack: {fileID: 6206074856843633806}
+  burnVfxPrefab: {fileID: 0}
+  burnVfxAnchor: {fileID: 0}
 --- !u!114 &2954118687832947223
 MonoBehaviour:
   m_ObjectHideFlags: 0

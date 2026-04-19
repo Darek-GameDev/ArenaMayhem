@@ -49,6 +49,7 @@ public class MageFireProjectile : MonoBehaviour
         this.burnTickDamage = Mathf.Max(0f, burnTickDamage);
         this.burnTickInterval = Mathf.Max(0.05f, burnTickInterval);
         this.burnDecayFactor = Mathf.Clamp(burnDecayFactor, 0f, 1f);
+        IgnoreOwnerCollisions();
         initialized = true;
 
         if (projectileBody != null)
@@ -93,7 +94,7 @@ public class MageFireProjectile : MonoBehaviour
             return;
         }
 
-        if (ownerRoot != null && other.transform.root == ownerRoot)
+        if (ownerRoot != null && (other.transform.root == ownerRoot || other.transform.IsChildOf(ownerRoot)))
         {
             return;
         }
@@ -160,6 +161,46 @@ public class MageFireProjectile : MonoBehaviour
         if (destroyOnHit)
         {
             Destroy(gameObject);
+        }
+    }
+
+    private void IgnoreOwnerCollisions()
+    {
+        if (ownerRoot == null)
+        {
+            return;
+        }
+
+        Collider[] ownerColliders = ownerRoot.GetComponentsInChildren<Collider>(true);
+        if (ownerColliders == null || ownerColliders.Length == 0)
+        {
+            return;
+        }
+
+        Collider[] projectileColliders = GetComponentsInChildren<Collider>(true);
+        if (projectileColliders == null || projectileColliders.Length == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < projectileColliders.Length; i++)
+        {
+            Collider projectileCollider = projectileColliders[i];
+            if (projectileCollider == null)
+            {
+                continue;
+            }
+
+            for (int j = 0; j < ownerColliders.Length; j++)
+            {
+                Collider ownerCollider = ownerColliders[j];
+                if (ownerCollider == null)
+                {
+                    continue;
+                }
+
+                Physics.IgnoreCollision(projectileCollider, ownerCollider, true);
+            }
         }
     }
 }

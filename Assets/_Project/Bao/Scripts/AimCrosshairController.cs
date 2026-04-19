@@ -24,6 +24,8 @@ public class AimCrosshairController : MonoBehaviour
     private Vector3 originalScale = Vector3.one;
     private bool isVisible;
     private float nextResolveTime;
+    private bool authorityInitialized;
+    private bool controlsLocalCrosshair;
 
     private void Awake()
     {
@@ -41,13 +43,23 @@ public class AimCrosshairController : MonoBehaviour
         {
             crosshairRoot = crosshairRawImage.gameObject;
         }
-
-        TryResolveCrosshairReferences();
-        HideImmediately();
     }
 
     private void Update()
     {
+        if (!authorityInitialized)
+        {
+            if (!TryInitializeAuthority())
+            {
+                return;
+            }
+        }
+
+        if (!controlsLocalCrosshair)
+        {
+            return;
+        }
+
         if (!HasLocalAuthority())
         {
             return;
@@ -80,6 +92,36 @@ public class AimCrosshairController : MonoBehaviour
         }
 
         return sharedModeController.Object != null && sharedModeController.Object.HasInputAuthority;
+    }
+
+    private bool TryInitializeAuthority()
+    {
+        if (sharedModeController == null)
+        {
+            controlsLocalCrosshair = true;
+            authorityInitialized = true;
+            TryResolveCrosshairReferences();
+            HideImmediately();
+            return true;
+        }
+
+        if (sharedModeController.Object == null)
+        {
+            return false;
+        }
+
+        controlsLocalCrosshair = sharedModeController.Object.HasInputAuthority;
+        authorityInitialized = true;
+
+        if (!controlsLocalCrosshair)
+        {
+            enabled = false;
+            return false;
+        }
+
+        TryResolveCrosshairReferences();
+        HideImmediately();
+        return true;
     }
 
     private bool IsAimingNow()

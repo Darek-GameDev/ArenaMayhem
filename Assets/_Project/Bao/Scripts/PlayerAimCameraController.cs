@@ -27,6 +27,10 @@ public class PlayerAimCameraController : MonoBehaviour
     [SerializeField] private float aimRadius = 2.4f;
     [SerializeField] private Vector3 aimTargetOffset = new Vector3(0.2f, 1.45f, 0f);
 
+    [Header("Mage Camera")]
+    [SerializeField] private float mageRadius = 2.25f;
+    [SerializeField] private Vector3 mageTargetOffset = new Vector3(0.7f, 1.5f, 0f);
+
     private void Awake()
     {
         if (localAttack == null)
@@ -58,9 +62,22 @@ public class PlayerAimCameraController : MonoBehaviour
         }
 
         bool isAiming = IsAimingNow();
-        ApplyLookSensitivity(isAiming);
-        float targetRadius = isAiming ? aimRadius : normalRadius;
-        Vector3 targetOffset = isAiming ? aimTargetOffset : normalTargetOffset;
+        bool isMage = sharedModeController != null && sharedModeController.UsesMagic;
+        ApplyLookSensitivity(isAiming || isMage);
+
+        float targetRadius;
+        Vector3 targetOffset;
+        if (isMage)
+        {
+            targetRadius = mageRadius;
+            targetOffset = mageTargetOffset;
+        }
+        else
+        {
+            targetRadius = isAiming ? aimRadius : normalRadius;
+            targetOffset = isAiming ? aimTargetOffset : normalTargetOffset;
+        }
+
         float t = 1f - Mathf.Exp(-Mathf.Max(0.1f, blendSpeed) * Time.deltaTime);
 
         orbitalFollow.Radius = Mathf.Lerp(orbitalFollow.Radius, targetRadius, t);
@@ -71,6 +88,11 @@ public class PlayerAimCameraController : MonoBehaviour
     {
         if (sharedModeController != null)
         {
+            if (sharedModeController.UsesMagic)
+            {
+                return true;
+            }
+
             return sharedModeController.IsAiming;
         }
 

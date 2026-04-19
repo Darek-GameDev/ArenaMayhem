@@ -9,6 +9,7 @@ public class MageAoeFireZone : MonoBehaviour
     [SerializeField] private bool logDamage;
 
     private readonly Dictionary<int, float> nextDamageAtByTarget = new Dictionary<int, float>();
+    private readonly HashSet<int> ignitedTargets = new HashSet<int>();
 
     private Transform ownerRoot;
     private PlayerRef attackerRef;
@@ -129,6 +130,25 @@ public class MageAoeFireZone : MonoBehaviour
                 ? enemyTarget.GetInstanceID()
                 : targetHealth.GetInstanceID();
 
+        // First touch from the skill should always ignite target immediately.
+        if (!ignitedTargets.Contains(key))
+        {
+            ignitedTargets.Add(key);
+
+            if (networkTarget != null)
+            {
+                networkTarget.RequestBurn(burnDuration, burnTickDamage, burnTickInterval, burnDecayFactor, attackerRef);
+            }
+            else if (enemyTarget != null)
+            {
+                enemyTarget.RequestBurn(burnDuration, burnTickDamage, burnTickInterval, burnDecayFactor, attackerRef);
+            }
+            else
+            {
+                targetHealth.ApplyBurn(burnDuration, burnTickDamage, burnTickInterval, burnDecayFactor);
+            }
+        }
+
         float now = Time.time;
         if (nextDamageAtByTarget.TryGetValue(key, out float nextDamageAt) && now < nextDamageAt)
         {
@@ -147,8 +167,6 @@ public class MageAoeFireZone : MonoBehaviour
             {
                 networkTarget.RPC_RequestEnvironmentalDamage(damagePerTick);
             }
-
-            networkTarget.RequestBurn(burnDuration, burnTickDamage, burnTickInterval, burnDecayFactor, attackerRef);
         }
         else if (enemyTarget != null)
         {
@@ -160,13 +178,10 @@ public class MageAoeFireZone : MonoBehaviour
             {
                 enemyTarget.RequestDamage(damagePerTick);
             }
-
-            enemyTarget.RequestBurn(burnDuration, burnTickDamage, burnTickInterval, burnDecayFactor, attackerRef);
         }
         else
         {
             targetHealth.TakeEnvironmentalDamage(damagePerTick);
-            targetHealth.ApplyBurn(burnDuration, burnTickDamage, burnTickInterval, burnDecayFactor);
         }
 
         if (logDamage)

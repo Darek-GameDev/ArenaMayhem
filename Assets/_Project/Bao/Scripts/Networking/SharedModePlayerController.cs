@@ -253,7 +253,7 @@ public class SharedModePlayerController : NetworkBehaviour
             mageWeapon = GetComponentInChildren<MageWeapon>();
         }
 
-        if (UsesBow && GetComponent<PlayerAimCameraController>() == null)
+        if ((UsesBow || UsesMagic) && GetComponent<PlayerAimCameraController>() == null)
         {
             gameObject.AddComponent<PlayerAimCameraController>();
         }
@@ -533,17 +533,20 @@ public class SharedModePlayerController : NetworkBehaviour
 
         UpdateLocomotionState(worldDirection, sprintHeld);
 
+        bool faceAimDirection = (UsesBow && IsAiming) || (UsesMagic && (IsAiming || NetCombatState == CombatState.Attacking));
+        float turnSpeed = UsesMagic && NetCombatState == CombatState.Attacking ? 32f : 20f;
+
         if (worldDirection.sqrMagnitude > 0.0001f)
         {
-            Quaternion targetRotation = (UsesBow || UsesMagic) && IsAiming
+            Quaternion targetRotation = faceAimDirection
                 ? Quaternion.LookRotation(GetAimForward(), Vector3.up)
                 : Quaternion.LookRotation(worldDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 20f * Runner.DeltaTime);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Runner.DeltaTime);
         }
-        else if ((UsesBow || UsesMagic) && IsAiming)
+        else if (faceAimDirection)
         {
             Quaternion targetRotation = Quaternion.LookRotation(GetAimForward(), Vector3.up);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 20f * Runner.DeltaTime);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Runner.DeltaTime);
         }
     }
 
@@ -982,20 +985,40 @@ public class SharedModePlayerController : NetworkBehaviour
 
         if (skillRequested)
         {
-            SkillSequence++;
-            AttackSequence++;
-            AttackPressed = true;
-            NetCombatState = CombatState.Attacking;
-            NextSkillAllowedAt = simTime + skillCooldownSeconds;
-            FireMageAoeSkill();
+            if (FireMageAoeSkill())
+            {
+                SkillSequence++;
+                AttackSequence++;
+                AttackPressed = true;
+                NetCombatState = CombatState.Attacking;
+                NextSkillAllowedAt = simTime + skillCooldownSeconds;
+            }
+            else
+            {
+                AttackPressed = false;
+                if (NetCombatState == CombatState.Attacking)
+                {
+                    NetCombatState = CombatState.None;
+                }
+            }
         }
         else if (fireRequested && canFireNow)
         {
-            AttackPressed = true;
-            AttackSequence++;
-            NetCombatState = CombatState.Attacking;
-            NextMageShotAllowedAt = simTime + Mathf.Max(0.05f, mageFireCooldownSeconds);
-            FireMageProjectile();
+            if (FireMageProjectile())
+            {
+                AttackPressed = true;
+                AttackSequence++;
+                NetCombatState = CombatState.Attacking;
+                NextMageShotAllowedAt = simTime + Mathf.Max(0.05f, mageFireCooldownSeconds);
+            }
+            else
+            {
+                AttackPressed = false;
+                if (NetCombatState == CombatState.Attacking)
+                {
+                    NetCombatState = CombatState.None;
+                }
+            }
         }
         else
         {
@@ -1051,7 +1074,7 @@ public class SharedModePlayerController : NetworkBehaviour
         bowWeapon.SpawnProjectile(transform, attackerRef, aimPoint, HasStateAuthority, projectileType, false);
     }
 
-    private void FireMageProjectile()
+    private bool FireMageProjectile()
     {
         if (mageWeapon == null)
         {
@@ -1060,7 +1083,7 @@ public class SharedModePlayerController : NetworkBehaviour
 
         if (mageWeapon == null)
         {
-            return;
+            return false;
         }
 
         PlayerRef attackerRef = default;
@@ -1071,9 +1094,10 @@ public class SharedModePlayerController : NetworkBehaviour
 
         Vector3 aimPoint = BowWeapon.GetAimPointFromCamera(transform, bowAimRayDistance, bowAimLayerMask);
         RPC_SpawnMageProjectile(aimPoint, attackerRef);
+        return true;
     }
 
-    private void FireMageAoeSkill()
+    private bool FireMageAoeSkill()
     {
         if (mageWeapon == null)
         {
@@ -1082,7 +1106,7 @@ public class SharedModePlayerController : NetworkBehaviour
 
         if (mageWeapon == null)
         {
-            return;
+            return false;
         }
 
         PlayerRef attackerRef = default;
@@ -1092,6 +1116,7 @@ public class SharedModePlayerController : NetworkBehaviour
         }
 
         RPC_SpawnMageAoe(attackerRef);
+        return true;
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
