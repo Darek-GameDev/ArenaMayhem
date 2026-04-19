@@ -13,6 +13,7 @@ public class LobbyUI : MonoBehaviour
 		None,
 		Knight,
 		Archer,
+		Mage,
 	}
 
 	[Serializable]
@@ -52,6 +53,11 @@ public class LobbyUI : MonoBehaviour
 	[SerializeField] private bool hideLegacyReadyIconsInSlots = false;
 	[SerializeField] private string emptyPlayerName = "PLAYER NAME";
 	[SerializeField] private string emptyClassName = "CLASS NAME";
+	[SerializeField] private bool showOnlyConfirmedPlayers = true;
+	[SerializeField] private bool showHostTag = true;
+	[SerializeField] private string hostTag = "[HOST]";
+	[SerializeField] private bool showLocalTag = true;
+	[SerializeField] private string localTag = "[YOU]";
 
 	private void Awake()
 	{
@@ -67,6 +73,12 @@ public class LobbyUI : MonoBehaviour
 	private void Start()
 	{
 		if (!hideLobbyOnSceneStart)
+		{
+			return;
+		}
+
+		SharedRoomSessionManager sessionManager = SharedRoomSessionManager.Instance;
+		if (sessionManager != null && sessionManager.HasActiveSession)
 		{
 			return;
 		}
@@ -492,7 +504,9 @@ public class LobbyUI : MonoBehaviour
 		}
 
 		var players = sessionManager.GetPlayersOrderedById();
-		currentPlayerCount = Mathf.Clamp(players.Count, 0, GetMaxPlayers());
+		List<PlayerRef> displayPlayers = new List<PlayerRef>(players);
+
+		currentPlayerCount = Mathf.Clamp(displayPlayers.Count, 0, GetMaxPlayers());
 
 		if (sessionManager.Runner != null && sessionManager.Runner.LocalPlayer.IsRealPlayer)
 		{
@@ -507,23 +521,26 @@ public class LobbyUI : MonoBehaviour
 				continue;
 			}
 
-			if (i >= players.Count)
+			if (i >= displayPlayers.Count)
 			{
 				slot.avatarKind = AvatarKind.None;
 				SetSlotDisplayText(slot, emptyPlayerName, emptyClassName);
 				continue;
 			}
 
-			PlayerRef player = players[i];
+			PlayerRef player = displayPlayers[i];
 			SharedPlayerClassType classType = sessionManager.GetPlayerClass(player, SharedPlayerClassType.Unknown);
 			AvatarKind resolvedAvatar = ToAvatarKind(classType);
 			string className = SharedPlayerClassTypeUtility.ToClassName(classType);
 			if (string.IsNullOrWhiteSpace(className))
 			{
-				className = GetClassLabel(resolvedAvatar);
+				className = resolvedAvatar == AvatarKind.None ? "Choosing..." : GetClassLabel(resolvedAvatar);
 			}
 
-			string playerName = sessionManager.GetPlayerName(player, $"Player {i + 1}");
+			string basePlayerName = sessionManager.GetPlayerName(player, $"Player {i + 1}");
+			bool isHostPlayer = sessionManager.IsRoomOwner(player);
+			bool isLocalPlayer = sessionManager.Runner != null && sessionManager.Runner.LocalPlayer == player;
+			string playerName = FormatLobbyPlayerName(basePlayerName, isHostPlayer, isLocalPlayer);
 
 			SetSlotDisplayText(slot, playerName, className);
 			if (resolvedAvatar != AvatarKind.None)
@@ -535,6 +552,34 @@ public class LobbyUI : MonoBehaviour
 		RefreshLobbyUI();
 	}
 
+	private bool ShouldDisplayPlayerInLobby(SharedRoomSessionManager sessionManager, PlayerRef player)
+	{
+		if (!showOnlyConfirmedPlayers)
+		{
+			return true;
+		}
+
+		if (sessionManager == null)
+		{
+			return true;
+		}
+
+		if (sessionManager.Runner != null && sessionManager.Runner.LocalPlayer == player)
+		{
+			return true;
+		}
+
+		string synchronizedPlayerName = sessionManager.GetPlayerName(player, string.Empty);
+		if (!string.IsNullOrWhiteSpace(synchronizedPlayerName))
+		{
+			return true;
+		}
+
+		SharedPlayerClassType classType = sessionManager.GetPlayerClass(player, SharedPlayerClassType.Unknown);
+		bool isReady = sessionManager.IsPlayerReady(player);
+		return classType != SharedPlayerClassType.Unknown || isReady;
+	}
+
 	private static AvatarKind ToAvatarKind(SharedPlayerClassType classType)
 	{
 		switch (classType)
@@ -542,11 +587,29 @@ public class LobbyUI : MonoBehaviour
 			case SharedPlayerClassType.Knight:
 				return AvatarKind.Knight;
 			case SharedPlayerClassType.Archer:
-				case SharedPlayerClassType.Mage:
 				return AvatarKind.Archer;
+			case SharedPlayerClassType.Mage:
+				return AvatarKind.Mage;
 			default:
 				return AvatarKind.None;
 		}
+	}
+
+	private string FormatLobbyPlayerName(string baseName, bool isHostPlayer, bool isLocalPlayer)
+	{
+		string normalizedName = string.IsNullOrWhiteSpace(baseName) ? emptyPlayerName : baseName.Trim();
+
+		if (showHostTag && isHostPlayer && !string.IsNullOrWhiteSpace(hostTag))
+		{
+			normalizedName = $"{hostTag.Trim()} {normalizedName}";
+		}
+
+		if (showLocalTag && isLocalPlayer && !string.IsNullOrWhiteSpace(localTag))
+		{
+			normalizedName = $"{normalizedName} {localTag.Trim()}";
+		}
+
+		return normalizedName;
 	}
 
 	private void UpdatePlayerCountText(int filledSlotCount, int resolvedMaxPlayers)
@@ -703,6 +766,8 @@ public class LobbyUI : MonoBehaviour
 				return "Knight";
 			case AvatarKind.Archer:
 				return "Archer";
+			case AvatarKind.Mage:
+				return "Mage";
 			default:
 				return "CLASS NAME";
 		}
@@ -747,8 +812,9 @@ public class LobbyUI : MonoBehaviour
 			case "Knight":
 				return AvatarKind.Knight;
 			case "Archer":
-			case "Mage":
 				return AvatarKind.Archer;
+			case "Mage":
+				return AvatarKind.Mage;
 			default:
 				return AvatarKind.None;
 		}

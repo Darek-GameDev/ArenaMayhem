@@ -104,6 +104,11 @@ public class LobbyRoleSlotSync : MonoBehaviour
         }
 
         var players = sessionManager.GetPlayersOrderedById();
+        if (players == null || players.Count == 0)
+        {
+            ApplyOfflineVisualState();
+            return;
+        }
 
         for (int i = 0; i < slots.Length; i++)
         {
