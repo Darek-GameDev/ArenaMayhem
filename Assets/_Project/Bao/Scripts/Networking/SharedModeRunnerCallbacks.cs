@@ -15,6 +15,8 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] private PlayerInput playerInput;
     [SerializeField] private NetworkObject swordPrefab;
     [SerializeField] private NetworkObject archerPrefab;
+    [SerializeField] private NetworkObject magePrefab;
+    [SerializeField] private SharedPlayerClassType debugSpawnClass = SharedPlayerClassType.Unknown;
     [SerializeField] private Transform[] spawnPoints;
 
     [Header("Look Sensitivity")]
@@ -464,13 +466,14 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
             return;
         }
 
-        SharedPlayerClassType selectedClass = ResolveSelectedClass(currentRunner, localPlayer);
-        bool isSwordPlayer = SharedPlayerClassTypeUtility.IsSwordClass(selectedClass);
-        NetworkObject prefabToSpawn = isSwordPlayer ? swordPrefab : archerPrefab;
+        SharedPlayerClassType selectedClass = debugSpawnClass != SharedPlayerClassType.Unknown
+            ? debugSpawnClass
+            : ResolveSelectedClass(currentRunner, localPlayer);
+        NetworkObject prefabToSpawn = GetPrefabForClass(selectedClass);
 
         if (prefabToSpawn == null)
         {
-            Debug.LogWarning($"SharedModeRunnerCallbacks: missing {(isSwordPlayer ? "swordPrefab" : "archerPrefab")}.");
+            Debug.LogWarning($"SharedModeRunnerCallbacks: missing prefab for class {selectedClass}.");
             return;
         }
 
@@ -493,6 +496,21 @@ public class SharedModeRunnerCallbacks : MonoBehaviour, INetworkRunnerCallbacks
         }
 
         CacheLocalPlayerInput(spawned);
+    }
+
+    private NetworkObject GetPrefabForClass(SharedPlayerClassType classType)
+    {
+        switch (classType)
+        {
+            case SharedPlayerClassType.Knight:
+                return swordPrefab;
+            case SharedPlayerClassType.Archer:
+                return archerPrefab;
+            case SharedPlayerClassType.Mage:
+                return magePrefab;
+            default:
+                return swordPrefab != null ? swordPrefab : archerPrefab != null ? archerPrefab : magePrefab;
+        }
     }
 
     private void CacheLocalPlayerInput(NetworkObject playerObject)
