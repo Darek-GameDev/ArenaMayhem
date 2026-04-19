@@ -130588,6 +130588,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Mage
       objectReference: {fileID: 0}
+    - target: {fileID: 4667554461382305003, guid: f7eee880101edbf48a0dafd54fcda4d5, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5799428753966362582, guid: f7eee880101edbf48a0dafd54fcda4d5, type: 3}
       propertyPath: m_LocalPosition.x
       value: -4.8277264
@@ -130947,6 +130951,8 @@ MonoBehaviour:
   maxHealth: 10
   freezeVfxPrefab: {fileID: 0}
   freezeVfxAnchor: {fileID: 0}
+  burnVfxPrefab: {fileID: 0}
+  burnVfxAnchor: {fileID: 0}
   localPlayerMinimapSprite: {fileID: 0}
   enemyMinimapSprite: {fileID: 0}
   minimapCanvasName: CanvasIconPlayer
@@ -131061,6 +131067,8 @@ MonoBehaviour:
   logDamage: 1
   blockFrontDotThreshold: 0.5
   playerAttack: {fileID: 0}
+  burnVfxPrefab: {fileID: 0}
+  burnVfxAnchor: {fileID: 0}
 --- !u!114 &1074709609
 MonoBehaviour:
   m_ObjectHideFlags: 0

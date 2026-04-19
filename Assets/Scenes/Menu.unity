@@ -1343,6 +1343,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player Name
       objectReference: {fileID: 0}
+    - target: {fileID: 3510859260097417390, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 524097043}
+    - target: {fileID: 3510859260097417390, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: PlayClickSound
+      objectReference: {fileID: 0}
     - target: {fileID: 4878337281638632717, guid: ee3e102890b00404eaefc5097d2ac35b, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
