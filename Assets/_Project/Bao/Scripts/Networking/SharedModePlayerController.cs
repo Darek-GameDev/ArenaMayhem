@@ -10,6 +10,7 @@ public class SharedModePlayerController : NetworkBehaviour
     {
         Sword = 0,
         Bow = 1,
+        Magic = 2,
     }
 
     public enum LocomotionState : byte
@@ -56,6 +57,12 @@ public class SharedModePlayerController : NetworkBehaviour
     [SerializeField] private BowWeapon.ProjectileType defaultBowProjectileType = BowWeapon.ProjectileType.Primary;
     [SerializeField] private float bowAimRayDistance = 200f;
     [SerializeField] private LayerMask bowAimLayerMask = ~0;
+    [SerializeField] private MageWeapon mageWeapon;
+    [SerializeField] private float mageFireCooldownSeconds = 0.45f;
+    [SerializeField] private float mageBurnDuration = 4f;
+    [SerializeField] private float mageBurnTickInterval = 0.75f;
+    [SerializeField] private float mageBurnTickDamage = 1f;
+    [SerializeField] [Range(0f, 1f)] private float mageBurnDecayFactor = 0.85f;
 
     [Header("Health")]
     [SerializeField] private int maxHealth = 10;
@@ -86,12 +93,19 @@ public class SharedModePlayerController : NetworkBehaviour
     [Networked] public float SwordSkillUntil { get; set; }
     [Networked] public float FrozenUntil { get; set; }
     [Networked] public int FreezeSequence { get; set; }
+    [Networked] public float BurnUntil { get; set; }
+    [Networked] public float BurnNextTickAt { get; set; }
+    [Networked] public float BurnTickInterval { get; set; }
+    [Networked] public float BurnTickDamage { get; set; }
+    [Networked] public float BurnDecayFactor { get; set; }
+    [Networked] public PlayerRef BurnAttackerRef { get; set; }
     [Networked] public NetworkBool IsAiming { get; set; }
     [Networked] public NetworkBool BowRequireAimRelease { get; set; }
     [Networked] public NetworkBool BlockRequireRelease { get; set; }
     [Networked] public NetworkBool IsFreezeShotPrimed { get; set; }
     [Networked] public NetworkBool UseSkillSword { get; set; }
     [Networked] public BowWeapon.ProjectileType SelectedBowProjectileType { get; set; }
+    [Networked] public float NextMageShotAllowedAt { get; set; }
 
     private NetworkCharacterController cc;
     private CursorLockController cursorLockController;
@@ -106,6 +120,7 @@ public class SharedModePlayerController : NetworkBehaviour
 
     public PlayerWeaponType WeaponType => weaponType;
     public bool UsesBow => weaponType == PlayerWeaponType.Bow;
+    public bool UsesMagic => weaponType == PlayerWeaponType.Magic;
     public bool IsFrozen => Runner != null && (float)Runner.SimulationTime < FrozenUntil;
 
     public void ApplySpawnClass(SharedPlayerClassType classType)
@@ -114,6 +129,9 @@ public class SharedModePlayerController : NetworkBehaviour
         {
             case SharedPlayerClassType.Archer:
                 weaponType = PlayerWeaponType.Bow;
+                break;
+            case SharedPlayerClassType.Mage:
+                weaponType = PlayerWeaponType.Magic;
                 break;
             case SharedPlayerClassType.Knight:
                 weaponType = PlayerWeaponType.Sword;
@@ -200,12 +218,19 @@ public class SharedModePlayerController : NetworkBehaviour
             SwordSkillUntil = 0f;
             FrozenUntil = 0f;
             FreezeSequence = 0;
+            BurnUntil = 0f;
+            BurnNextTickAt = 0f;
+            BurnTickInterval = 0f;
+            BurnTickDamage = 0f;
+            BurnDecayFactor = 1f;
+            BurnAttackerRef = default;
             IsAiming = false;
             BowRequireAimRelease = false;
             BlockRequireRelease = false;
             IsFreezeShotPrimed = false;
             UseSkillSword = false;
             SelectedBowProjectileType = defaultBowProjectileType;
+            NextMageShotAllowedAt = 0f;
         }
 
         lastRenderedFreezeSequence = FreezeSequence;
@@ -215,6 +240,11 @@ public class SharedModePlayerController : NetworkBehaviour
         if (bowWeapon == null)
         {
             bowWeapon = GetComponentInChildren<BowWeapon>();
+        }
+
+        if (mageWeapon == null)
+        {
+            mageWeapon = GetComponentInChildren<MageWeapon>();
         }
 
         if (UsesBow && GetComponent<PlayerAimCameraController>() == null)
@@ -392,6 +422,9 @@ public class SharedModePlayerController : NetworkBehaviour
             return;
         }
 
+        float simTime = (float)Runner.SimulationTime;
+        ProcessBurn(simTime);
+
         if (IsDead)
         {
             NetLocomotionState = LocomotionState.Idle;
@@ -403,7 +436,6 @@ public class SharedModePlayerController : NetworkBehaviour
             return;
         }
 
-        float simTime = (float)Runner.SimulationTime;
         if (IsFrozenAt(simTime))
         {
             NetLocomotionState = LocomotionState.Idle;
@@ -477,6 +509,10 @@ public class SharedModePlayerController : NetworkBehaviour
         {
             HandleBowCombat(input, aimHeld, simTime);
         }
+        else if (UsesMagic)
+        {
+            HandleMagicCombat(input, simTime);
+        }
         else
         {
             HandleSwordCombat(input, blockHeld, simTime);
@@ -486,12 +522,12 @@ public class SharedModePlayerController : NetworkBehaviour
 
         if (worldDirection.sqrMagnitude > 0.0001f)
         {
-            Quaternion targetRotation = UsesBow && IsAiming
+            Quaternion targetRotation = (UsesBow || UsesMagic) && IsAiming
                 ? Quaternion.LookRotation(GetAimForward(), Vector3.up)
                 : Quaternion.LookRotation(worldDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 20f * Runner.DeltaTime);
         }
-        else if (UsesBow && IsAiming)
+        else if ((UsesBow || UsesMagic) && IsAiming)
         {
             Quaternion targetRotation = Quaternion.LookRotation(GetAimForward(), Vector3.up);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 20f * Runner.DeltaTime);
@@ -522,6 +558,18 @@ public class SharedModePlayerController : NetworkBehaviour
         ApplyDamage(amount, attackerRef, hitOrigin, true);
     }
 
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_RequestEnvironmentalDamage(int amount)
+    {
+        ApplyEnvironmentalDamage(amount, default);
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_RequestEnvironmentalDamageFromPlayer(int amount, PlayerRef attackerRef)
+    {
+        ApplyEnvironmentalDamage(amount, attackerRef);
+    }
+
     public void RequestFreeze(float duration)
     {
         if (duration <= 0f || IsDead)
@@ -550,6 +598,39 @@ public class SharedModePlayerController : NetworkBehaviour
         ApplyFreeze(duration);
     }
 
+    public void RequestBurn(float duration, float tickDamage, float tickInterval, float decayFactor)
+    {
+        RequestBurn(duration, tickDamage, tickInterval, decayFactor, default);
+    }
+
+    public void RequestBurn(float duration, float tickDamage, float tickInterval, float decayFactor, PlayerRef attackerRef)
+    {
+        if (duration <= 0f || tickDamage <= 0f || tickInterval <= 0f || IsDead)
+        {
+            return;
+        }
+
+        if (HasStateAuthority)
+        {
+            ApplyBurn(duration, tickDamage, tickInterval, decayFactor, attackerRef);
+        }
+        else
+        {
+            RPC_RequestBurn(duration, tickDamage, tickInterval, decayFactor, attackerRef);
+        }
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    private void RPC_RequestBurn(float duration, float tickDamage, float tickInterval, float decayFactor, PlayerRef attackerRef)
+    {
+        if (duration <= 0f || tickDamage <= 0f || tickInterval <= 0f || IsDead)
+        {
+            return;
+        }
+
+        ApplyBurn(duration, tickDamage, tickInterval, decayFactor, attackerRef);
+    }
+
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_ResetAfterRespawn(Vector3 worldPosition)
     {
@@ -574,11 +655,18 @@ public class SharedModePlayerController : NetworkBehaviour
             SwordSkillUntil = 0f;
             FrozenUntil = 0f;
             FreezeSequence = 0;
+            BurnUntil = 0f;
+            BurnNextTickAt = 0f;
+            BurnTickInterval = 0f;
+            BurnTickDamage = 0f;
+            BurnDecayFactor = 1f;
+            BurnAttackerRef = default;
             BowRequireAimRelease = false;
             BlockRequireRelease = false;
             IsFreezeShotPrimed = false;
             UseSkillSword = false;
             SelectedBowProjectileType = defaultBowProjectileType;
+            NextMageShotAllowedAt = 0f;
         }
     }
 
@@ -602,9 +690,16 @@ public class SharedModePlayerController : NetworkBehaviour
         SwordSkillUntil = 0f;
         FrozenUntil = 0f;
         FreezeSequence = 0;
+        BurnUntil = 0f;
+        BurnNextTickAt = 0f;
+        BurnTickInterval = 0f;
+        BurnTickDamage = 0f;
+        BurnDecayFactor = 1f;
+        BurnAttackerRef = default;
         IsFreezeShotPrimed = false;
         UseSkillSword = false;
         SelectedBowProjectileType = defaultBowProjectileType;
+        NextMageShotAllowedAt = 0f;
 
         if (NetCombatState == CombatState.Attacking || NetCombatState == CombatState.BlockHit)
         {
@@ -858,6 +953,47 @@ public class SharedModePlayerController : NetworkBehaviour
         }
     }
 
+    private void HandleMagicCombat(PlayerNetworkInput input, float simTime)
+    {
+        IsBlocking = false;
+        ComboStep = 0;
+        UseSkillSword = false;
+        SwordSkillUntil = 0f;
+        BowRequireAimRelease = false;
+        IsFreezeShotPrimed = false;
+        IsAiming = false;
+
+        bool skillRequested = input.SkillPressed && simTime >= NextSkillAllowedAt && !SharedModeHealthPotionItem.IsPlayerInvisible(Object.InputAuthority);
+        bool canFireNow = simTime >= NextMageShotAllowedAt;
+        bool fireRequested = input.AttackPressed;
+
+        if (skillRequested)
+        {
+            SkillSequence++;
+            AttackSequence++;
+            AttackPressed = true;
+            NetCombatState = CombatState.Attacking;
+            NextSkillAllowedAt = simTime + skillCooldownSeconds;
+            FireMageAoeSkill();
+        }
+        else if (fireRequested && canFireNow)
+        {
+            AttackPressed = true;
+            AttackSequence++;
+            NetCombatState = CombatState.Attacking;
+            NextMageShotAllowedAt = simTime + Mathf.Max(0.05f, mageFireCooldownSeconds);
+            FireMageProjectile();
+        }
+        else
+        {
+            AttackPressed = false;
+            if (NetCombatState == CombatState.Attacking)
+            {
+                NetCombatState = CombatState.None;
+            }
+        }
+    }
+
     private void FireBowProjectile(BowWeapon.ProjectileType projectileType, bool spawnSkillEffect)
     {
         if (bowWeapon == null)
@@ -902,6 +1038,96 @@ public class SharedModePlayerController : NetworkBehaviour
         bowWeapon.SpawnProjectile(transform, attackerRef, aimPoint, HasStateAuthority, projectileType, false);
     }
 
+    private void FireMageProjectile()
+    {
+        if (mageWeapon == null)
+        {
+            mageWeapon = GetComponentInChildren<MageWeapon>();
+        }
+
+        if (mageWeapon == null)
+        {
+            return;
+        }
+
+        PlayerRef attackerRef = default;
+        if (Object != null && Object.IsValid)
+        {
+            attackerRef = Object.InputAuthority;
+        }
+
+        Vector3 aimPoint = BowWeapon.GetAimPointFromCamera(transform, bowAimRayDistance, bowAimLayerMask);
+        RPC_SpawnMageProjectile(aimPoint, attackerRef);
+    }
+
+    private void FireMageAoeSkill()
+    {
+        if (mageWeapon == null)
+        {
+            mageWeapon = GetComponentInChildren<MageWeapon>();
+        }
+
+        if (mageWeapon == null)
+        {
+            return;
+        }
+
+        PlayerRef attackerRef = default;
+        if (Object != null && Object.IsValid)
+        {
+            attackerRef = Object.InputAuthority;
+        }
+
+        RPC_SpawnMageAoe(attackerRef);
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_SpawnMageProjectile(Vector3 aimPoint, PlayerRef attackerRef)
+    {
+        if (mageWeapon == null)
+        {
+            mageWeapon = GetComponentInChildren<MageWeapon>();
+        }
+
+        if (mageWeapon == null)
+        {
+            return;
+        }
+
+        mageWeapon.SpawnProjectile(
+            transform,
+            attackerRef,
+            aimPoint,
+            HasStateAuthority,
+            mageBurnDuration,
+            mageBurnTickDamage,
+            mageBurnTickInterval,
+            mageBurnDecayFactor);
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_SpawnMageAoe(PlayerRef attackerRef)
+    {
+        if (mageWeapon == null)
+        {
+            mageWeapon = GetComponentInChildren<MageWeapon>();
+        }
+
+        if (mageWeapon == null)
+        {
+            return;
+        }
+
+        mageWeapon.SpawnAoeZone(
+            transform,
+            attackerRef,
+            HasStateAuthority,
+            mageBurnDuration,
+            mageBurnTickDamage,
+            mageBurnTickInterval,
+            mageBurnDecayFactor);
+    }
+
     private bool IsFrozenAt(float simTime)
     {
         return simTime < FrozenUntil;
@@ -918,6 +1144,68 @@ public class SharedModePlayerController : NetworkBehaviour
         AttackPressed = false;
         UseSkillSword = false;
         SwordSkillUntil = 0f;
+    }
+
+    private void ApplyBurn(float duration, float tickDamage, float tickInterval, float decayFactor, PlayerRef attackerRef)
+    {
+        float simTime = Runner != null ? (float)Runner.SimulationTime : Time.time;
+        BurnUntil = simTime + Mathf.Max(0f, duration);
+        BurnTickInterval = Mathf.Max(0.05f, tickInterval);
+        BurnTickDamage = Mathf.Max(0.1f, tickDamage);
+        BurnDecayFactor = Mathf.Clamp(decayFactor, 0f, 1f);
+        BurnNextTickAt = simTime + BurnTickInterval;
+        BurnAttackerRef = attackerRef;
+    }
+
+    private void ProcessBurn(float simTime)
+    {
+        if (BurnUntil <= simTime || BurnTickInterval <= 0f || BurnTickDamage <= 0f || IsDead)
+        {
+            return;
+        }
+
+        if (BurnNextTickAt > simTime)
+        {
+            return;
+        }
+
+        int burnDamage = Mathf.Max(1, Mathf.RoundToInt(BurnTickDamage));
+        ApplyEnvironmentalDamage(burnDamage, BurnAttackerRef);
+
+        BurnTickDamage = Mathf.Max(0f, BurnTickDamage * BurnDecayFactor);
+        BurnNextTickAt = simTime + BurnTickInterval;
+    }
+
+    private void ApplyEnvironmentalDamage(int amount, PlayerRef attackerRef)
+    {
+        if (amount <= 0 || IsDead)
+        {
+            return;
+        }
+
+        HitSequence++;
+        AttackPressed = false;
+        ComboStep = 0;
+        IsAiming = false;
+
+        Health = Health - amount;
+        if (Health == 0)
+        {
+            IsDead = true;
+            IsBlocking = false;
+            IsAiming = false;
+            NetCombatState = CombatState.None;
+            NetLocomotionState = LocomotionState.Idle;
+
+            if (attackerRef.IsRealPlayer && Object != null && Object.IsValid && attackerRef != Object.InputAuthority)
+            {
+                SharedModePlayerController attacker = ResolvePlayerController(attackerRef);
+                if (attacker != null)
+                {
+                    attacker.RPC_RequestAddKill(1);
+                }
+            }
+        }
     }
 
     private Vector3 GetAimForward()

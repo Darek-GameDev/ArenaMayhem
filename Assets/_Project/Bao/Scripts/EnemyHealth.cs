@@ -15,6 +15,12 @@ public class EnemyHealth : NetworkBehaviour
     [Networked] public int HitSequence { get; set; }
     [Networked] public float FrozenUntil { get; set; }
     [Networked] public int FreezeSequence { get; set; }
+    [Networked] public float BurnUntil { get; set; }
+    [Networked] public float BurnNextTickAt { get; set; }
+    [Networked] public float BurnTickInterval { get; set; }
+    [Networked] public float BurnTickDamage { get; set; }
+    [Networked] public float BurnDecayFactor { get; set; }
+    [Networked] public PlayerRef BurnAttackerRef { get; set; }
 
     private int localHealth;
     private bool localIsDead;
@@ -25,6 +31,11 @@ public class EnemyHealth : NetworkBehaviour
     private bool lastRenderedFrozen;
     private GameObject freezeVfxInstance;
     private float localFrozenUntil;
+    private float localBurnedUntil;
+    private float localBurnNextTickAt;
+    private float localBurnTickInterval;
+    private float localBurnTickDamage;
+    private float localBurnDecayFactor = 1f;
 
     public int Health => HasNetworkState ? NetHealth : localHealth;
     public bool IsDead => HasNetworkState ? NetIsDead : localIsDead;
@@ -54,6 +65,12 @@ public class EnemyHealth : NetworkBehaviour
             HitSequence = 0;
             FrozenUntil = 0f;
             FreezeSequence = 0;
+            BurnUntil = 0f;
+            BurnNextTickAt = 0f;
+            BurnTickInterval = 0f;
+            BurnTickDamage = 0f;
+            BurnDecayFactor = 1f;
+            BurnAttackerRef = default;
         }
 
         lastRenderedHitSequence = HitSequence;
@@ -91,6 +108,16 @@ public class EnemyHealth : NetworkBehaviour
         SyncAnimatorState();
     }
 
+    public override void FixedUpdateNetwork()
+    {
+        if (!HasStateAuthority)
+        {
+            return;
+        }
+
+        ProcessNetworkBurn((float)Runner.SimulationTime);
+    }
+
     private void Update()
     {
         if (!HasNetworkState)
@@ -102,6 +129,8 @@ public class EnemyHealth : NetworkBehaviour
                 lastRenderedFrozen = frozen;
                 RefreshFreezeVisuals(frozen);
             }
+
+            ProcessLocalBurn();
         }
     }
 
@@ -137,6 +166,35 @@ public class EnemyHealth : NetworkBehaviour
         }
 
         ApplyLocalFreeze(duration);
+    }
+
+    public void RequestBurn(float duration, float tickDamage, float tickInterval, float decayFactor)
+    {
+        RequestBurn(duration, tickDamage, tickInterval, decayFactor, default);
+    }
+
+    public void RequestBurn(float duration, float tickDamage, float tickInterval, float decayFactor, PlayerRef attackerRef)
+    {
+        if (duration <= 0f || tickDamage <= 0f || tickInterval <= 0f || IsDead)
+        {
+            return;
+        }
+
+        if (HasNetworkState)
+        {
+            if (HasStateAuthority)
+            {
+                ApplyBurn(duration, tickDamage, tickInterval, decayFactor, attackerRef);
+            }
+            else
+            {
+                RPC_RequestBurn(duration, tickDamage, tickInterval, decayFactor, attackerRef);
+            }
+
+            return;
+        }
+
+        ApplyLocalBurn(duration, tickDamage, tickInterval, decayFactor);
     }
 
     private void RequestDamageInternal(int amount, PlayerRef attackerRef)
@@ -232,6 +290,17 @@ public class EnemyHealth : NetworkBehaviour
         ApplyFreeze(duration);
     }
 
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    private void RPC_RequestBurn(float duration, float tickDamage, float tickInterval, float decayFactor, PlayerRef attackerRef)
+    {
+        if (duration <= 0f || tickDamage <= 0f || tickInterval <= 0f || NetIsDead)
+        {
+            return;
+        }
+
+        ApplyBurn(duration, tickDamage, tickInterval, decayFactor, attackerRef);
+    }
+
     private SharedModePlayerController ResolvePlayerController(PlayerRef playerRef)
     {
         if (Runner == null || !playerRef.IsRealPlayer)
@@ -282,6 +351,17 @@ public class EnemyHealth : NetworkBehaviour
         FreezeSequence++;
     }
 
+    private void ApplyBurn(float duration, float tickDamage, float tickInterval, float decayFactor, PlayerRef attackerRef)
+    {
+        float simTime = Runner != null ? (float)Runner.SimulationTime : Time.time;
+        BurnUntil = simTime + Mathf.Max(0f, duration);
+        BurnTickInterval = Mathf.Max(0.05f, tickInterval);
+        BurnTickDamage = Mathf.Max(0.1f, tickDamage);
+        BurnDecayFactor = Mathf.Clamp(decayFactor, 0f, 1f);
+        BurnNextTickAt = simTime + BurnTickInterval;
+        BurnAttackerRef = attackerRef;
+    }
+
     private void ApplyLocalFreeze(float duration)
     {
         EnsureLocalInitialized();
@@ -295,6 +375,22 @@ public class EnemyHealth : NetworkBehaviour
         FreezeSequence++;
     }
 
+    private void ApplyLocalBurn(float duration, float tickDamage, float tickInterval, float decayFactor)
+    {
+        EnsureLocalInitialized();
+
+        if (localIsDead)
+        {
+            return;
+        }
+
+        localBurnedUntil = Time.time + Mathf.Max(0f, duration);
+        localBurnTickInterval = Mathf.Max(0.05f, tickInterval);
+        localBurnTickDamage = Mathf.Max(0.1f, tickDamage);
+        localBurnDecayFactor = Mathf.Clamp(decayFactor, 0f, 1f);
+        localBurnNextTickAt = Time.time + localBurnTickInterval;
+    }
+
     private void EnsureLocalInitialized()
     {
         if (localInitialized)
@@ -305,7 +401,64 @@ public class EnemyHealth : NetworkBehaviour
         localHealth = maxHealth;
         localIsDead = false;
         localFrozenUntil = 0f;
+        localBurnedUntil = 0f;
+        localBurnNextTickAt = 0f;
+        localBurnTickInterval = 0f;
+        localBurnTickDamage = 0f;
+        localBurnDecayFactor = 1f;
         localInitialized = true;
+    }
+
+    private void ProcessNetworkBurn(float simTime)
+    {
+        if (NetIsDead || BurnUntil <= simTime || BurnTickInterval <= 0f || BurnTickDamage <= 0f)
+        {
+            return;
+        }
+
+        if (BurnNextTickAt > simTime)
+        {
+            return;
+        }
+
+        int tickDamage = Mathf.Max(1, Mathf.RoundToInt(BurnTickDamage));
+        HitSequence++;
+        NetHealth = Mathf.Max(0, NetHealth - tickDamage);
+
+        if (NetHealth == 0)
+        {
+            NetIsDead = true;
+
+            if (BurnAttackerRef.IsRealPlayer)
+            {
+                SharedModePlayerController attacker = ResolvePlayerController(BurnAttackerRef);
+                if (attacker != null)
+                {
+                    attacker.RPC_RequestAddKill(1);
+                }
+            }
+        }
+
+        BurnTickDamage = Mathf.Max(0f, BurnTickDamage * BurnDecayFactor);
+        BurnNextTickAt = simTime + BurnTickInterval;
+    }
+
+    private void ProcessLocalBurn()
+    {
+        if (localIsDead || localBurnedUntil <= Time.time || localBurnTickInterval <= 0f || localBurnTickDamage <= 0f)
+        {
+            return;
+        }
+
+        if (localBurnNextTickAt > Time.time)
+        {
+            return;
+        }
+
+        int tickDamage = Mathf.Max(1, Mathf.RoundToInt(localBurnTickDamage));
+        ApplyLocalDamage(tickDamage);
+        localBurnTickDamage = Mathf.Max(0f, localBurnTickDamage * localBurnDecayFactor);
+        localBurnNextTickAt = Time.time + localBurnTickInterval;
     }
 
     private void SyncAnimatorState()

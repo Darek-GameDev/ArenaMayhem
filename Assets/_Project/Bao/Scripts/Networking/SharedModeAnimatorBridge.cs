@@ -19,6 +19,7 @@ public class SharedModeAnimatorBridge : MonoBehaviour
 
     private const string AttackSwordTrigger = "AttackSword";
     private const string AttackBowTrigger = "AttackBow";
+    private const string AttackMageTrigger = "AttackMage";
     [SerializeField] private string skillSpinTrigger = "SkillSpin";
     [SerializeField] private string attackLayerName = "Attack";
     private const string StartAimTrigger = "startAim";
@@ -162,6 +163,7 @@ public class SharedModeAnimatorBridge : MonoBehaviour
             SetIntegerIfExists("ComboStep", 0);
             ResetTriggerIfExists(AttackSwordTrigger);
             ResetTriggerIfExists(AttackBowTrigger);
+            ResetTriggerIfExists(AttackMageTrigger);
             
         }
         wasBlocking = isBlocking;
@@ -182,6 +184,7 @@ public class SharedModeAnimatorBridge : MonoBehaviour
             lastHitSequence = controller.HitSequence;
             ResetTriggerIfExists(AttackSwordTrigger);
             ResetTriggerIfExists(AttackBowTrigger);
+            ResetTriggerIfExists(AttackMageTrigger);
             SetIntegerIfExists("ComboStep", 0);
 
             if (controller.NetCombatState == SharedModePlayerController.CombatState.BlockHit || isBlocking)
@@ -197,17 +200,29 @@ public class SharedModeAnimatorBridge : MonoBehaviour
 
     private void TriggerAttackByWeapon()
     {
+        bool useMageTrigger = controller.UsesMagic && HasParameter(AttackMageTrigger, AnimatorControllerParameterType.Trigger);
         bool useBowTrigger = controller.UsesBow && HasParameter(AttackBowTrigger, AnimatorControllerParameterType.Trigger);
+
+        if (useMageTrigger)
+        {
+            ResetTriggerIfExists(AttackSwordTrigger);
+            ResetTriggerIfExists(AttackBowTrigger);
+            ResetTriggerIfExists(AttackMageTrigger);
+            SetTriggerIfExists(AttackMageTrigger);
+            return;
+        }
 
         if (useBowTrigger)
         {
             ResetTriggerIfExists(AttackSwordTrigger);
             ResetTriggerIfExists(AttackBowTrigger);
+            ResetTriggerIfExists(AttackMageTrigger);
             SetTriggerIfExists(AttackBowTrigger);
             return;
         }
 
         ResetTriggerIfExists(AttackSwordTrigger);
+        ResetTriggerIfExists(AttackMageTrigger);
         SetTriggerIfExists(AttackSwordTrigger);
     }
 

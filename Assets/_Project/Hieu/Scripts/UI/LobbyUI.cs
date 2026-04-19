@@ -517,7 +517,11 @@ public class LobbyUI : MonoBehaviour
 			PlayerRef player = players[i];
 			SharedPlayerClassType classType = sessionManager.GetPlayerClass(player, SharedPlayerClassType.Unknown);
 			AvatarKind resolvedAvatar = ToAvatarKind(classType);
-			string className = GetClassLabel(resolvedAvatar);
+			string className = SharedPlayerClassTypeUtility.ToClassName(classType);
+			if (string.IsNullOrWhiteSpace(className))
+			{
+				className = GetClassLabel(resolvedAvatar);
+			}
 
 			string playerName = sessionManager.GetPlayerName(player, $"Player {i + 1}");
 
@@ -538,6 +542,7 @@ public class LobbyUI : MonoBehaviour
 			case SharedPlayerClassType.Knight:
 				return AvatarKind.Knight;
 			case SharedPlayerClassType.Archer:
+				case SharedPlayerClassType.Mage:
 				return AvatarKind.Archer;
 			default:
 				return AvatarKind.None;
@@ -742,6 +747,7 @@ public class LobbyUI : MonoBehaviour
 			case "Knight":
 				return AvatarKind.Knight;
 			case "Archer":
+			case "Mage":
 				return AvatarKind.Archer;
 			default:
 				return AvatarKind.None;

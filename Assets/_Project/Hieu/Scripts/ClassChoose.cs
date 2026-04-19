@@ -36,6 +36,11 @@ public class ClassChoose : MonoBehaviour
         SetPendingClass("Archer");
     }
 
+    public void OnMageClicked()
+    {
+        SetPendingClass("Mage");
+    }
+
     public void OnAcceptClicked()
     {
         if (string.IsNullOrWhiteSpace(pendingClassName))
@@ -99,7 +104,7 @@ public class ClassChoose : MonoBehaviour
             return;
         }
 
-        bool hasValidSelection = pendingClassName == "Knight" || pendingClassName == "Archer";
+        bool hasValidSelection = pendingClassName == "Knight" || pendingClassName == "Archer" || pendingClassName == "Mage";
         acceptButton.interactable = hasValidSelection;
     }
 

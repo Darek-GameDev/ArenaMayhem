@@ -167,7 +167,7 @@ public class LobbyRoleSlotSync : MonoBehaviour
         }
 
         bool showKnight = classType == SharedPlayerClassType.Knight;
-        bool showArcher = classType == SharedPlayerClassType.Archer;
+        bool showArcher = classType == SharedPlayerClassType.Archer || classType == SharedPlayerClassType.Mage;
 
         if (slot.knightImage != null)
         {

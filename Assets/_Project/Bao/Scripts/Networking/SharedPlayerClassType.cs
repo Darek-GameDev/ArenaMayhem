@@ -5,12 +5,14 @@ public enum SharedPlayerClassType : byte
     Unknown = 0,
     Knight = 1,
     Archer = 2,
+    Mage = 3,
 }
 
 public static class SharedPlayerClassTypeUtility
 {
     public const string KnightName = "Knight";
     public const string ArcherName = "Archer";
+    public const string MageName = "Mage";
 
     public static SharedPlayerClassType FromClassName(string className)
     {
@@ -30,6 +32,11 @@ public static class SharedPlayerClassTypeUtility
             return SharedPlayerClassType.Archer;
         }
 
+        if (normalized == MageName)
+        {
+            return SharedPlayerClassType.Mage;
+        }
+
         return SharedPlayerClassType.Unknown;
     }
 
@@ -41,6 +48,8 @@ public static class SharedPlayerClassTypeUtility
                 return KnightName;
             case SharedPlayerClassType.Archer:
                 return ArcherName;
+            case SharedPlayerClassType.Mage:
+                return MageName;
             default:
                 return string.Empty;
         }
@@ -48,7 +57,7 @@ public static class SharedPlayerClassTypeUtility
 
     public static bool IsSwordClass(SharedPlayerClassType classType)
     {
-        return classType != SharedPlayerClassType.Archer;
+        return classType == SharedPlayerClassType.Knight;
     }
 
     public static SharedPlayerClassType ResolveFromSessionProperty(SessionProperty property, SharedPlayerClassType fallback)
@@ -62,6 +71,11 @@ public static class SharedPlayerClassTypeUtility
         if (encoded == (int)SharedPlayerClassType.Archer)
         {
             return SharedPlayerClassType.Archer;
+        }
+
+        if (encoded == (int)SharedPlayerClassType.Mage)
+        {
+            return SharedPlayerClassType.Mage;
         }
 
         return fallback;
@@ -104,6 +118,11 @@ public static class SharedPlayerClassTypeUtility
         if (encodedClass == (int)SharedPlayerClassType.Archer)
         {
             return SharedPlayerClassType.Archer;
+        }
+
+        if (encodedClass == (int)SharedPlayerClassType.Mage)
+        {
+            return SharedPlayerClassType.Mage;
         }
 
         return fallback;

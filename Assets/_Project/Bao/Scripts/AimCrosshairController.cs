@@ -86,7 +86,18 @@ public class AimCrosshairController : MonoBehaviour
     {
         if (sharedModeController != null)
         {
-            return sharedModeController.Object != null && sharedModeController.Object.HasInputAuthority && sharedModeController.IsAiming;
+            bool hasInputAuthority = sharedModeController.Object != null && sharedModeController.Object.HasInputAuthority;
+            if (!hasInputAuthority)
+            {
+                return false;
+            }
+
+            if (sharedModeController.UsesMagic)
+            {
+                return true;
+            }
+
+            return sharedModeController.IsAiming;
         }
 
         return localAttack != null && localAttack.IsAiming;

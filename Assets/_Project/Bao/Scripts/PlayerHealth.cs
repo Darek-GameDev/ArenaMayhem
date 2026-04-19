@@ -11,6 +11,11 @@ public class PlayerHealth : MonoBehaviour
     private SharedModePlayerController sharedModeController;
     private bool lastHitWasBlocked;
     private float frozenUntil;
+    private float burnedUntil;
+    private float burnNextTickAt;
+    private float burnTickInterval;
+    private float burnTickDamage;
+    private float burnDecayFactor = 1f;
 
     public int CurrentHealth => sharedModeController != null ? sharedModeController.Health : currentHealth;
     public int MaxHealth => sharedModeController != null ? sharedModeController.MaxHealth : maxHealth;
@@ -32,6 +37,16 @@ public class PlayerHealth : MonoBehaviour
         sharedModeController = GetComponent<SharedModePlayerController>();
         currentHealth = maxHealth;
         frozenUntil = 0f;
+        burnedUntil = 0f;
+        burnNextTickAt = 0f;
+        burnTickInterval = 0f;
+        burnTickDamage = 0f;
+        burnDecayFactor = 1f;
+    }
+
+    private void Update()
+    {
+        ProcessLocalBurn();
     }
 
     public void TakeDamage(int amount)
@@ -60,11 +75,11 @@ public class PlayerHealth : MonoBehaviour
         {
             if (hasHitOrigin)
             {
-                sharedModeController.RPC_RequestDamageWithOrigin(amount, hitOrigin);
+                sharedModeController.RPC_RequestEnvironmentalDamage(amount);
             }
             else
             {
-                sharedModeController.RPC_RequestDamage(amount);
+                sharedModeController.RPC_RequestEnvironmentalDamage(amount);
             }
 
             return;
@@ -150,6 +165,26 @@ public class PlayerHealth : MonoBehaviour
         frozenUntil = Mathf.Max(frozenUntil, Time.time + duration);
     }
 
+    public void ApplyBurn(float duration, float tickDamage, float tickInterval, float decayFactor)
+    {
+        if (duration <= 0f || tickDamage <= 0f || tickInterval <= 0f || IsDead)
+        {
+            return;
+        }
+
+        if (sharedModeController != null)
+        {
+            sharedModeController.RequestBurn(duration, tickDamage, tickInterval, decayFactor);
+            return;
+        }
+
+        burnedUntil = Time.time + Mathf.Max(0f, duration);
+        burnTickInterval = Mathf.Max(0.05f, tickInterval);
+        burnTickDamage = Mathf.Max(0.1f, tickDamage);
+        burnDecayFactor = Mathf.Clamp(decayFactor, 0f, 1f);
+        burnNextTickAt = Time.time + burnTickInterval;
+    }
+
     public void Heal(int amount)
     {
         if (sharedModeController != null)
@@ -174,6 +209,11 @@ public class PlayerHealth : MonoBehaviour
 
         currentHealth = maxHealth;
         frozenUntil = 0f;
+        burnedUntil = 0f;
+        burnNextTickAt = 0f;
+        burnTickInterval = 0f;
+        burnTickDamage = 0f;
+        burnDecayFactor = 1f;
     }
 
     private void Die()
@@ -244,5 +284,28 @@ public class PlayerHealth : MonoBehaviour
 
         float dot = Vector3.Dot(defenderForward, toHitOrigin.normalized);
         return dot >= blockFrontDotThreshold;
+    }
+
+    private void ProcessLocalBurn()
+    {
+        if (sharedModeController != null)
+        {
+            return;
+        }
+
+        if (IsDead || burnTickDamage <= 0f || burnTickInterval <= 0f || Time.time >= burnedUntil)
+        {
+            return;
+        }
+
+        if (Time.time < burnNextTickAt)
+        {
+            return;
+        }
+
+        int tickDamage = Mathf.Max(1, Mathf.RoundToInt(burnTickDamage));
+        TakeEnvironmentalDamage(tickDamage);
+        burnTickDamage = Mathf.Max(0f, burnTickDamage * burnDecayFactor);
+        burnNextTickAt = Time.time + burnTickInterval;
     }
 }
