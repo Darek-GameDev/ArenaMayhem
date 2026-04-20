@@ -154,4 +154,9 @@ MonoBehaviour:
   speedBoostDuration: 5
   damageBoostMultiplier: 1.5
   damageBoostDuration: 5
+  invisibilityDuration: 5
+  localPlayerInvisibilityAlpha: 0.3
   itemRenderers: []
+  collectParticlePrefab: {fileID: 8700035473269227422, guid: b21d155ec7ea5a349a0e36106f913148, type: 3}
+  collectParticleLifetime: 2.5
+  playCollectEffectAtCollector: 1

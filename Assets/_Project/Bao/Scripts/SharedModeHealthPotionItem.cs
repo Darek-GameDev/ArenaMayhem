@@ -28,6 +28,10 @@ public class SharedModeHealthPotionItem : NetworkBehaviour
     [SerializeField] private float invisibilityDuration = 5f;
     [SerializeField] private float localPlayerInvisibilityAlpha = 0.3f;
     [SerializeField] private Renderer[] itemRenderers;
+    [Header("VFX")]
+    [SerializeField] private ParticleSystem collectParticlePrefab;
+    [SerializeField] private float collectParticleLifetime = 2.5f;
+    [SerializeField] private bool playCollectEffectAtCollector = true;
 
     [Networked] private NetworkBool IsCollected { get; set; }
     [Networked] private PlayerRef CollectedBy { get; set; }
@@ -283,6 +287,17 @@ public class SharedModeHealthPotionItem : NetworkBehaviour
         IsCollected = true;
         ApplyCollectedVisualState(true);
 
+        Vector3 collectEffectPosition = transform.position;
+        if (playCollectEffectAtCollector && collector != null)
+        {
+            collectEffectPosition = collector.transform.position;
+        }
+
+        if (HasStateAuthority)
+        {
+            RPC_PlayCollectEffect(collectEffectPosition);
+        }
+
         if (itemEffect == ItemEffectType.Heal)
         {
             if (healCollectorToFull)
@@ -326,6 +341,41 @@ public class SharedModeHealthPotionItem : NetworkBehaviour
                 Runner.Despawn(Object);
             }
         }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_PlayCollectEffect(Vector3 worldPosition)
+    {
+        PlayCollectEffect(worldPosition);
+    }
+
+    private void PlayCollectEffect(Vector3 worldPosition)
+    {
+        if (collectParticlePrefab == null)
+        {
+            return;
+        }
+
+        ParticleSystem instance = Instantiate(collectParticlePrefab, worldPosition, collectParticlePrefab.transform.rotation);
+        instance.Play();
+
+        float lifetime = collectParticleLifetime > 0f ? collectParticleLifetime : GetParticleLifetime(instance);
+        Destroy(instance.gameObject, Mathf.Max(0.1f, lifetime));
+    }
+
+    private static float GetParticleLifetime(ParticleSystem particleSystem)
+    {
+        if (particleSystem == null)
+        {
+            return 2f;
+        }
+
+        ParticleSystem.MainModule main = particleSystem.main;
+        float startLifetime = main.startLifetime.mode == ParticleSystemCurveMode.TwoConstants
+            ? Mathf.Max(main.startLifetime.constantMin, main.startLifetime.constantMax)
+            : main.startLifetime.constant;
+
+        return Mathf.Max(0.1f, main.duration + startLifetime + 0.25f);
     }
 
     private void ApplySpeedBoost(SharedModePlayerController collector)
