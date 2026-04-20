@@ -59,6 +59,7 @@ public class SharedModePlayerController : NetworkBehaviour
     [SerializeField] private LayerMask bowAimLayerMask = ~0;
     [SerializeField] private MageWeapon mageWeapon;
     [SerializeField] private float mageFireCooldownSeconds = 0.45f;
+    [SerializeField] [Range(0.1f, 1f)] private float magePowerMultiplier = 0.5f;
     [SerializeField] private float mageBurnDuration = 4f;
     [SerializeField] private float mageBurnTickInterval = 0.75f;
     [SerializeField] private float mageBurnTickDamage = 1f;
@@ -1132,13 +1133,16 @@ public class SharedModePlayerController : NetworkBehaviour
             return;
         }
 
+        float clampedMagePowerMultiplier = Mathf.Clamp(magePowerMultiplier, 0.1f, 1f);
+
         mageWeapon.SpawnProjectile(
             transform,
             attackerRef,
             aimPoint,
             HasStateAuthority,
-            mageBurnDuration,
-            mageBurnTickDamage,
+            clampedMagePowerMultiplier,
+            mageBurnDuration * clampedMagePowerMultiplier,
+            mageBurnTickDamage * clampedMagePowerMultiplier,
             mageBurnTickInterval,
             mageBurnDecayFactor);
     }
@@ -1156,12 +1160,15 @@ public class SharedModePlayerController : NetworkBehaviour
             return;
         }
 
+        float clampedMagePowerMultiplier = Mathf.Clamp(magePowerMultiplier, 0.1f, 1f);
+
         mageWeapon.SpawnAoeZone(
             transform,
             attackerRef,
             HasStateAuthority,
-            mageBurnDuration,
-            mageBurnTickDamage,
+            clampedMagePowerMultiplier,
+            mageBurnDuration * clampedMagePowerMultiplier,
+            mageBurnTickDamage * clampedMagePowerMultiplier,
             mageBurnTickInterval,
             mageBurnDecayFactor);
     }

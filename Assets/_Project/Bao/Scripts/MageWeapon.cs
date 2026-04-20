@@ -26,6 +26,7 @@ public class MageWeapon : MonoBehaviour
         PlayerRef attackerRef,
         Vector3 aimPoint,
         bool canDealDamage,
+        float powerMultiplier,
         float burnDuration,
         float burnTickDamage,
         float burnTickInterval,
@@ -40,12 +41,14 @@ public class MageWeapon : MonoBehaviour
         Vector3 toAimPoint = aimPoint - spawn.position;
         Vector3 direction = toAimPoint.sqrMagnitude > 0.0001f ? toAimPoint.normalized : spawn.forward;
         Quaternion rotation = Quaternion.LookRotation(direction, Vector3.up);
+        float clampedPowerMultiplier = Mathf.Clamp(powerMultiplier, 0.1f, 1f);
+        int scaledProjectileDamage = Mathf.Max(1, Mathf.RoundToInt(projectileDamage * clampedPowerMultiplier));
 
         MageFireProjectile projectile = Instantiate(projectilePrefab, spawn.position, rotation);
         projectile.Initialize(
             ownerRoot,
             attackerRef,
-            projectileDamage,
+            scaledProjectileDamage,
             projectileSpeed,
             projectileLifetime,
             canDealDamage,
@@ -61,6 +64,7 @@ public class MageWeapon : MonoBehaviour
         Transform ownerRoot,
         PlayerRef attackerRef,
         bool canDealDamage,
+        float powerMultiplier,
         float burnDuration,
         float burnTickDamage,
         float burnTickInterval,
@@ -80,10 +84,13 @@ public class MageWeapon : MonoBehaviour
             zone = zoneObject.AddComponent<MageAoeFireZone>();
         }
 
+        float clampedPowerMultiplier = Mathf.Clamp(powerMultiplier, 0.1f, 1f);
+        int scaledAoeDamagePerTick = Mathf.Max(1, Mathf.RoundToInt(aoeDamagePerTick * clampedPowerMultiplier));
+
         zone.Initialize(
             ownerRoot,
             attackerRef,
-            aoeDamagePerTick,
+            scaledAoeDamagePerTick,
             aoeDamageTickInterval,
             aoeLifetime,
             canDealDamage,
