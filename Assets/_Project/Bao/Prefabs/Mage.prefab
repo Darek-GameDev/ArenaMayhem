@@ -1589,6 +1589,7 @@ MonoBehaviour:
     m_Bits: 4294967295
   mageWeapon: {fileID: 8937413610363792724}
   mageFireCooldownSeconds: 0.45
+  magePowerMultiplier: 0.5
   mageBurnDuration: 4
   mageBurnTickInterval: 0.75
   mageBurnTickDamage: 1
@@ -1656,7 +1657,7 @@ MonoBehaviour:
   rotationComposer: {fileID: 3064332350552123422}
   playerTransform: {fileID: 5799428753966362582}
   normalRadius: 4
-  normalTargetOffset: {x: 1.25, y: 1.13, z: 0}
+  normalTargetOffset: {x: 2, y: 2, z: 0.5}
   aimRadius: 2.4
   aimTargetOffset: {x: 0.2, y: 1.45, z: 0}
   knightBlockRadius: 1.95
